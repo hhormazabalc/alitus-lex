@@ -1,0 +1,209 @@
+.
+├── CODE_OF_CONDUCT.md
+├── CONTRIBUTING.md
+├── DEPLOYMENT.md
+├── LICENSE
+├── QUICK_START.md
+├── README.md
+├── middleware.ts
+├── next-env.d.ts
+├── next.config.mjs
+├── package.json
+├── playwright.config.ts
+├── pnpm-lock.yaml
+├── postcss.config.js
+├── project-structure.txt
+├── public
+│   ├── favicon.ico
+│   └── logo.svg
+├── scripts
+│   ├── admin-create-users.ts
+│   ├── admin-set-passwords.ts
+│   ├── ensure-admin-access.ts
+│   ├── fix-admin-passwords.ts
+│   ├── gen-admin-reset-links.ts
+│   ├── seed-admins.ts
+│   ├── seed-auth-users.ts
+│   ├── seed-users.example.json
+│   ├── set-admin-passwords.ts
+│   ├── test-login.ts
+│   └── test.sh
+├── src
+│   ├── app
+│   │   ├── (auth)
+│   │   │   └── login
+│   │   │       └── page.tsx
+│   │   ├── (platform)
+│   │   │   ├── admin
+│   │   │   │   └── security
+│   │   │   │       └── page.tsx
+│   │   │   ├── cases
+│   │   │   │   ├── [id]
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── new
+│   │   │   │   │   └── page.tsx
+│   │   │   │   └── page.tsx
+│   │   │   ├── clients
+│   │   │   │   └── page.tsx
+│   │   │   ├── dashboard
+│   │   │   │   ├── abogado
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── admin
+│   │   │   │   │   ├── lawyers
+│   │   │   │   │   ├── page.tsx
+│   │   │   │   │   └── users
+│   │   │   │   ├── analista
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── cliente
+│   │   │   │   │   └── page.tsx
+│   │   │   │   └── page.tsx
+│   │   │   ├── layout.tsx
+│   │   │   └── settings
+│   │   │       └── (admin)
+│   │   │           └── page.tsx
+│   │   ├── api
+│   │   │   ├── auth
+│   │   │   │   └── callback
+│   │   │   │       └── route.ts
+│   │   │   ├── login
+│   │   │   │   └── route.ts
+│   │   │   ├── logout
+│   │   │   │   └── route.ts
+│   │   │   ├── password-login
+│   │   │   │   └── route.ts
+│   │   │   ├── portal
+│   │   │   │   └── exchange
+│   │   │   │       └── route.ts
+│   │   │   ├── uploads
+│   │   │   │   └── policy
+│   │   │   │       └── route.ts
+│   │   │   ├── webhooks
+│   │   │   │   └── stage-changed
+│   │   │   │       └── route.ts
+│   │   │   └── whoami
+│   │   │       └── route.ts
+│   │   ├── globals.css
+│   │   ├── layout.tsx
+│   │   └── page.tsx
+│   ├── components
+│   │   ├── AdminDashboard.tsx
+│   │   ├── AdminLawyerDetail.tsx
+│   │   ├── AdminUserManager.tsx
+│   │   ├── CaseDetailView.tsx
+│   │   ├── CaseForm.tsx
+│   │   ├── CaseMessagesPanel.tsx
+│   │   ├── CaseTimeline.tsx
+│   │   ├── ClientDashboard.tsx
+│   │   ├── ConfirmDialog.tsx
+│   │   ├── DataTable.tsx
+│   │   ├── DocumentsPanel.tsx
+│   │   ├── EmptyState.tsx
+│   │   ├── FileUpload.tsx
+│   │   ├── InfoRequestsPanel.tsx
+│   │   ├── KpiCards.tsx
+│   │   ├── LawyerDashboard.tsx
+│   │   ├── LoginForm.tsx
+│   │   ├── LogoutButton.tsx
+│   │   ├── NotesPanel.tsx
+│   │   ├── NotificationManager.tsx
+│   │   ├── QuickLinksPanel.tsx
+│   │   ├── SecurityDashboard.tsx
+│   │   ├── SupabaseListener.tsx
+│   │   ├── TemplateLibrary.tsx
+│   │   ├── TimelinePanel.tsx
+│   │   ├── layout
+│   │   │   └── AppSidebar.tsx
+│   │   └── ui
+│   │       ├── alert-dialog.tsx
+│   │       ├── badge.tsx
+│   │       ├── button.tsx
+│   │       ├── card.tsx
+│   │       ├── input.tsx
+│   │       ├── label.tsx
+│   │       ├── separator.tsx
+│   │       ├── textarea.tsx
+│   │       ├── toast.tsx
+│   │       └── toaster.tsx
+│   ├── hooks
+│   │   └── use-toast.ts
+│   ├── lib
+│   │   ├── actions
+│   │   │   ├── admin-users.ts
+│   │   │   ├── analytics.ts
+│   │   │   ├── audit.ts
+│   │   │   ├── cases.ts
+│   │   │   ├── clients.ts
+│   │   │   ├── counterparties.ts
+│   │   │   ├── documents.ts
+│   │   │   ├── info-requests.ts
+│   │   │   ├── messages.ts
+│   │   │   ├── notes.ts
+│   │   │   ├── profiles.ts
+│   │   │   ├── resources.ts
+│   │   │   └── stages.ts
+│   │   ├── audit
+│   │   │   └── log.ts
+│   │   ├── auth
+│   │   │   └── roles.ts
+│   │   ├── mailer
+│   │   │   └── sendEmail.ts
+│   │   ├── notifications
+│   │   │   ├── client.ts
+│   │   │   └── hooks.ts
+│   │   ├── pricing
+│   │   │   └── legalFees.ts
+│   │   ├── security
+│   │   │   └── middleware.ts
+│   │   ├── supabase
+│   │   │   ├── client.ts
+│   │   │   ├── database.types.ts
+│   │   │   ├── generated.ts
+│   │   │   ├── server.ts
+│   │   │   └── types.ts
+│   │   ├── utils.ts
+│   │   └── validators
+│   │       ├── admin-users.ts
+│   │       ├── case.ts
+│   │       ├── clients.ts
+│   │       ├── documents.ts
+│   │       ├── info-requests.ts
+│   │       ├── notes.ts
+│   │       └── stages.ts
+│   └── types
+│       └── supabase-server.d.ts
+├── supabase
+│   ├── config.toml
+│   ├── functions
+│   │   ├── daily-reminders
+│   │   │   └── index.ts
+│   │   └── send-notification
+│   │       └── index.ts
+│   ├── migrations
+│   │   ├── 20241203000001_initial_schema.sql
+│   │   ├── 20241203000002_enable_rls.sql
+│   │   ├── 20241203000003_notification_logs.sql
+│   │   ├── 20241203000004_advanced_audit_system.sql
+│   │   ├── 20250208000100_case_stage_payment_prepago.sql
+│   │   ├── 20250209000100_case_stage_client_requests.sql
+│   │   ├── 20250209000200_case_counterparties.sql
+│   │   ├── 20250215000001_collaboration_features.sql
+│   │   ├── 20251005_add_missing_fields.sql
+│   │   ├── 20251006000100_add_stage_audience_fields.sql
+│   │   └── 20251201000000_allow_analyst_access_to_stages.sql
+│   └── seed.sql
+├── tailwind.config.ts
+├── test.txt
+├── tests
+│   ├── e2e
+│   │   └── case-management.test.ts
+│   ├── global-setup.ts
+│   ├── global-teardown.ts
+│   ├── setup.ts
+│   └── unit
+│       ├── cases.test.ts
+│       └── validators.test.ts
+├── tsconfig.json
+├── tsconfig.tsbuildinfo
+└── vitest.config.ts
+
+59 directories, 148 files

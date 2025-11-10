@@ -1,0 +1,10 @@
+[
+  {
+    "email": "usuario@altiusignite.com",
+    "password": "elige-una-contraseña-segura",
+    "role": "admin_firma",
+    "nombre": "Nombre Apellido",
+    "rut": "1234567 LP",
+    "telefono": "+59170000000"
+  }
+]

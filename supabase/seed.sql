@@ -1,0 +1,3 @@
+-- Demo data is now seeded via scripts/seed-auth-users.ts to ensure auth users are created with the
+-- service role key before applying relational data. Keep this file if you want to add simple
+-- INSERT statements that do not rely on auth users.
