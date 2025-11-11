@@ -247,7 +247,7 @@ export async function createCaseFromBrief(input: CreateCaseFromBriefInput) {
       modalidad_cobro: extracted.modalidad_cobro ?? 'prepago',
       honorario_notas: extracted.honorario_notas ?? undefined,
       tarifa_referencia: extracted.tarifa_referencia ?? undefined,
-      rut_cliente: extracted.rut_cliente ?? undefined,
+      rut_cliente: extracted.rut_cliente ?? '0000 LP',
       cliente_principal_id: (extracted as any).cliente_principal_id ?? undefined,
       fecha_inicio: extracted.fecha_inicio ?? undefined,
 
@@ -275,6 +275,7 @@ export async function createCaseFromBrief(input: CreateCaseFromBriefInput) {
       prioridad: (overrides as any)?.prioridad ?? base.prioridad!,
       descripcion_inicial:
         (overrides as any)?.descripcion_inicial ?? base.descripcion_inicial ?? '',
+      rut_cliente: (overrides as any)?.rut_cliente ?? base.rut_cliente ?? '0000 LP',
       modalidad_cobro: (overrides as any)?.modalidad_cobro ?? base.modalidad_cobro ?? 'prepago',
       honorario_moneda: (overrides as any)?.honorario_moneda ?? base.honorario_moneda ?? 'BOB',
       honorario_total_uf:

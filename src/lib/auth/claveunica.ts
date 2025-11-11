@@ -185,12 +185,12 @@ export function encryptCredentials(payload: {
 }): string {
   const encryptedPayload: EncryptedCredentialsPayload = {
     providerUserId: payload.providerUserId,
-    scope: payload.tokens.scope,
-    expiresIn: payload.tokens.expires_in,
     accessToken: payload.tokens.access_token,
-    refreshToken: payload.tokens.refresh_token,
-    idToken: payload.tokens.id_token,
     obtainedAt: new Date().toISOString(),
+    ...(payload.tokens.scope !== undefined && { scope: payload.tokens.scope }),
+    ...(payload.tokens.expires_in !== undefined && { expiresIn: payload.tokens.expires_in }),
+    ...(payload.tokens.refresh_token !== undefined && { refreshToken: payload.tokens.refresh_token }),
+    ...(payload.tokens.id_token !== undefined && { idToken: payload.tokens.id_token }),
   };
 
   return encryptJson(encryptedPayload);

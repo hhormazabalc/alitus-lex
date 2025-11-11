@@ -26,7 +26,7 @@ export async function createClientProfile(input: CreateClientInput): Promise<Cre
       throw new Error('Falta configurar SUPABASE_SERVICE_KEY en el entorno.');
     }
 
-    const payload = createClientSchema.parse(input);
+    const payload: CreateClientInput = createClientSchema.parse(input);
     const supabase = await createServiceClient();
 
     const password = resolveDefaultPassword();

@@ -206,6 +206,29 @@ async function ensureProfile(): Promise<ProfileWithOverride | null> {
     .maybeSingle();
 
   if (insErr) {
+    if ((insErr as any)?.code === '23505') {
+      console.warn('[AUTH] Perfil ya existía, usando fila persistente.');
+      const { data: existing, error: dupSelErr } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', authId)
+        .maybeSingle();
+
+      if (dupSelErr) {
+        console.error('[AUTH] Error consultando perfil existente tras duplicado:', dupSelErr);
+        return null;
+      }
+
+      if (existing) {
+        const override =
+          metadataRole && metadataRole !== existing.role ? metadataRole : null;
+        return {
+          ...existing,
+          _role_override: override,
+        } satisfies ProfileWithOverride;
+      }
+    }
+
     console.error('[AUTH] Error creando perfil por primera vez:', insErr);
     return null;
   }

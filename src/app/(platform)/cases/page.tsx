@@ -73,26 +73,30 @@ export default function CasesPage() {
   const renderContent = () => {
     if (isLoading) {
       return (
-        <div className='space-y-6'>
-          <div className='h-9 w-48 rounded-lg bg-slate-200/70' />
-          <div className='h-72 rounded-2xl border border-slate-100 bg-white/70 shadow-sm backdrop-blur' />
-        </div>
+        <section className='glass-panel border-white/12 bg-white/8 p-6 sm:p-7'>
+          <div className='space-y-5 animate-pulse'>
+            <div className='h-4 w-52 rounded-full bg-white/12' />
+            <div className='h-72 rounded-2xl border border-white/12 bg-white/6' />
+          </div>
+        </section>
       );
     }
 
     if (cases.length === 0 && !filters.search) {
       return (
-        <EmptyState
-          icon={FolderOpen}
-          title='No hay casos'
-          description='Aún no se han creado casos en el sistema. Crea tu primer caso para comenzar.'
-          action={{
-            label: 'Crear primer caso',
-            onClick: () => {
-              window.location.href = '/cases/new';
-            },
-          }}
-        />
+        <section className='glass-panel border-white/12 bg-white/8 p-8 text-center sm:p-10'>
+          <EmptyState
+            icon={FolderOpen}
+            title='No hay casos registrados'
+            description='Aún no se han creado casos en el sistema. Crea tu primer caso para comenzar.'
+            action={{
+              label: 'Crear primer caso',
+              onClick: () => {
+                window.location.href = '/cases/new';
+              },
+            }}
+          />
+        </section>
       );
     }
 
@@ -112,18 +116,27 @@ export default function CasesPage() {
   };
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-slate-100 via-white to-slate-50 text-slate-900'>
-      <main className='mx-auto flex max-w-5xl flex-col gap-8 px-4 pb-12 pt-6 sm:px-6 lg:px-8'>
-        <header className='space-y-2'>
-          <p className='text-[11px] uppercase tracking-[0.25em] text-slate-400'>Gestión de cartera</p>
-          <h1 className='text-2xl font-semibold tracking-tight'>Casos</h1>
-          <p className='max-w-2xl text-sm leading-relaxed text-slate-600'>
-            Consulta y actualiza el estado de cada expediente. Usa los filtros para priorizar según vencimientos, estado o tipo de materia.
-          </p>
-        </header>
+    <div className='mx-auto w-full max-w-6xl px-4 pb-14 pt-6 sm:px-6 lg:px-10'>
+      <div className='space-y-8'>
+        <section className='glass-panel border-white/12 bg-white/8 p-6 sm:p-7'>
+          <div className='flex flex-col gap-5 md:flex-row md:items-center md:justify-between'>
+            <div className='flex items-start gap-4'>
+              <span className='flex h-12 w-12 items-center justify-center rounded-2xl border border-white/20 bg-white/10 text-primary shadow-inner shadow-black/20'>
+                <FolderOpen className='h-5 w-5' />
+              </span>
+              <div className='space-y-2'>
+                <p className='text-[11px] font-semibold uppercase tracking-[0.32em] text-white/55'>Gestión de cartera</p>
+                <h1 className='text-2xl font-semibold tracking-tight text-foreground'>Casos de la firma</h1>
+                <p className='max-w-2xl text-sm leading-relaxed text-foreground/70'>
+                  Consulta y actualiza el estado de cada expediente. Usa los filtros para priorizar según vencimientos, estado o tipo de materia.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {renderContent()}
-      </main>
+      </div>
     </div>
   );
 }

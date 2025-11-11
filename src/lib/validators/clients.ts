@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { rutSchema } from '@/lib/validators/case';
+import { optionalIdentityDocumentSchema } from '@/lib/validators/case';
 
 export const createClientSchema = z.object({
   nombre: z

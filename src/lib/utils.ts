@@ -93,8 +93,13 @@ export function formatIdentityDocument(doc?: string | null): string {
   const match = normalized.match(/^([0-9]{4,12})(?: ([A-Z]{1,2}))?$/)
   if (!match) return normalized
 
-  const [, digits, ext] = match
-  return ext ? `${digits} ${ext}` : digits
+  const digits = match[1]
+  const ext = match[2]
+  if (!digits) return normalized
+  if (typeof ext === 'string') {
+    return `${digits} ${ext}`
+  }
+  return digits
 }
 
 /* ───────────────── texto ───────────────── */

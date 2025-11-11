@@ -17,6 +17,7 @@ import {
   ClipboardList,
   FilePlus2,
 } from 'lucide-react';
+import MarketingHeader from '@/components/layout/MarketingHeader';
 
 interface PlatformLayoutProps {
   children: ReactNode;
@@ -161,20 +162,23 @@ export default async function PlatformLayout({ children }: PlatformLayoutProps) 
   };
 
   return (
-    <div className="relative isolate min-h-screen bg-transparent">
-      {/* Fondo difuminado */}
-      <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(148,163,184,0.14),_transparent_55%),radial-gradient(circle_at_bottom,_rgba(59,130,246,0.12),_transparent_50%)]" />
-      <div className="absolute inset-x-0 top-0 -z-10 mx-auto h-32 w-full max-w-[1600px] rounded-full bg-white/50 blur-3xl opacity-70" />
+    <div className="relative isolate min-h-screen">
+      <div className="pointer-events-none fixed inset-0 -z-20 bg-[radial-gradient(circle_at_12%_8%,rgba(88,139,255,0.18),transparent_55%),radial-gradient(circle_at_85%_-5%,rgba(59,204,255,0.22),transparent_60%)]" />
+      <div className="pointer-events-none fixed inset-0 -z-10">
+        <div className="absolute inset-x-0 top-[-12rem] mx-auto h-[26rem] w-[140%] max-w-[1800px] rounded-[50%] bg-white/8 blur-[220px]" />
+        <div className="absolute inset-x-0 bottom-[-18rem] mx-auto h-[32rem] w-[120%] max-w-[1600px] rounded-[50%] bg-primary/10 blur-[240px]" />
+      </div>
 
-      {/* Layout general */}
-      <div className="relative flex min-h-screen flex-col lg:flex-row">
+      <div className="relative flex min-h-screen flex-col gap-8 px-4 pb-12 pt-2 lg:flex-row lg:items-start lg:gap-12 lg:px-12 lg:pb-16 lg:pt-6">
         <AppSidebar items={sidebarItems} profile={sidebarProfile} footer={footerHint} />
 
-        <main className="relative flex-1 lg:pl-0">
-          <div className="pb-12 pt-8 sm:pt-10 lg:pt-0">
-            {/* ← AQUÍ SE CORRIGE EL ANCHO */}
-            <div className="mx-auto w-full max-w-[1600px] px-6 lg:px-8">
-              {children}
+        <main className="relative flex-1">
+          <div className="pb-10 pt-6 lg:pb-16">
+            <div className="mx-auto w-full max-w-[1800px] space-y-8 px-2 sm:px-4 lg:px-6">
+              <MarketingHeader />
+              <div className="central-shell px-4 py-6 sm:px-8 sm:py-8 lg:px-12 lg:py-10">
+                <div className="space-y-10 lg:space-y-12">{children}</div>
+              </div>
             </div>
           </div>
         </main>

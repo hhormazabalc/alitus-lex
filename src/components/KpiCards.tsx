@@ -26,9 +26,9 @@ export function KpiCards({ stats, highlights }: KpiCardsProps) {
       value: stats.totalCases,
       description: `${stats.activeCases} activos`,
       icon: Briefcase,
-      iconClass: 'text-sky-600 bg-sky-50 border border-sky-100',
-      cardBorder: 'border-sky-100',
-      cardGlow: 'from-sky-100 via-white to-transparent',
+      iconClass: 'text-sky-200 border border-sky-400/30 bg-sky-500/15 shadow-[0_8px_25px_-12px_rgba(56,176,255,0.55)]',
+      cardBorder: 'border-white/12',
+      cardGlow: 'from-sky-500/30 via-white/6 to-transparent',
     },
     {
       key: 'clients' as const,
@@ -36,9 +36,9 @@ export function KpiCards({ stats, highlights }: KpiCardsProps) {
       value: stats.totalClients,
       description: 'Registrados en la firma',
       icon: Users,
-      iconClass: 'text-emerald-600 bg-emerald-50 border border-emerald-100',
-      cardBorder: 'border-emerald-100',
-      cardGlow: 'from-emerald-100 via-white to-transparent',
+      iconClass: 'text-emerald-200 border border-emerald-400/30 bg-emerald-500/18 shadow-[0_8px_25px_-12px_rgba(56,214,180,0.55)]',
+      cardBorder: 'border-white/12',
+      cardGlow: 'from-emerald-500/26 via-white/6 to-transparent',
     },
     {
       key: 'documents' as const,
@@ -46,9 +46,9 @@ export function KpiCards({ stats, highlights }: KpiCardsProps) {
       value: stats.totalDocuments,
       description: `${stats.totalNotes} notas`,
       icon: FileText,
-      iconClass: 'text-violet-600 bg-violet-50 border border-violet-100',
-      cardBorder: 'border-violet-100',
-      cardGlow: 'from-violet-100 via-white to-transparent',
+      iconClass: 'text-violet-200 border border-violet-400/30 bg-violet-500/18 shadow-[0_8px_25px_-12px_rgba(140,120,255,0.55)]',
+      cardBorder: 'border-white/12',
+      cardGlow: 'from-violet-500/26 via-white/6 to-transparent',
     },
     {
       key: 'pending' as const,
@@ -56,9 +56,9 @@ export function KpiCards({ stats, highlights }: KpiCardsProps) {
       value: stats.pendingRequests,
       description: `${stats.overdueStages} vencidos`,
       icon: AlertTriangle,
-      iconClass: 'text-amber-600 bg-amber-50 border border-amber-100',
-      cardBorder: 'border-amber-100',
-      cardGlow: 'from-amber-100 via-white to-transparent',
+      iconClass: 'text-amber-200 border border-amber-400/30 bg-amber-500/18 shadow-[0_8px_25px_-12px_rgba(255,180,70,0.55)]',
+      cardBorder: 'border-white/12',
+      cardGlow: 'from-amber-500/26 via-white/6 to-transparent',
     },
   ];
 
@@ -202,23 +202,23 @@ export function KpiCards({ stats, highlights }: KpiCardsProps) {
 
   return (
     <>
-      <div className='grid grid-cols-1 gap-3.5 sm:grid-cols-2 xl:grid-cols-4'>
+      <div className='grid grid-cols-1 gap-3.5 sm:grid-cols-2 xl:grid-cols-4 text-foreground'>
         {items.map(({ key, title, value, description, icon: Icon, iconClass, cardBorder, cardGlow }) => (
           <Card
             key={key}
             onClick={() => setActiveCard(key)}
-            className={`group relative cursor-pointer overflow-hidden border ${cardBorder} bg-white/80 backdrop-blur-xl shadow-md transition-all hover:-translate-y-1 hover:shadow-lg`}
+            className={`group relative cursor-pointer overflow-hidden border ${cardBorder} bg-white/8 text-foreground shadow-[0_26px_75px_-32px_rgba(5,15,40,0.7)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_32px_90px_-34px_rgba(22,96,190,0.75)] backdrop-blur-2xl`}
           >
             <div className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${cardGlow} opacity-0 transition-opacity group-hover:opacity-100`} />
             <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-              <CardTitle className='text-sm font-medium text-slate-600'>{title}</CardTitle>
-              <span className={`inline-flex h-9 w-9 items-center justify-center rounded-full ${iconClass}`}>
+              <CardTitle className='text-sm font-semibold text-foreground/80'>{title}</CardTitle>
+              <span className={`inline-flex h-9 w-9 items-center justify-center rounded-full backdrop-blur ${iconClass}`}>
                 <Icon className='h-4 w-4' />
               </span>
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-semibold text-slate-900'>{value}</div>
-              <p className='text-[11px] text-slate-500'>{description}</p>
+              <div className='text-2xl font-semibold text-foreground'>{value}</div>
+              <p className='text-[11px] text-foreground/70'>{description}</p>
             </CardContent>
           </Card>
         ))}

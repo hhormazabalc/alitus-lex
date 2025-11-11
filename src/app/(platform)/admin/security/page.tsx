@@ -21,9 +21,11 @@ export default async function SecurityPage() {
     }
 
     return (
-      <div className='min-h-screen bg-gray-50'>
-        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
-          <SecurityDashboard canManage={true} />
+      <div className='mx-auto w-full max-w-6xl px-4 pb-16 pt-4 sm:px-6 sm:pt-6 lg:px-8'>
+        <div className='space-y-8'>
+          <section className='glass-panel border-white/12 bg-white/8 p-6 sm:p-8'>
+            <SecurityDashboard canManage />
+          </section>
         </div>
       </div>
     );

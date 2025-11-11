@@ -75,7 +75,7 @@ const PRIORITY_COLORS: Record<string, string> = {
 };
 
 const GLASS_CARD =
-  'rounded-3xl border border-slate-100 bg-white/80 backdrop-blur-xl shadow-sm text-slate-900';
+  'glass-panel border-white/10 bg-white/8 text-foreground';
 
 export function AdminDashboard({ profile, data }: AdminDashboardProps) {
   const [selectedPeriod, setSelectedPeriod] = useState<'3m' | '6m' | '12m'>('6m');
@@ -83,11 +83,11 @@ export function AdminDashboard({ profile, data }: AdminDashboardProps) {
 
   if (!stats) {
     return (
-      <div className='min-h-screen bg-gradient-to-br from-slate-100 via-white to-slate-50 flex items-center justify-center text-slate-900'>
-        <div className='text-center space-y-3'>
-          <AlertTriangle className='h-12 w-12 mx-auto text-red-400' />
+      <div className='flex min-h-screen items-center justify-center bg-gradient-to-br from-[#07112c] via-[#091a3c] to-[#0c224f] text-foreground'>
+        <div className='glass-panel space-y-3 border-white/12 bg-white/8 p-8 text-center'>
+          <AlertTriangle className='mx-auto h-12 w-12 text-amber-400' />
           <h2 className='text-xl font-semibold'>No se pudieron cargar los datos</h2>
-          <p className='text-slate-500'>Intenta nuevamente en unos minutos.</p>
+          <p className='text-foreground/70'>Intenta nuevamente en unos minutos.</p>
         </div>
       </div>
     );
@@ -102,27 +102,27 @@ export function AdminDashboard({ profile, data }: AdminDashboardProps) {
   const getPriorityColor = (priority: string) => PRIORITY_COLORS[priority] || '#6B7280';
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-slate-100 via-white to-slate-50 text-slate-900'>
+    <div className='min-h-screen text-foreground'>
       <main>
-        <div className='mx-auto flex max-w-5xl flex-col gap-8 px-4 pb-12 pt-3 sm:px-5 sm:pt-5 lg:px-6 lg:pt-0'>
-          <section className='rounded-2xl border border-slate-100 bg-white/90 p-5 shadow-sm backdrop-blur-lg sm:p-6'>
+        <div className='mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 pb-16 pt-4 sm:px-6 sm:pt-6 lg:px-8'>
+          <section className='glass-panel border-white/12 bg-white/8 p-6 sm:p-7'>
             <div className='flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between'>
               <div className='flex items-start gap-3'>
-                <div className='flex h-11 w-11 items-center justify-center rounded-2xl bg-sky-100 text-sky-600'>
+                <div className='flex h-12 w-12 items-center justify-center rounded-2xl border border-white/20 bg-white/12 text-primary shadow-[0_18px_45px_-28px_rgba(40,120,255,0.6)]'>
                   <Scale className='h-5 w-5' />
                 </div>
                 <div>
-                  <p className='text-[11px] uppercase tracking-[0.25em] text-slate-400'>Panel ejecutivo</p>
-                  <h1 className='mt-1 text-xl font-semibold tracking-tight text-slate-900'>LEX Altius · visión consolidada</h1>
-                  <p className='mt-2 max-w-xl text-xs leading-relaxed text-slate-500'>
+                  <p className='text-[11px] uppercase tracking-[0.32em] text-white/60'>Panel ejecutivo</p>
+                  <h1 className='mt-1 text-xl font-semibold tracking-tight text-foreground'>LEX Altius · visión consolidada</h1>
+                  <p className='mt-2 max-w-xl text-xs leading-relaxed text-foreground/70'>
                     Supervisa indicadores clave, vencimientos y rendimiento del equipo desde una experiencia compacta alineada al nuevo sidebar.
                   </p>
                 </div>
               </div>
               <div className='flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-5'>
-                <div className='flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50 px-3 py-2.5'>
+                <div className='flex items-center gap-3 rounded-2xl border border-white/20 bg-white/10 px-3 py-2.5 shadow-[0_20px_60px_-32px_rgba(6,15,40,0.6)]'>
                   <div
-                    className='flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white font-medium text-slate-700 shadow-inner'
+                    className='flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/20 font-medium text-foreground shadow-inner'
                     style={{
                       background: `linear-gradient(135deg, ${stringToColor(profile.nombre)} 0%, rgba(255,255,255,0.92) 100%)`,
                     }}
@@ -130,15 +130,15 @@ export function AdminDashboard({ profile, data }: AdminDashboardProps) {
                     {getInitials(profile.nombre)}
                   </div>
                   <div>
-                    <p className='text-sm font-medium text-slate-900 leading-none'>{profile.nombre}</p>
-                    <p className='mt-1 text-[11px] text-slate-500 capitalize'>{profile.role.replace('_', ' ')}</p>
+                    <p className='text-sm font-medium leading-none text-foreground'>{profile.nombre}</p>
+                    <p className='mt-1 text-[11px] text-foreground/70 capitalize'>{profile.role.replace('_', ' ')}</p>
                   </div>
                 </div>
                 <div className='flex items-center gap-2.5'>
                   <Button
                     asChild
                     size='sm'
-                    className='rounded-full border border-slate-200 bg-slate-900 px-4 text-sm font-medium text-white shadow-sm hover:bg-slate-800'
+                    className='rounded-full border border-white/20 bg-primary/40 px-4 text-sm font-medium text-white shadow-[0_22px_55px_-28px_rgba(38,140,255,0.7)] hover:bg-primary/55'
                   >
                     <Link href='/dashboard/admin/users'>Gestionar usuarios</Link>
                   </Button>
@@ -149,7 +149,7 @@ export function AdminDashboard({ profile, data }: AdminDashboardProps) {
           </section>
 
           <section className='space-y-5'>
-            <h2 className='text-base font-semibold text-slate-800'>Indicadores destacados</h2>
+            <h2 className='text-base font-semibold text-foreground'>Indicadores destacados</h2>
             <KpiCards stats={stats} highlights={data.highlights} />
           </section>
 
@@ -183,13 +183,13 @@ export function AdminDashboard({ profile, data }: AdminDashboardProps) {
                       {data.upcomingDeadlines.map((deadline, index) => (
                         <div
                           key={index}
-                          className='flex items-center justify-between rounded-2xl border border-slate-100 bg-white/80 px-4 py-3'
+                          className='flex items-center justify-between rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-foreground/75'
                         >
                           <div>
-                            <p className='text-sm font-medium text-slate-900'>{deadline.caratulado}</p>
-                            <p className='text-xs text-slate-500'>Próxima etapa: {deadline.proxima_etapa}</p>
+                            <p className='text-sm font-medium text-foreground'>{deadline.caratulado}</p>
+                            <p className='text-xs text-foreground/65'>Próxima etapa: {deadline.proxima_etapa}</p>
                           </div>
-                          <p className='text-xs text-slate-500'>{formatDate(deadline.fecha)}</p>
+                          <p className='text-xs text-foreground/65'>{formatDate(deadline.fecha)}</p>
                         </div>
                       ))}
                     </div>
@@ -207,7 +207,7 @@ export function AdminDashboard({ profile, data }: AdminDashboardProps) {
                     <Activity className='h-5 w-5 text-emerald-500' />
                     Distribución por estado
                   </CardTitle>
-                  <Badge variant='outline' className='border-slate-200 text-slate-600'>
+                  <Badge variant='outline' className='border-white/20 bg-white/10 text-white/75 backdrop-blur'>
                     {stats.totalCases} casos totales
                   </Badge>
                 </div>
@@ -230,10 +230,10 @@ export function AdminDashboard({ profile, data }: AdminDashboardProps) {
                     </Pie>
                     <Tooltip
                       contentStyle={{
-                        background: '#ffffff',
-                        borderRadius: 12,
-                        border: '1px solid rgba(148,163,184,0.2)',
-                        color: '#0f172a',
+                        background: 'rgba(8,15,32,0.92)',
+                        borderRadius: 14,
+                        border: '1px solid rgba(148,163,184,0.35)',
+                        color: '#E2E8F0',
                       }}
                     />
                   </PieChart>
@@ -251,19 +251,19 @@ export function AdminDashboard({ profile, data }: AdminDashboardProps) {
               <CardContent>
                 <ResponsiveContainer width='100%' height={320}>
                   <BarChart data={data.casesByMateria}>
-                    <CartesianGrid strokeDasharray='3 3' stroke='rgba(148,163,184,0.2)' />
+                    <CartesianGrid strokeDasharray='3 3' stroke='rgba(148,163,184,0.25)' />
                     <XAxis
                       dataKey='materia'
-                      stroke='rgba(71,85,105,0.6)'
-                      tick={{ fill: 'rgba(71,85,105,0.8)', fontSize: 12 }}
+                      stroke='rgba(226,232,240,0.35)'
+                      tick={{ fill: 'rgba(226,232,240,0.7)', fontSize: 12 }}
                     />
-                    <YAxis stroke='rgba(71,85,105,0.6)' tick={{ fill: 'rgba(71,85,105,0.8)', fontSize: 12 }} />
+                    <YAxis stroke='rgba(226,232,240,0.35)' tick={{ fill: 'rgba(226,232,240,0.7)', fontSize: 12 }} />
                     <Tooltip
                       contentStyle={{
-                        background: '#ffffff',
-                        borderRadius: 12,
-                        border: '1px solid rgba(148,163,184,0.2)',
-                        color: '#0f172a',
+                        background: 'rgba(8,15,32,0.92)',
+                        borderRadius: 14,
+                        border: '1px solid rgba(148,163,184,0.35)',
+                        color: '#E2E8F0',
                       }}
                     />
                     <Bar dataKey='count' fill='url(#materiaGradient)' radius={[9, 9, 0, 0]} />
@@ -295,8 +295,8 @@ export function AdminDashboard({ profile, data }: AdminDashboardProps) {
                         variant={selectedPeriod === period ? 'default' : 'outline'}
                         className={
                           selectedPeriod === period
-                            ? 'border border-slate-200 bg-slate-900 text-white hover:bg-slate-800'
-                            : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                            ? 'rounded-full border-white/25 bg-primary/55 text-white shadow-[0_22px_55px_-28px_rgba(38,140,255,0.7)] hover:bg-primary/65'
+                            : 'rounded-full border-white/20 bg-white/12 text-white/75 hover:bg-white/16'
                         }
                         onClick={() => setSelectedPeriod(period)}
                       >
@@ -309,16 +309,16 @@ export function AdminDashboard({ profile, data }: AdminDashboardProps) {
               <CardContent>
                 <ResponsiveContainer width='100%' height={380}>
                   <LineChart data={getFilteredMonthlyStats()}>
-                    <CartesianGrid strokeDasharray='3 3' stroke='rgba(148,163,184,0.2)' />
-                    <XAxis dataKey='month' stroke='rgba(71,85,105,0.6)' tick={{ fill: 'rgba(71,85,105,0.8)' }} />
-                    <YAxis yAxisId='left' stroke='rgba(71,85,105,0.6)' tick={{ fill: 'rgba(71,85,105,0.8)' }} />
-                    <YAxis yAxisId='right' orientation='right' stroke='rgba(71,85,105,0.6)' tick={{ fill: 'rgba(71,85,105,0.8)' }} />
+                    <CartesianGrid strokeDasharray='3 3' stroke='rgba(148,163,184,0.25)' />
+                    <XAxis dataKey='month' stroke='rgba(226,232,240,0.35)' tick={{ fill: 'rgba(226,232,240,0.75)' }} />
+                    <YAxis yAxisId='left' stroke='rgba(226,232,240,0.35)' tick={{ fill: 'rgba(226,232,240,0.7)' }} />
+                    <YAxis yAxisId='right' orientation='right' stroke='rgba(226,232,240,0.35)' tick={{ fill: 'rgba(226,232,240,0.7)' }} />
                     <Tooltip
                       contentStyle={{
-                        background: '#ffffff',
-                        borderRadius: 12,
-                        border: '1px solid rgba(148,163,184,0.2)',
-                        color: '#0f172a',
+                        background: 'rgba(8,15,32,0.92)',
+                        borderRadius: 14,
+                        border: '1px solid rgba(148,163,184,0.35)',
+                        color: '#E2E8F0',
                       }}
                       formatter={(value, name) => [
                         name === 'revenue' ? formatCurrency(value as number) : value,
@@ -326,7 +326,7 @@ export function AdminDashboard({ profile, data }: AdminDashboardProps) {
                       ]}
                     />
                     <Legend
-                      wrapperStyle={{ color: 'rgba(15,23,42,0.7)' }}
+                      wrapperStyle={{ color: 'rgba(226,232,240,0.75)' }}
                       payload={[
                         { value: 'Casos nuevos', type: 'square', color: '#38BDF8' },
                         { value: 'Casos completados', type: 'square', color: '#22C55E' },
@@ -357,25 +357,25 @@ export function AdminDashboard({ profile, data }: AdminDashboardProps) {
                       <Link
                         key={abogado.abogado_id}
                         href={`/dashboard/admin/lawyers/${abogado.abogado_id}`}
-                        className='flex items-center justify-between rounded-2xl border border-slate-100 bg-white/80 px-4 py-3 transition-colors hover:border-sky-200/60 hover:bg-sky-50/70'
+                        className='flex items-center justify-between rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-foreground/80 transition-colors hover:border-primary/30 hover:bg-primary/10'
                       >
                         <div className='flex items-center gap-3'>
                           <div
-                            className='flex h-10 w-10 items-center justify-center rounded-full font-medium text-white shadow-inner'
+                            className='flex h-10 w-10 items-center justify-center rounded-full border border-white/20 font-medium text-white shadow-[0_12px_35px_-18px_rgba(6,15,40,0.6)]'
                             style={{ background: stringToColor(abogado.nombre) }}
                           >
                             {getInitials(abogado.nombre)}
                           </div>
                           <div>
-                            <p className='font-medium text-slate-900'>{abogado.nombre}</p>
-                            <p className='text-xs text-slate-500'>
+                            <p className='font-medium text-foreground'>{abogado.nombre}</p>
+                            <p className='text-xs text-foreground/65'>
                               {abogado.activeCases} casos activos • {abogado.completedCases} completados
                             </p>
                           </div>
                         </div>
                         <div className='text-right'>
-                          <p className='font-semibold text-slate-900'>{formatCurrency(abogado.totalValue)}</p>
-                          <p className='text-xs text-slate-500'>Promedio: {formatCurrency(abogado.avgCaseValue)}</p>
+                          <p className='font-semibold text-foreground'>{formatCurrency(abogado.totalValue)}</p>
+                          <p className='text-xs text-foreground/65'>Promedio: {formatCurrency(abogado.avgCaseValue)}</p>
                         </div>
                       </Link>
                     ))}
@@ -398,16 +398,16 @@ export function AdminDashboard({ profile, data }: AdminDashboardProps) {
                   {data.casesByPriority.map((priority) => (
                     <div
                       key={priority.priority}
-                      className='flex items-center justify-between rounded-xl border border-slate-100 bg-white/80 px-4 py-2'
+                      className='flex items-center justify-between rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-foreground/75'
                     >
                       <div className='flex items-center gap-3'>
                         <span
                           className='h-3 w-3 rounded-full'
                           style={{ backgroundColor: getPriorityColor(priority.priority) }}
                         />
-                        <p className='text-sm font-medium text-slate-900 capitalize'>{priority.priority}</p>
+                        <p className='text-sm font-medium text-foreground capitalize'>{priority.priority}</p>
                       </div>
-                      <p className='text-sm text-slate-600'>
+                      <p className='text-sm text-foreground/70'>
                         {priority.count} ({priority.percentage}%)
                       </p>
                     </div>
@@ -426,13 +426,13 @@ export function AdminDashboard({ profile, data }: AdminDashboardProps) {
               <CardContent>
                 <div className='space-y-3'>
                   {data.highlights.documents.slice(0, 4).map((doc) => (
-                    <div key={doc.id} className='rounded-xl border border-slate-100 bg-white/80 px-4 py-3'>
-                      <p className='text-sm font-medium text-slate-900'>{doc.nombre}</p>
-                      <p className='text-xs text-slate-500'>{doc.created_at ? formatRelativeTime(doc.created_at) : 'Fecha no disponible'}</p>
+                    <div key={doc.id} className='rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-foreground/75'>
+                      <p className='text-sm font-medium text-foreground'>{doc.nombre}</p>
+                      <p className='text-xs text-foreground/65'>{doc.created_at ? formatRelativeTime(doc.created_at) : 'Fecha no disponible'}</p>
                       {doc.case_id && (
                         <Link
                           href={`/cases/${doc.case_id}`}
-                          className='mt-1 inline-flex items-center gap-1 text-xs text-sky-600 hover:text-sky-800'
+                          className='mt-1 inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80'
                         >
                           Ver caso
                           <ArrowIcon />
@@ -441,7 +441,7 @@ export function AdminDashboard({ profile, data }: AdminDashboardProps) {
                     </div>
                   ))}
                   {data.highlights.documents.length === 0 && (
-                    <p className='text-sm text-slate-500'>No se han cargado documentos recientemente.</p>
+                    <p className='text-sm text-foreground/65'>No se han cargado documentos recientemente.</p>
                   )}
                 </div>
               </CardContent>
@@ -454,5 +454,5 @@ export function AdminDashboard({ profile, data }: AdminDashboardProps) {
 }
 
 /* Icon helpers */
-const DocumentIcon = () => <FileText className='h-5 w-5 text-indigo-500' />;
-const ArrowIcon = () => <ArrowUpRight className='h-3 w-3 text-sky-600' />;
+const DocumentIcon = () => <FileText className='h-5 w-5 text-primary' />;
+const ArrowIcon = () => <ArrowUpRight className='h-3 w-3 text-primary' />;

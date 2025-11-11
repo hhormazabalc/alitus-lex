@@ -44,15 +44,15 @@ type PendingState = {
 
 function HighlightStat({ title, value, subtitle, icon }: { title: string; value: number; subtitle: string; icon: ReactNode }) {
   return (
-    <div className='rounded-2xl border border-white/20 bg-white/50 p-4 shadow-sm backdrop-blur-xl'>
+    <div className='rounded-2xl border border-white/15 bg-white/8 p-4 shadow-[0_24px_70px_-32px_rgba(5,15,40,0.6)] backdrop-blur-xl'>
       <div className='flex items-center justify-between'>
-        <p className='text-xs uppercase tracking-wide text-foreground/50'>{title}</p>
-        <span className='inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/30 bg-white/50 text-xs text-foreground/60'>
+        <p className='text-[11px] uppercase tracking-[0.24em] text-white/60'>{title}</p>
+        <span className='inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 text-xs text-white/70'>
           {icon}
         </span>
       </div>
       <p className='mt-2 text-2xl font-semibold text-foreground'>{value}</p>
-      <p className='text-xs text-foreground/50'>{subtitle}</p>
+      <p className='text-xs text-foreground/65'>{subtitle}</p>
     </div>
   );
 }
@@ -256,30 +256,30 @@ export function AdminUserManager({ initialUsers }: AdminUserManagerProps) {
     cn(
       'inline-flex items-center rounded-full border px-4 py-1.5 text-xs font-medium transition-all backdrop-blur-md',
       filter === role
-        ? 'border-primary/30 bg-primary/15 text-primary'
-        : 'border-white/20 bg-white/30 text-foreground/60 hover:bg-white/50',
+        ? 'border-primary/35 bg-primary/20 text-primary shadow-[0_20px_45px_-25px_rgba(40,140,255,0.65)]'
+        : 'border-white/15 bg-white/8 text-white/70 hover:bg-white/12',
     );
 
   return (
     <div className='space-y-10'>
-      <section className='rounded-3xl border border-white/15 bg-white/60 px-6 py-6 shadow-xl backdrop-blur-2xl sm:px-8'>
+      <section className='glass-panel border-white/12 bg-white/8 p-6 sm:p-8'>
         <div className='flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between'>
-          <div className='space-y-2'>
-            <div className='inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/40 px-3 py-1 text-xs font-semibold text-foreground/60'>
+          <div className='space-y-3'>
+            <div className='inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold text-white/70'>
               <Users className='h-4 w-4 text-primary' /> Gestión de usuarios
             </div>
             <h1 className='text-2xl font-semibold tracking-tight text-foreground'>
               Controla los accesos del estudio con visibilidad total
             </h1>
-            <p className='max-w-xl text-sm text-foreground/60'>
+            <p className='max-w-xl text-sm text-foreground/70'>
               Crea, edita y administra roles en segundos; mantén la seguridad y el orden organizacional.
             </p>
           </div>
           <Button
             asChild
-            variant='secondary'
+            variant='outline'
             size='sm'
-            className='rounded-full bg-white/80 text-foreground hover:bg-white shadow-md'
+            className='rounded-full border-white/20 bg-white/12 px-5 text-white/80 shadow-[0_22px_50px_-25px_rgba(40,120,255,0.55)] hover:bg-white/16'
           >
             <Link href='/dashboard/admin'>Volver al dashboard</Link>
           </Button>
@@ -319,13 +319,13 @@ export function AdminUserManager({ initialUsers }: AdminUserManagerProps) {
         </div>
       </section>
 
-      <section className='rounded-3xl border border-white/15 bg-white/70 shadow-xl backdrop-blur-2xl'>
-        <header className='flex flex-col gap-2 border-b border-white/10 px-6 py-6 sm:px-8 sm:flex-row sm:items-center sm:justify-between'>
+      <section className='glass-panel border-white/12 bg-white/8'>
+        <header className='flex flex-col gap-2 border-b border-white/12 px-6 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-8'>
           <div>
             <h2 className='text-lg font-semibold text-foreground'>Crear nuevo usuario</h2>
-            <p className='text-sm text-foreground/60'>Completa la información para habilitar acceso inmediato.</p>
+            <p className='text-sm text-foreground/70'>Completa la información para habilitar acceso inmediato.</p>
           </div>
-          <div className='rounded-full border border-white/20 bg-white/40 px-3 py-1 text-xs text-foreground/60'>
+          <div className='rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs text-white/70'>
             Tiempo estimado: 2 minutos
           </div>
         </header>
@@ -347,7 +347,7 @@ export function AdminUserManager({ initialUsers }: AdminUserManagerProps) {
             <select
               id='create-role'
               name='role'
-              className='h-11 w-full rounded-2xl border border-white/30 bg-white/70 px-4 text-sm text-foreground/80 shadow-inner focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30'
+              className='h-11 w-full rounded-2xl border border-white/15 bg-white/8 px-4 text-sm text-foreground focus:border-primary/60 focus:outline-none focus:ring-2 focus:ring-primary/30'
               defaultValue='abogado'
               disabled={isPending}
             >
@@ -366,7 +366,7 @@ export function AdminUserManager({ initialUsers }: AdminUserManagerProps) {
             <Label htmlFor='create-telefono'>Teléfono (opcional)</Label>
             <Input id='create-telefono' name='telefono' placeholder='+591 70000000' disabled={isPending} />
           </div>
-          <div className='col-span-full flex items-center gap-2 rounded-2xl border border-white/20 bg-white/40 px-5 py-3 text-sm text-foreground/70'>
+          <div className='col-span-full flex items-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-5 py-3 text-sm text-foreground/75'>
             <input
               id='create-activo'
               name='activo'
@@ -378,14 +378,14 @@ export function AdminUserManager({ initialUsers }: AdminUserManagerProps) {
             <Label htmlFor='create-activo'>Habilitar acceso inmediato</Label>
           </div>
           <div className='col-span-full flex justify-end'>
-            <Button type='submit' disabled={isPending} className='rounded-full px-6'>
+            <Button type='submit' disabled={isPending} className='rounded-full px-6 shadow-[0_24px_60px_-28px_rgba(40,120,255,0.6)]'>
               {pendingState.type === 'create' && pending ? 'Creando…' : 'Crear usuario'}
             </Button>
           </div>
         </form>
       </section>
 
-      <section className='space-y-6 rounded-3xl border border-white/15 bg-white/70 px-6 py-6 shadow-xl backdrop-blur-2xl sm:px-8'>
+      <section className='space-y-6 rounded-3xl border border-white/12 bg-white/8 px-6 py-6 shadow-[0_35px_120px_-38px_rgba(6,15,40,0.65)] backdrop-blur-2xl sm:px-8'>
         <div className='flex flex-col gap-4 md:flex-row md:items-center md:justify-between'>
           <div className='flex flex-wrap gap-2'>
             <button type='button' onClick={() => setFilter('todos')} className={activeClass('todos')}>
@@ -407,77 +407,80 @@ export function AdminUserManager({ initialUsers }: AdminUserManagerProps) {
                 setFilter('todos');
                 setSearch('');
               }}
-              className='rounded-full border border-transparent px-3 py-1 text-xs text-gray-500 hover:bg-gray-100'
+              className='rounded-full border border-white/15 bg-white/8 px-3 py-1 text-xs text-white/70 transition hover:bg-white/12'
             >
               Limpiar filtros
             </button>
           </div>
           <div className='flex items-center gap-2'>
-            <div className='flex items-center gap-2 rounded-full border border-white/20 bg-white/40 px-4 py-1.5 text-sm text-foreground/60'>
-            <Search className='h-4 w-4 text-foreground/40' />
-            <input
-              placeholder='Buscar por nombre, email o teléfono'
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              className='bg-transparent outline-none placeholder:text-foreground/40'
-            />
-          </div>
+            <div className='flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-1.5 text-sm text-white/70'>
+              <Search className='h-4 w-4 text-white/60' />
+              <input
+                placeholder='Buscar por nombre, email o teléfono'
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                className='bg-transparent text-foreground outline-none placeholder:text-white/55'
+              />
+            </div>
           </div>
         </div>
 
-        <Card>
+        <Card className='border-white/12 bg-white/8 shadow-[0_35px_120px_-38px_rgba(6,15,40,0.65)]'>
           <CardHeader>
-            <CardTitle className='text-base'>Usuarios registrados</CardTitle>
-            <p className='text-sm text-muted-foreground'>Gestiona la información de cada cuenta y controla su estado.</p>
+            <CardTitle className='text-base text-foreground'>Usuarios registrados</CardTitle>
+            <p className='text-sm text-foreground/70'>Gestiona la información de cada cuenta y controla su estado.</p>
           </CardHeader>
           <CardContent>
             {filteredUsers.length === 0 ? (
-              <div className='rounded-lg border border-dashed border-gray-300 p-6 text-center text-sm text-muted-foreground'>
+              <div className='rounded-2xl border border-dashed border-white/15 bg-white/6 p-6 text-center text-sm text-foreground/70'>
                 No se encontraron usuarios con los filtros seleccionados.
               </div>
             ) : (
               <div className='space-y-4'>
                 {filteredUsers.map((user) => (
-                  <div key={user.userId} className='rounded-lg border border-gray-200 bg-white p-4 shadow-sm'>
+                  <div
+                    key={user.userId}
+                    className='rounded-2xl border border-white/12 bg-white/8 p-5 shadow-[0_28px_80px_-38px_rgba(6,15,40,0.6)]'
+                  >
                     <div className='flex flex-col gap-4 md:flex-row md:items-start md:justify-between'>
-                      <div className='space-y-2 text-sm'>
+                      <div className='space-y-2 text-sm text-foreground/75'>
                         <div className='flex flex-wrap items-center gap-2'>
-                          <span className='text-base font-semibold text-gray-900'>{user.nombre}</span>
+                          <span className='text-base font-semibold text-foreground'>{user.nombre}</span>
                           <span
                             className={cn(
-                              'rounded-full px-2 py-0.5 text-xs font-medium uppercase tracking-wide',
+                              'rounded-full border px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide',
                               user.activo
-                                ? 'bg-green-50 text-green-700 border border-green-200'
-                                : 'bg-red-50 text-red-700 border border-red-200',
+                                ? 'border-emerald-300/45 bg-emerald-500/15 text-emerald-100'
+                                : 'border-red-400/45 bg-red-500/14 text-red-100',
                             )}
                           >
                             {user.activo ? 'Activo' : 'Inactivo'}
                           </span>
-                          <span className='rounded-full bg-gray-100 px-2 py-0.5 text-xs uppercase tracking-wide text-gray-600'>
+                          <span className='rounded-full border border-white/15 bg-white/8 px-2 py-0.5 text-xs uppercase tracking-wide text-foreground/70'>
                             {user.role.replace('_', ' ')}
                           </span>
                         </div>
-                        <div className='grid gap-1 text-muted-foreground md:grid-cols-2'>
+                        <div className='grid gap-1 text-xs text-foreground/70 md:grid-cols-2'>
                           <span>
-                            <strong>Email:</strong> {user.email}
+                            <span className='font-semibold text-foreground/85'>Email:</span> {user.email}
                           </span>
                           {user.telefono && (
                             <span>
-                              <strong>Teléfono:</strong> {user.telefono}
+                              <span className='font-semibold text-foreground/85'>Teléfono:</span> {user.telefono}
                             </span>
                           )}
                           {user.rut && (
                             <span>
-                              <strong>Documento:</strong> {formatIdentityDocument(user.rut)}
+                              <span className='font-semibold text-foreground/85'>Documento:</span> {formatIdentityDocument(user.rut)}
                             </span>
                           )}
                           <span>
-                            <strong>Último acceso:</strong>{' '}
+                            <span className='font-semibold text-foreground/85'>Último acceso:</span>{' '}
                             {user.lastSignInAt ? formatRelativeTime(user.lastSignInAt) : 'Sin registros'}
                           </span>
                           {user.createdAt && (
                             <span>
-                              <strong>Creado:</strong> {formatDateShort(user.createdAt)}
+                              <span className='font-semibold text-foreground/85'>Creado:</span> {formatDateShort(user.createdAt)}
                             </span>
                           )}
                         </div>
@@ -488,7 +491,7 @@ export function AdminUserManager({ initialUsers }: AdminUserManagerProps) {
                           size='sm'
                           onClick={() => handleToggleActive(user)}
                           disabled={isPending}
-                          className='flex items-center gap-2'
+                          className='flex items-center gap-2 rounded-full border-white/20 bg-white/10 text-white/85 hover:bg-white/14'
                         >
                           {user.activo ? <XCircle className='h-4 w-4' /> : <Plus className='h-4 w-4' />}
                           {user.activo ? 'Desactivar' : 'Activar'}
@@ -498,7 +501,7 @@ export function AdminUserManager({ initialUsers }: AdminUserManagerProps) {
                           size='sm'
                           onClick={() => handleEdit(user.userId)}
                           disabled={isPending}
-                          className='flex items-center gap-2'
+                          className='flex items-center gap-2 rounded-full border-white/20 bg-white/10 text-white/85 hover:bg-white/14'
                         >
                           <Pencil className='h-4 w-4' /> Editar
                         </Button>
@@ -507,7 +510,7 @@ export function AdminUserManager({ initialUsers }: AdminUserManagerProps) {
                           size='sm'
                           onClick={() => handleDelete(user.userId)}
                           disabled={isPending}
-                          className='flex items-center gap-2'
+                          className='flex items-center gap-2 rounded-full'
                         >
                           <Trash2 className='h-4 w-4' /> Eliminar
                         </Button>
@@ -515,7 +518,7 @@ export function AdminUserManager({ initialUsers }: AdminUserManagerProps) {
                     </div>
 
                     {editingUserId === user.userId && (
-                      <div className='mt-4 rounded-md border border-gray-200 bg-gray-50 p-4'>
+                      <div className='mt-4 rounded-2xl border border-white/12 bg-white/6 p-4'>
                         <form onSubmit={handleUpdate} className='grid gap-3 md:grid-cols-2 lg:grid-cols-3'>
                           <div className='space-y-1'>
                             <Label htmlFor={`edit-nombre-${user.userId}`}>Nombre</Label>
@@ -554,7 +557,7 @@ export function AdminUserManager({ initialUsers }: AdminUserManagerProps) {
                               id={`edit-role-${user.userId}`}
                               name='role'
                               defaultValue={user.role}
-                              className='w-full rounded-md border border-input bg-background px-3 py-2 text-sm'
+                              className='h-11 w-full rounded-2xl border border-white/15 bg-white/8 px-4 text-sm text-foreground focus:border-primary/60 focus:outline-none focus:ring-2 focus:ring-primary/30'
                               disabled={isPending}
                             >
                               {managedUserRoles.map((role) => (
@@ -591,14 +594,14 @@ export function AdminUserManager({ initialUsers }: AdminUserManagerProps) {
                               type='checkbox'
                               defaultChecked={user.activo}
                               disabled={isPending}
-                              className='h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500'
+                              className='h-4 w-4 rounded border-white/25 bg-white text-primary focus:ring-primary/35'
                             />
-                            <Label htmlFor={`edit-activo-${user.userId}`} className='text-xs text-muted-foreground'>
+                            <Label htmlFor={`edit-activo-${user.userId}`} className='text-xs text-foreground/65'>
                               Cuenta habilitada
                             </Label>
                           </div>
                           <div className='md:col-span-2 lg:col-span-3 flex items-center gap-2 pt-2'>
-                            <Button type='submit' disabled={isPending}>
+                            <Button type='submit' disabled={isPending} className='rounded-full px-5'>
                               {pendingState.type === 'update' && pendingState.userId === user.userId && pending
                                 ? 'Guardando cambios...'
                                 : 'Guardar cambios'}
@@ -608,6 +611,7 @@ export function AdminUserManager({ initialUsers }: AdminUserManagerProps) {
                               variant='ghost'
                               disabled={isPending}
                               onClick={() => setEditingUserId(null)}
+                              className='rounded-full text-white/75 hover:bg-white/10'
                             >
                               Cancelar
                             </Button>
@@ -623,8 +627,8 @@ export function AdminUserManager({ initialUsers }: AdminUserManagerProps) {
         </Card>
       </section>
 
-      <Separator />
-      <p className='text-xs text-muted-foreground'>
+      <Separator className='bg-white/12' />
+      <p className='text-xs text-foreground/65'>
         Consejo: comparte la contraseña temporal de forma segura y solicita al usuario cambiarla en su primer
         acceso.
       </p>

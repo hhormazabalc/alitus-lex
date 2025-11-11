@@ -667,11 +667,9 @@ export function CaseDetailView({ case: caseData, profile, messages }: CaseDetail
                           {caseData.nombre_cliente}
                         </p>
                         {caseData.rut_cliente && (
-                        {caseData.rut_cliente && (
                           <p className="mt-1 text-sm text-foreground/60">
                             Documento (CI/NIT) · {formatIdentityDocument(caseData.rut_cliente)}
                           </p>
-                        )}
                         )}
                       </div>
                       <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500/15 via-emerald-500/10 to-transparent text-emerald-600">
