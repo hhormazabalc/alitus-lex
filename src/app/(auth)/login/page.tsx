@@ -21,47 +21,47 @@ export default function LoginPage() {
       <div className="relative z-10 grid w-full max-w-5xl grid-cols-1 gap-10 lg:grid-cols-[1.1fr,0.9fr]">
         <div className="hidden rounded-3xl bg-white/6 p-10 shadow-[0_40px_90px_-50px_rgba(5,10,38,0.9)] backdrop-blur-2xl lg:flex lg:flex-col lg:justify-between">
           <div className="space-y-6">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.32em] text-white/80">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.34em] text-white/80">
               Arquitectura Altius Ignite
             </div>
             <h1 className="text-3xl font-semibold leading-snug text-white">
-              Controla tu operación jurídica con precisión corporativa y experiencia cliente premium.
+              Dirección legal con ritmo SaaS y precisión corporativa.
             </h1>
             <p className="text-sm text-white/75">
-              LEX Altius centraliza expedientes con NUREJ, timelines procesales y finanzas en Bolivianos, alineado a la normativa y expectativas de firmas corporativas en Bolivia.
+              LEX Altius combina litigación, relación con clientes y seguimiento financiero en una capa ejecutiva diseñada específicamente para firmas corporativas bolivianas.
             </p>
           </div>
           <div className="space-y-5 text-sm text-white/75">
             <div className="flex items-start gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-white">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/12 text-white">
                 01
               </div>
               <div>
-                <p className="font-semibold text-white">Seguridad y compliance</p>
+                <p className="font-semibold text-white">Operación sin fricción</p>
                 <p className="text-xs leading-relaxed text-white/70">
-                  MFA, políticas de sesión, auditoría accionable y cifrado extremo a extremo sobre Supabase Enterprise.
+                  Workflows inteligentes, plantillas procesales y dashboards accionables para socios y gerencias legales.
                 </p>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-white">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/12 text-white">
                 02
               </div>
               <div>
-                <p className="font-semibold text-white">Experiencia cliente corporativo</p>
+                <p className="font-semibold text-white">Clientes informados 24/7</p>
                 <p className="text-xs leading-relaxed text-white/70">
-                  Portales con timelines, documentación y métricas de honorarios para directorios y gerencias legales.
+                  Portales ejecutivos con timelines, entregables y honorarios en tiempo real para directorios y CFOs.
                 </p>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-white">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/12 text-white">
                 03
               </div>
               <div>
-                <p className="font-semibold text-white">Soporte estratégico</p>
+                <p className="font-semibold text-white">Confianza regulatoria</p>
                 <p className="text-xs leading-relaxed text-white/70">
-                  Onboarding, capacitaciones y rutas de mejora continua con consultores de Altius Ignite.
+                  Controles MFA, registros auditables y políticas de compliance revestidas por consultores de Altius Ignite.
                 </p>
               </div>
             </div>
@@ -81,9 +81,9 @@ export default function LoginPage() {
               </Link>
             </div>
             <div className="space-y-1">
-              <CardTitle className="text-2xl font-semibold text-white">Bienvenido de vuelta</CardTitle>
+              <CardTitle className="text-2xl font-semibold text-white">Acceso ejecutivo</CardTitle>
               <CardDescription className="text-sm text-white/75">
-                Autentícate para acceder al panel ejecutivo de tu firma
+                Ingresa con tus credenciales corporativas y continúa donde tu equipo legal quedó.
               </CardDescription>
             </div>
           </CardHeader>
@@ -92,9 +92,9 @@ export default function LoginPage() {
               <LoginForm />
             </Suspense>
             <p className="text-center text-xs text-white/70">
-              ¿Problemas para acceder?{' '}
+              ¿Necesitas habilitar un nuevo usuario?{' '}
               <a href="mailto:soporte@altiusignite.com" className="font-medium text-white hover:text-primary">
-                Contacta soporte
+                Contacta al equipo de soporte
               </a>
             </p>
           </CardContent>
