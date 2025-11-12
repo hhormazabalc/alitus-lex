@@ -104,7 +104,9 @@ export function LawyerDashboard({ profile, data, cases, quickLinks, templates }:
             <CardContent className='flex flex-col gap-6 p-6 sm:flex-row sm:items-center sm:justify-between'>
               <div className='flex-1 space-y-3'>
                 <p className='text-[11px] uppercase tracking-[0.25em] text-slate-400'>Panel de gestión</p>
-                <h1 className='text-2xl font-semibold tracking-tight'>Hola, {profile.nombre.split(' ')[0]}.</h1>
+                <h1 className='text-2xl font-semibold tracking-tight'>
+                  Hola, {(profile.nombre ?? profile.full_name ?? profile.email ?? 'Colega').split(' ')[0]}.
+                </h1>
                 <p className='max-w-xl text-sm leading-relaxed text-slate-600'>{heroDescription}</p>
               </div>
               <div className='flex flex-col gap-3 sm:flex-row sm:items-center'>
@@ -112,13 +114,13 @@ export function LawyerDashboard({ profile, data, cases, quickLinks, templates }:
                   <div
                     className='flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-base font-semibold text-slate-700 shadow-inner'
                     style={{
-                      background: `linear-gradient(135deg, ${stringToColor(profile.nombre)} 0%, rgba(255,255,255,0.92) 100%)`,
+                      background: `linear-gradient(135deg, ${stringToColor(profile.nombre ?? profile.full_name ?? profile.email ?? 'LAW')} 0%, rgba(255,255,255,0.92) 100%)`,
                     }}
                   >
-                    {getInitials(profile.nombre)}
+                    {getInitials(profile.nombre ?? profile.full_name ?? profile.email ?? 'Lex')}
                   </div>
                   <div>
-                    <p className='text-sm font-medium text-slate-900'>{profile.nombre}</p>
+                    <p className='text-sm font-medium text-slate-900'>{profile.nombre ?? profile.full_name ?? profile.email ?? 'Profesional'}</p>
                     <p className='text-xs capitalize text-slate-500'>{profile.role.replace('_', ' ')}</p>
                   </div>
                 </div>

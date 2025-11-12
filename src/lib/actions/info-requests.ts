@@ -48,6 +48,7 @@ function normalizeDate(value: string | undefined): string | null {
 export async function createInfoRequest(input: CreateInfoRequestInput) {
   try {
     const profile = await requireAuth()
+    if (!profile.org_id) throw new Error('Selecciona una organización activa.')
     const validated = createInfoRequestSchema.parse(input)
 
     // Autorización de acceso al caso
@@ -55,6 +56,17 @@ export async function createInfoRequest(input: CreateInfoRequestInput) {
     if (!hasAccess) throw new Error('Sin permisos para acceder a este caso')
 
     const supabase = await createServerClient()
+
+    const { data: caseRow, error: caseError } = await supabase
+      .from('cases')
+      .select('id')
+      .eq('id', validated.case_id)
+      .eq('org_id', profile.org_id)
+      .maybeSingle()
+
+    if (caseError || !caseRow) {
+      throw new Error('Caso no encontrado o sin permisos en esta organización')
+    }
 
     // Construimos SOLO las columnas que existen en la tabla (según tu snapshot)
     const insertPayload: InfoRequestInsert = {
@@ -66,6 +78,7 @@ export async function createInfoRequest(input: CreateInfoRequestInput) {
       prioridad: validated.prioridad, // case_priority
       es_publica: validated.es_publica ?? true,
       fecha_limite: normalizeDate(validated.fecha_limite), // date (string | null)
+      org_id: profile.org_id,
       // resto quedan omitidos para que DB use defaults/NULL:
       // estado (default 'pendiente'), created_at/updated_at, etc.
     }
@@ -75,7 +88,7 @@ export async function createInfoRequest(input: CreateInfoRequestInput) {
       .insert(insertPayload)
       .select(`
         *,
-        creador:profiles!info_requests_creador_id_fkey(id, nombre),
+        creador:profiles!info_requests_creador_id_fkey(id, nombre:full_name),
         case:cases(id, caratulado)
       `)
       .single()
@@ -110,6 +123,7 @@ export async function createInfoRequest(input: CreateInfoRequestInput) {
 export async function updateInfoRequest(requestId: string, input: UpdateInfoRequestInput) {
   try {
     const profile = await requireAuth()
+    if (!profile.org_id) throw new Error('Selecciona una organización activa.')
     const validated = updateInfoRequestSchema.parse(input)
     const supabase = await createServerClient()
 
@@ -118,6 +132,7 @@ export async function updateInfoRequest(requestId: string, input: UpdateInfoRequ
       .from('info_requests')
       .select('*')
       .eq('id', requestId)
+      .eq('org_id', profile.org_id)
       .single()
     if (fetchError || !existing) throw new Error('Solicitud no encontrada')
 
@@ -155,9 +170,10 @@ export async function updateInfoRequest(requestId: string, input: UpdateInfoRequ
       .from('info_requests')
       .update(updatePayload)
       .eq('id', requestId)
+      .eq('org_id', profile.org_id)
       .select(`
         *,
-        creador:profiles!info_requests_creador_id_fkey(id, nombre),
+        creador:profiles!info_requests_creador_id_fkey(id, nombre:full_name),
         case:cases(id, caratulado)
       `)
       .single()
@@ -192,6 +208,7 @@ export async function updateInfoRequest(requestId: string, input: UpdateInfoRequ
 export async function respondInfoRequest(requestId: string, input: RespondInfoRequestInput) {
   try {
     const profile = await requireAuth()
+    if (!profile.org_id) throw new Error('Selecciona una organización activa.')
     const validated = respondInfoRequestSchema.parse(input)
     const supabase = await createServerClient()
 
@@ -199,6 +216,7 @@ export async function respondInfoRequest(requestId: string, input: RespondInfoRe
       .from('info_requests')
       .select('*')
       .eq('id', requestId)
+      .eq('org_id', profile.org_id)
       .single()
     if (fetchError || !existing) throw new Error('Solicitud no encontrada')
 
@@ -222,10 +240,11 @@ export async function respondInfoRequest(requestId: string, input: RespondInfoRe
       .from('info_requests')
       .update(responsePayload)
       .eq('id', requestId)
+      .eq('org_id', profile.org_id)
       .select(`
         *,
-        creador:profiles!info_requests_creador_id_fkey(id, nombre),
-        respondido_por_profile:profiles!info_requests_respondido_por_fkey(id, nombre),
+        creador:profiles!info_requests_creador_id_fkey(id, nombre:full_name),
+        respondido_por_profile:profiles!info_requests_respondido_por_fkey(id, nombre:full_name),
         case:cases(id, caratulado)
       `)
       .single()
@@ -260,12 +279,14 @@ export async function respondInfoRequest(requestId: string, input: RespondInfoRe
 export async function closeInfoRequest(requestId: string) {
   try {
     const profile = await requireAuth()
+    if (!profile.org_id) throw new Error('Selecciona una organización activa.')
     const supabase = await createServerClient()
 
     const { data: existing, error: fetchError } = await supabase
       .from('info_requests')
       .select('*')
       .eq('id', requestId)
+      .eq('org_id', profile.org_id)
       .single()
     if (fetchError || !existing) throw new Error('Solicitud no encontrada')
 
@@ -291,9 +312,10 @@ export async function closeInfoRequest(requestId: string) {
       .from('info_requests')
       .update({ estado: 'cerrada' as any }) // request_status enum acepta 'cerrada'
       .eq('id', requestId)
+      .eq('org_id', profile.org_id)
       .select(`
         *,
-        creador:profiles!info_requests_creador_id_fkey(id, nombre),
+        creador:profiles!info_requests_creador_id_fkey(id, nombre:full_name),
         case:cases(id, caratulado)
       `)
       .single()
@@ -331,6 +353,7 @@ export async function getInfoRequests(
   try {
     const profile = await getCurrentProfile()
     if (!profile) throw new Error('No autenticado')
+    if (!profile.org_id) throw new Error('Selecciona una organización activa.')
 
     const validated = infoRequestFiltersSchema.parse(filters)
     const supabase = await createServerClient()
@@ -340,12 +363,13 @@ export async function getInfoRequests(
       .select(
         `
         *,
-        creador:profiles!info_requests_creador_id_fkey(id, nombre),
-        respondido_por_profile:profiles!info_requests_respondido_por_fkey(id, nombre),
+        creador:profiles!info_requests_creador_id_fkey(id, nombre:full_name),
+        respondido_por_profile:profiles!info_requests_respondido_por_fkey(id, nombre:full_name),
         case:cases(id, caratulado)
         `,
         { count: 'exact' }
       )
+      .eq('org_id', profile.org_id)
 
     // Filtrado por rol
     if (profile.role === 'cliente') {
@@ -355,6 +379,7 @@ export async function getInfoRequests(
         .from('case_clients')
         .select('case_id')
         .eq('client_profile_id', profile.id)
+        .eq('org_id', profile.org_id)
       const caseIds = clientCases?.map((c: { case_id: string }) => c.case_id) || []
       if (caseIds.length === 0) return { success: true, requests: [], total: 0 }
       query = query.in('case_id', caseIds)
@@ -363,6 +388,7 @@ export async function getInfoRequests(
         .from('cases')
         .select('id')
         .eq('abogado_responsable', profile.id)
+        .eq('org_id', profile.org_id)
       const caseIds = abogadoCases?.map((c: { id: string }) => c.id) || []
       if (caseIds.length === 0) return { success: true, requests: [], total: 0 }
       query = query.in('case_id', caseIds)
@@ -424,6 +450,7 @@ export async function getInfoRequestById(requestId: string) {
   try {
     const profile = await getCurrentProfile()
     if (!profile) throw new Error('No autenticado')
+    if (!profile.org_id) throw new Error('Selecciona una organización activa.')
 
     const supabase = await createServerClient()
 
@@ -431,11 +458,12 @@ export async function getInfoRequestById(requestId: string) {
       .from('info_requests')
       .select(`
         *,
-        creador:profiles!info_requests_creador_id_fkey(id, nombre),
-        respondido_por_profile:profiles!info_requests_respondido_por_fkey(id, nombre),
+        creador:profiles!info_requests_creador_id_fkey(id, nombre:full_name),
+        respondido_por_profile:profiles!info_requests_respondido_por_fkey(id, nombre:full_name),
         case:cases(id, caratulado)
       `)
       .eq('id', requestId)
+      .eq('org_id', profile.org_id)
       .single()
 
     if (error || !request) throw new Error('Solicitud no encontrada')

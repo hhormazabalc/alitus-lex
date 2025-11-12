@@ -9,6 +9,10 @@ export default async function DashboardIndexPage() {
 
   const role = (profile as any)._role_override ?? profile.role;
 
+  if (role === 'admin_firma' && profile.membership_role === 'owner') {
+    redirect('/super/dashboard');
+  }
+
   const target =
     role === 'admin_firma' ? '/dashboard/admin' :
     role === 'abogado'     ? '/dashboard/abogado' :

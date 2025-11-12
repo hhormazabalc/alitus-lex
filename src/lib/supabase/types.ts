@@ -28,8 +28,18 @@ export type NoteType = PublicEnums['note_type'];
 export type DocumentVisibility = PublicEnums['document_visibility'];
 export type RequestType = PublicEnums['request_type'];
 export type RequestStatus = PublicEnums['request_status'];
+export type MembershipRole = PublicEnums['membership_role'];
+export type MembershipStatus = PublicEnums['membership_status'];
+export type ProfileStatus = PublicEnums['profile_status'];
 
-export type Profile = Tables<'profiles'>;
+export type Profile = Tables<'profiles'> & {
+  nombre?: string;
+  telefono?: string | null;
+};
+export type Organization = Tables<'organizations'>;
+export type Membership = Tables<'memberships'>;
+export type Domain = Tables<'domains'>;
+export type AuditEvent = Tables<'audit_events'>;
 export type Case = Tables<'cases'>;
 export type CaseStage = Tables<'case_stages'>;
 export type CaseMessage = Tables<'case_messages'>;
@@ -49,6 +59,10 @@ export type LegalCaseSync = Tables<'legal_cases'>;
 export type LegalCaseEvent = Tables<'legal_case_events'>;
 
 export type ProfileInsert = TablesInsert<'profiles'>;
+export type OrganizationInsert = TablesInsert<'organizations'>;
+export type MembershipInsert = TablesInsert<'memberships'>;
+export type DomainInsert = TablesInsert<'domains'>;
+export type AuditEventInsert = TablesInsert<'audit_events'>;
 export type CaseInsert = TablesInsert<'cases'>;
 export type CaseStageInsert = TablesInsert<'case_stages'>;
 export type CaseMessageInsert = TablesInsert<'case_messages'>;
@@ -68,6 +82,10 @@ export type LegalCaseSyncInsert = TablesInsert<'legal_cases'>;
 export type LegalCaseEventInsert = TablesInsert<'legal_case_events'>;
 
 export type ProfileUpdate = TablesUpdate<'profiles'>;
+export type OrganizationUpdate = TablesUpdate<'organizations'>;
+export type MembershipUpdate = TablesUpdate<'memberships'>;
+export type DomainUpdate = TablesUpdate<'domains'>;
+export type AuditEventUpdate = TablesUpdate<'audit_events'>;
 export type CaseUpdate = TablesUpdate<'cases'>;
 export type CaseStageUpdate = TablesUpdate<'case_stages'>;
 export type CaseMessageUpdate = TablesUpdate<'case_messages'>;

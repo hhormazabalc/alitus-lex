@@ -1,7 +1,7 @@
 'use server';
 
 import { createServerClient } from '@/lib/supabase/server';
-import { getCurrentProfile, requireAuth } from '@/lib/auth/roles';
+import { getCurrentProfile, requireAuth, canAccessCase } from '@/lib/auth/roles';
 import type {
   CaseMessage,
   CaseMessageInsert,
@@ -55,15 +55,21 @@ export async function listCaseMessages(
   caseId: string,
   opts?: { limit?: number }
 ): Promise<CaseMessageDTO[]> {
-  await requireAuth(); // asegura sesión
+  const profile = await requireAuth();
+  if (!profile.org_id) throw new Error('Selecciona una organización activa.');
+
+  const hasAccess = await canAccessCase(caseId);
+  if (!hasAccess) throw new Error('Sin permisos para acceder a este caso');
+
   const supabase = await createServerClient();
 
   const limit = opts?.limit ?? 100;
 
   const { data, error } = await supabase
     .from('case_messages')
-    .select('*, sender:profiles(id, nombre, role)')
+    .select('*, sender:profiles(id, nombre:full_name, role)')
     .eq('case_id', caseId)
+    .eq('org_id', profile.org_id)
     .order('created_at', { ascending: true })
     .limit(limit);
 
@@ -86,6 +92,10 @@ export async function sendCaseMessage(input: {
 }): Promise<CaseMessageDTO> {
   const profile = await getCurrentProfile();
   if (!profile) throw new Error('No autenticado');
+  if (!profile.org_id) throw new Error('Selecciona una organización activa.');
+
+  const hasAccess = await canAccessCase(input.caseId);
+  if (!hasAccess) throw new Error('Sin permisos para enviar mensajes en este caso');
 
   const supabase = await createServerClient();
 
@@ -96,13 +106,14 @@ export async function sendCaseMessage(input: {
     contenido: input.contenido,
     audience: input.audience ?? null,
     attachment_url: input.attachment_url ?? null,
+    org_id: profile.org_id,
     // created_at lo setea la DB por default; no lo pasamos para no romper exactOptionalPropertyTypes
   };
 
   const { data, error } = await supabase
     .from('case_messages')
     .insert(payload)
-    .select('*, sender:profiles(id, nombre, role)')
+    .select('*, sender:profiles(id, nombre:full_name, role)')
     .single();
 
   if (error) {

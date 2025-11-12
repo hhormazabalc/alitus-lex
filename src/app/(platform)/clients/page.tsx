@@ -47,6 +47,9 @@ const PAYMENT_METHODS = [
   { value: 'otros', label: 'Otro (especificar en notas)' },
 ];
 
+const PRIMARY_PANEL = 'glass-panel panel-minimal panel-no-accent';
+const FORM_SURFACE = 'border border-white/12 bg-white/8 px-5 py-5 shadow-[0_24px_62px_-50px_rgba(6,14,34,0.65)]';
+
 export default function ClientsPage() {
   const [clients, setClients] = useState<ClientDirectoryEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -185,15 +188,15 @@ export default function ClientsPage() {
   return (
     <div className="mx-auto w-full max-w-6xl px-4 pb-14 pt-6 sm:px-6 lg:px-10">
       <div className="space-y-8">
-        <section className="glass-panel border-white/12 bg-white/8 p-6 sm:p-7">
-          <div className="flex items-start gap-4">
-            <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/20 bg-white/10 text-primary shadow-inner shadow-black/20">
+        <section className={`${PRIMARY_PANEL} px-8 py-7 sm:px-9 sm:py-8`}>
+          <div className="flex items-start gap-5">
+            <span className="flex h-12 w-12 items-center justify-center rounded-sm border border-white/20 bg-white/10 text-primary shadow-[0_18px_48px_-32px_rgba(64,122,210,0.6)]">
               <Users className="h-5 w-5" />
             </span>
             <div className="space-y-2">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-white/55">Directorio</p>
-              <h1 className="text-2xl font-semibold tracking-tight text-foreground">Clientes de la firma</h1>
-              <p className="text-sm leading-relaxed text-foreground/70">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/60">Directorio</p>
+              <h1 className="text-2xl font-semibold tracking-tight text-white">Clientes de la firma</h1>
+              <p className="text-sm leading-relaxed text-white/70">
                 Crea y gestiona clientes antes de asociarles casos o planes legales.
               </p>
             </div>
@@ -201,10 +204,10 @@ export default function ClientsPage() {
         </section>
 
         <div className="grid gap-6 lg:grid-cols-[1.05fr_1.95fr]">
-          <Card className="border-white/12 bg-white/8">
+          <Card>
             <CardHeader className="space-y-3">
               <div className="flex items-center gap-3">
-                <span className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/20 bg-white/12 text-primary shadow-[0_18px_45px_-28px_rgba(66,156,255,0.45)]">
+                <span className="flex h-11 w-11 items-center justify-center rounded-sm border border-white/20 bg-white/10 text-primary shadow-[0_18px_50px_-32px_rgba(64,122,210,0.6)]">
                   <Building2 className="h-5 w-5" />
                 </span>
                 <div>
@@ -217,7 +220,7 @@ export default function ClientsPage() {
             </CardHeader>
             <CardContent>
               <form className="space-y-6" onSubmit={handleCreateClient}>
-                <section className="space-y-4 rounded-2xl border border-white/10 bg-white/6 p-4 shadow-[0_18px_45px_-30px_rgba(6,15,40,0.55)]">
+                <section className={`space-y-4 ${FORM_SURFACE}`}>
                   <div>
                     <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/55">Identidad ejecutiva</p>
                     <p className="mt-1 text-xs text-white/65">Nombre legal y documento para referencias en contratos y poderes.</p>
@@ -265,7 +268,7 @@ export default function ClientsPage() {
                   </div>
                 </section>
 
-                <section className="space-y-4 rounded-2xl border border-white/10 bg-white/6 p-4 shadow-[0_18px_45px_-30px_rgba(6,15,40,0.55)]">
+                <section className={`space-y-4 ${FORM_SURFACE}`}>
                   <div>
                     <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/55">Contacto principal</p>
                     <p className="mt-1 text-xs text-white/65">Datos para notificaciones, reuniones y autorizaciones firmadas.</p>
@@ -303,7 +306,7 @@ export default function ClientsPage() {
                   </div>
                 </section>
 
-                <section className="space-y-4 rounded-2xl border border-white/10 bg-white/6 p-4 shadow-[0_18px_45px_-30px_rgba(6,15,40,0.55)]">
+                <section className={`space-y-4 ${FORM_SURFACE}`}>
                   <div>
                     <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/55">Preferencias operativas</p>
                     <p className="mt-1 text-xs text-white/65">Indica cómo facturamos y qué consideraciones debemos recordar.</p>
@@ -318,7 +321,7 @@ export default function ClientsPage() {
                         id="medioPago"
                         value={form.medioPago}
                         onChange={handleChange('medioPago')}
-                        className="flex h-12 w-full appearance-none rounded-2xl border-2 border-[#2b5dff] bg-white/5 pl-11 pr-12 text-sm text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] transition focus:border-[#47b6ff] focus:outline-none focus:ring-2 focus:ring-[#47b6ff]/30"
+                        className="flex h-12 w-full appearance-none rounded-none border border-white/18 bg-white/6 pl-11 pr-12 text-sm text-white transition focus:border-[#47b6ff] focus:outline-none focus:ring-1 focus:ring-[#47b6ff]/35"
                       >
                         {PAYMENT_METHODS.map((method) => (
                           <option key={method.value} value={method.value} className="bg-[#04132f] text-white">
@@ -362,14 +365,14 @@ export default function ClientsPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-white/12 bg-white/8">
+          <Card className="panel-minimal panel-no-accent">
             <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <CardTitle className="flex items-center gap-2 text-lg font-semibold text-foreground">
+                <CardTitle className="flex items-center gap-2 text-lg font-semibold text-white">
                   <User className="h-5 w-5 text-primary" />
                   Fichero de clientes ({totalClientes})
                 </CardTitle>
-                <CardDescription className="text-sm text-foreground/70">
+                <CardDescription className="text-sm text-white/70">
                   Explora fichas ejecutivas por nombre, correo o CI/NIT. Ideal para asignar casos o generar invitaciones.
                 </CardDescription>
               </div>
@@ -383,12 +386,12 @@ export default function ClientsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               {isLoading ? (
-                <div className="flex items-center gap-3 rounded-2xl border border-white/12 bg-white/8 px-4 py-3 text-sm text-foreground/70">
+                <div className="flex items-center gap-3 border border-white/15 bg-white/8 px-4 py-3 text-sm text-white/70">
                   <Loader2 className="h-4 w-4 animate-spin text-primary" />
                   Cargando clientes…
                 </div>
               ) : clients.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-white/15 bg-white/6 px-4 py-6 text-center text-sm text-foreground/70">
+                <div className="border border-dashed border-white/18 bg-white/6 px-4 py-6 text-center text-sm text-white/70">
                   No hay clientes registrados todavía. Crea el primero para comenzar.
                 </div>
               ) : (
@@ -403,37 +406,37 @@ export default function ClientsPage() {
                     return (
                       <div
                         key={client.id}
-                        className="relative flex h-full flex-col justify-between rounded-3xl border border-white/12 bg-white/7 p-5 text-sm text-foreground/85 shadow-[0_20px_55px_-35px_rgba(6,15,40,0.6)] transition hover:border-primary/40 hover:bg-white/12"
+                        className="glass-panel panel-minimal panel-compact panel-no-accent relative flex h-full flex-col justify-between px-5 py-5 text-sm text-white/80 transition hover:border-primary/45 hover:bg-primary/12"
                       >
                         <div className="flex items-start gap-4">
-                          <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/20 bg-white/18 text-base font-semibold tracking-tight text-primary shadow-inner">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-sm border border-white/18 bg-white/12 text-base font-semibold tracking-tight text-primary shadow-[0_16px_40px_-28px_rgba(62,122,210,0.6)]">
                             {initials || 'CL'}
                           </div>
                           <div className="space-y-1">
-                            <p className="text-base font-semibold tracking-tight text-foreground">
+                            <p className="text-base font-semibold tracking-tight text-white">
                               {client.nombre}
                             </p>
-                            <p className="text-xs text-foreground/65">
+                            <p className="text-xs text-white/65">
                               {client.email}
                             </p>
                           </div>
                         </div>
-                        <div className="mt-4 space-y-2 text-xs text-foreground/70">
+                        <div className="mt-4 space-y-2 text-xs text-white/70">
                           <div className="flex items-center gap-2">
-                            <Badge variant="info" className="border-transparent bg-sky-500/15 text-sky-400">
+                            <Badge variant="info" className="border-sky-400/55 bg-sky-400/12 text-sky-200">
                               Identificación
                             </Badge>
                             <span>{client.rut ? formatIdentityDocument(client.rut) : '—'}</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Badge variant="secondary" className="border-white/20 bg-white/12 text-foreground/70">
+                            <Badge variant="secondary" className="border-white/20 bg-white/10 text-white/70">
                               Contacto
                             </Badge>
                             <span>{client.telefono || 'Sin teléfono registrado'}</span>
                           </div>
                           {client.empresa && (
                             <div className="flex items-center gap-2">
-                              <Badge variant="secondary" className="border-white/20 bg-white/12 text-foreground/70">
+                              <Badge variant="secondary" className="border-white/20 bg-white/10 text-white/70">
                                 Empresa
                               </Badge>
                               <span>{client.empresa}</span>
@@ -441,7 +444,7 @@ export default function ClientsPage() {
                           )}
                           {client.segmento && (
                             <div className="flex items-center gap-2">
-                              <Badge variant="warning" className="border-transparent bg-amber-400/15 text-amber-300">
+                              <Badge variant="warning" className="border-amber-300/55 bg-amber-300/12 text-amber-200">
                                 Segmento
                               </Badge>
                               <span>{client.segmento}</span>
@@ -449,7 +452,7 @@ export default function ClientsPage() {
                           )}
                           {client.medio_pago && (
                             <div className="flex items-center gap-2">
-                              <Badge variant="success" className="border-transparent bg-emerald-400/15 text-emerald-300">
+                              <Badge variant="success" className="border-emerald-300/55 bg-emerald-300/12 text-emerald-200">
                                 Medio de pago
                               </Badge>
                               <span className="capitalize">{client.medio_pago}</span>

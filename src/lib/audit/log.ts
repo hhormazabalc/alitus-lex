@@ -22,6 +22,10 @@ export async function logAuditAction(input: LogAuditActionInput) {
       console.warn('Attempted to log audit action without authenticated user');
       return;
     }
+    if (!profile.org_id) {
+      console.warn('Attempted to log audit action without active organization');
+      return;
+    }
 
     const supabase = await createServerClient();
     // Tu TS dice que headers() devuelve Promise<ReadonlyHeaders> -> usar await
@@ -38,6 +42,7 @@ export async function logAuditAction(input: LogAuditActionInput) {
           headersList.get('x-real-ip') ??
           'unknown') as unknown, // la columna es unknown en tus types
       user_agent: headersList.get('user-agent') ?? 'unknown',
+      org_id: profile.org_id,
       // created_at lo pone la DB si es default
     };
 
@@ -56,7 +61,7 @@ export async function logAuditAction(input: LogAuditActionInput) {
 export async function getAuditHistory(entityType: string, entityId: string) {
   try {
     const profile = await getCurrentProfile();
-    if (!profile || profile.role !== 'admin_firma') {
+    if (!profile || profile.role !== 'admin_firma' || !profile.org_id) {
       throw new Error('Sin permisos para ver auditoría');
     }
 
@@ -67,11 +72,12 @@ export async function getAuditHistory(entityType: string, entityId: string) {
       .select(
         `
         *,
-        actor:profiles(nombre)
+        actor:profiles(full_name)
       `
       )
       .eq('entity_type', entityType)
       .eq('entity_id', entityId)
+      .eq('org_id', profile.org_id)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -96,7 +102,7 @@ export async function getAuditHistory(entityType: string, entityId: string) {
 export async function getAuditStats(days: number = 30) {
   try {
     const profile = await getCurrentProfile();
-    if (!profile || profile.role !== 'admin_firma') {
+    if (!profile || profile.role !== 'admin_firma' || !profile.org_id) {
       throw new Error('Sin permisos para ver estadísticas de auditoría');
     }
 
@@ -107,6 +113,7 @@ export async function getAuditStats(days: number = 30) {
     const { data: stats, error } = await supabase
       .from('audit_log')
       .select('action, entity_type, created_at')
+      .eq('org_id', profile.org_id)
       .gte('created_at', fromDate.toISOString());
 
     if (error) {

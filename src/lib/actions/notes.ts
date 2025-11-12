@@ -20,6 +20,7 @@ import type { Note, NoteInsert } from '@/lib/supabase/types';
 export async function createNote(input: CreateNoteInput) {
   try {
     const profile = await requireAuth();
+    if (!profile.org_id) throw new Error('Selecciona una organización activa.');
     const validatedInput = createNoteSchema.parse(input);
 
     // Verificar acceso al caso
@@ -38,6 +39,7 @@ export async function createNote(input: CreateNoteInput) {
     const noteData: NoteInsert = {
       ...validatedInput,
       author_id: profile.id,
+      org_id: profile.org_id,
     };
 
     const { data: newNote, error } = await supabase
@@ -46,7 +48,7 @@ export async function createNote(input: CreateNoteInput) {
       .select(
         `
         *,
-        author:profiles(nombre),
+        author:profiles(id, nombre:full_name),
         case:cases(caratulado)
       `
       )
@@ -88,6 +90,7 @@ export async function createNote(input: CreateNoteInput) {
 export async function updateNote(noteId: string, input: UpdateNoteInput) {
   try {
     const profile = await requireAuth();
+    if (!profile.org_id) throw new Error('Selecciona una organización activa.');
     const validatedInput = updateNoteSchema.parse(input);
     const supabase = await createServerClient();
 
@@ -96,6 +99,7 @@ export async function updateNote(noteId: string, input: UpdateNoteInput) {
       .from('notes')
       .select('*, case:cases(id)')
       .eq('id', noteId)
+      .eq('org_id', profile.org_id)
       .single();
 
     if (fetchError || !existingNote) {
@@ -122,10 +126,11 @@ export async function updateNote(noteId: string, input: UpdateNoteInput) {
       .from('notes')
       .update(updatePayload)
       .eq('id', noteId)
+      .eq('org_id', profile.org_id)
       .select(
         `
         *,
-        author:profiles(nombre),
+        author:profiles(id, nombre:full_name),
         case:cases(caratulado)
       `
       )
@@ -165,6 +170,7 @@ export async function updateNote(noteId: string, input: UpdateNoteInput) {
 export async function deleteNote(noteId: string) {
   try {
     const profile = await requireAuth();
+    if (!profile.org_id) throw new Error('Selecciona una organización activa.');
     const supabase = await createServerClient();
 
     // Obtener la nota existente
@@ -172,6 +178,7 @@ export async function deleteNote(noteId: string) {
       .from('notes')
       .select('*')
       .eq('id', noteId)
+      .eq('org_id', profile.org_id)
       .single();
 
     if (fetchError || !existingNote) {
@@ -189,7 +196,11 @@ export async function deleteNote(noteId: string) {
       throw new Error('Sin permisos para acceder a este caso');
     }
 
-    const { error } = await supabase.from('notes').delete().eq('id', noteId);
+    const { error } = await supabase
+      .from('notes')
+      .delete()
+      .eq('id', noteId)
+      .eq('org_id', profile.org_id);
 
     if (error) {
       console.error('Error deleting note:', error);
@@ -222,9 +233,8 @@ export async function deleteNote(noteId: string) {
 export async function getNotes(filters?: Partial<NoteFiltersInput>) {
   try {
     const profile = await getCurrentProfile();
-    if (!profile) {
-      throw new Error('No autenticado');
-    }
+    if (!profile) throw new Error('No autenticado');
+    if (!profile.org_id) throw new Error('Selecciona una organización activa.');
 
     // Defaults sólidos para evitar TS2739
     const input = {
@@ -241,11 +251,12 @@ export async function getNotes(filters?: Partial<NoteFiltersInput>) {
       .select(
         `
         *,
-        author:profiles(id, nombre),
+        author:profiles(id, nombre:full_name),
         case:cases(id, caratulado)
       `,
-        { count: 'exact' }
-      );
+        { count: 'exact' },
+      )
+      .eq('org_id', profile.org_id);
 
     // Aplicar filtros de acceso según rol
     if (profile.role === 'cliente') {
@@ -256,7 +267,8 @@ export async function getNotes(filters?: Partial<NoteFiltersInput>) {
       const { data: clientCases } = await supabase
         .from('case_clients')
         .select('case_id')
-        .eq('client_profile_id', profile.id);
+        .eq('client_profile_id', profile.id)
+        .eq('org_id', profile.org_id);
 
       const caseIds = clientCases?.map((cc: { case_id: string }) => cc.case_id) || [];
       if (caseIds.length === 0) {

@@ -519,7 +519,7 @@ export function CaseForm({
           if (exists) {
             return prev.map((client) => (client.id === newClient.id ? newClient : client));
           }
-          return [...prev, newClient].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+          return [...prev, newClient].sort((a, b) => (a.nombre ?? '').localeCompare(b.nombre ?? '', 'es'));
         });
 
         setValue('cliente_principal_id', newClient.id);

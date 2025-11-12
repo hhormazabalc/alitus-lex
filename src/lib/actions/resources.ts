@@ -7,6 +7,7 @@ import type { LegalTemplate, QuickLink } from '@/lib/supabase/types';
 
 export async function listQuickLinks() {
   const profile = await requireAuth();
+  if (!profile.org_id) throw new Error('Selecciona una organización activa.');
   if (profile.role === 'cliente') {
     throw new Error('Sin permisos');
   }
@@ -15,6 +16,7 @@ export async function listQuickLinks() {
   const { data, error } = await supabase
     .from('quick_links')
     .select('*')
+    .eq('org_id', profile.org_id)
     .order('is_default', { ascending: false })
     .order('created_at', { ascending: true });
 
@@ -27,6 +29,7 @@ export async function listQuickLinks() {
 
 export async function createQuickLink(formData: FormData) {
   const profile = await requireAuth();
+  if (!profile.org_id) throw new Error('Selecciona una organización activa.');
   if (profile.role === 'cliente') {
     throw new Error('Sin permisos');
   }
@@ -45,6 +48,7 @@ export async function createQuickLink(formData: FormData) {
     url,
     category,
     created_by: profile.id,
+    org_id: profile.org_id,
     icon: formData.get('icon') ? String(formData.get('icon')) : null,
   });
 
@@ -58,12 +62,17 @@ export async function createQuickLink(formData: FormData) {
 
 export async function deleteQuickLink(id: string) {
   const profile = await requireAuth();
+  if (!profile.org_id) throw new Error('Selecciona una organización activa.');
   if (profile.role === 'cliente') {
     throw new Error('Sin permisos');
   }
 
   const supabase = await createServerClient();
-  const { error } = await supabase.from('quick_links').delete().eq('id', id);
+  const { error } = await supabase
+    .from('quick_links')
+    .delete()
+    .eq('id', id)
+    .eq('org_id', profile.org_id);
 
   if (error) {
     throw error;
@@ -75,6 +84,7 @@ export async function deleteQuickLink(id: string) {
 
 export async function listLegalTemplates() {
   const profile = await requireAuth();
+  if (!profile.org_id) throw new Error('Selecciona una organización activa.');
   if (profile.role === 'cliente') {
     throw new Error('Sin permisos');
   }
@@ -83,6 +93,7 @@ export async function listLegalTemplates() {
   const { data, error } = await supabase
     .from('legal_templates')
     .select('*')
+    .eq('org_id', profile.org_id)
     .order('updated_at', { ascending: false });
 
   if (error) {
@@ -94,6 +105,7 @@ export async function listLegalTemplates() {
 
 export async function createLegalTemplate(formData: FormData) {
   const profile = await requireAuth();
+  if (!profile.org_id) throw new Error('Selecciona una organización activa.');
   if (profile.role === 'cliente') {
     throw new Error('Sin permisos');
   }
@@ -112,6 +124,7 @@ export async function createLegalTemplate(formData: FormData) {
     content,
     category,
     created_by: profile.id,
+    org_id: profile.org_id,
     is_shared: profile.role === 'admin_firma',
   });
 

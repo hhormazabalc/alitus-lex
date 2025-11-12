@@ -32,6 +32,7 @@ import {
   User,
   FileText,
   ArrowUpRight,
+  Building2,
 } from 'lucide-react';
 import { KpiCards } from '@/components/KpiCards';
 import type { Profile } from '@/lib/supabase/types';
@@ -134,7 +135,18 @@ export function AdminDashboard({ profile, data }: AdminDashboardProps) {
                     <p className='mt-1 text-[11px] text-foreground/70 capitalize'>{profile.role.replace('_', ' ')}</p>
                   </div>
                 </div>
-                <div className='flex items-center gap-2.5'>
+                <div className='flex items-center gap-2.5 flex-wrap'>
+                  <Button
+                    asChild
+                    size='sm'
+                    variant='secondary'
+                    className='rounded-full border border-white/20 bg-primary/10 px-4 text-sm font-medium text-white shadow-[0_22px_55px_-28px_rgba(38,140,255,0.5)] hover:bg-primary/25'
+                  >
+                    <Link href='/admin/org'>
+                      <Building2 className='mr-2 h-4 w-4' />
+                      Empresas
+                    </Link>
+                  </Button>
                   <Button
                     asChild
                     size='sm'

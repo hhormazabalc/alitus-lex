@@ -2,8 +2,15 @@
 
 import { revalidatePath } from 'next/cache';
 import { createServiceClient } from '@/lib/supabase/server';
-import type { Database, ProfileInsert, ProfileUpdate } from '@/lib/supabase/types';
-import { requireAuth } from '@/lib/auth/roles';
+import type {
+  Database,
+  ProfileInsert,
+  ProfileUpdate,
+  MembershipRole,
+  MembershipStatus,
+  ProfileStatus,
+} from '@/lib/supabase/types';
+import { requireAuth, type AuthenticatedProfile } from '@/lib/auth/roles';
 import {
   createManagedUserSchema,
   updateManagedUserSchema,
@@ -16,6 +23,7 @@ import type { User as SupabaseAuthUser } from '@supabase/supabase-js';
 const ADMIN_USERS_PATH = '/dashboard/admin/users';
 
 type ProfileRow = Database['public']['Tables']['profiles']['Row'];
+type MembershipRow = Database['public']['Tables']['memberships']['Row'];
 type ServiceClient = ReturnType<typeof createServiceClient>;
 type AuthUserLite = {
   id: string;
@@ -23,6 +31,38 @@ type AuthUserLite = {
   created_at: string | null;
   last_sign_in_at: string | null;
 };
+
+type MembershipWithProfile = MembershipRow & {
+  user: Pick<ProfileRow, 'id' | 'email' | 'full_name' | 'rut' | 'phone' | 'activo' | 'created_at' | 'status'> | null;
+};
+
+const AUTH_USER_CACHE_TTL_MS = 60_000;
+let authUserCache: Map<string, AuthUserLite> | null = null;
+let authUserCacheFetchedAt = 0;
+
+const MEMBERSHIP_TO_MANAGED_ROLE: Record<MembershipRole, ManagedUserRole> = {
+  owner: 'admin_firma',
+  admin: 'admin_firma',
+  lawyer: 'abogado',
+  analyst: 'analista',
+  client_guest: 'cliente',
+};
+
+const MANAGED_TO_MEMBERSHIP_ROLE: Record<ManagedUserRole, MembershipRole> = {
+  admin_firma: 'admin',
+  abogado: 'lawyer',
+  analista: 'analyst',
+  cliente: 'client_guest',
+};
+
+const membershipRoleFromManaged = (role: ManagedUserRole): MembershipRole =>
+  MANAGED_TO_MEMBERSHIP_ROLE[role] ?? 'client_guest';
+
+const managedRoleFromMembership = (role: MembershipRole): ManagedUserRole =>
+  MEMBERSHIP_TO_MANAGED_ROLE[role] ?? 'cliente';
+
+const membershipStatusFromActive = (active: boolean): MembershipStatus => (active ? 'active' : 'suspended');
+const profileStatusFromActive = (active: boolean): ProfileStatus => (active ? 'active' : 'blocked');
 
 export type ManagedUser = {
   profileId: string;
@@ -43,33 +83,45 @@ export type ManagedUsersResult = {
   error?: string;
 };
 
-function mapRowToManagedUser(row: ProfileRow, authUser?: AuthUserLite | null): ManagedUser | null {
-  const email = row.email ?? authUser?.email ?? null;
+function mapMembershipToManagedUser(
+  row: MembershipWithProfile,
+  authUser?: AuthUserLite | null,
+): ManagedUser | null {
+  if (!row.user) return null;
+
+  const membershipRole = row.role as MembershipRole;
+  const managedRole = managedRoleFromMembership(membershipRole);
+  const email = row.user.email ?? authUser?.email ?? null;
   if (!email) return null;
 
-  const role = (row.role ?? 'cliente') as ManagedUserRole;
+  const profileStatus = (row.user.status as ProfileStatus | null) ?? 'pending';
+  const membershipStatus = (row.status as MembershipStatus | null) ?? 'invited';
+  const isActive = membershipStatus === 'active' && profileStatus === 'active';
 
   return {
-    profileId: row.id,
-    userId: row.user_id,
+    profileId: row.user.id,
+    userId: row.user.id,
     email,
-    nombre: row.nombre,
-    role,
-    rut: row.rut ?? null,
-    telefono: row.telefono ?? null,
-    activo: row.activo ?? true,
-    createdAt: authUser?.created_at ?? row.created_at ?? null,
+    nombre: row.user.full_name ?? row.user.email ?? 'Usuario',
+    role: managedRole,
+    rut: row.user.rut ?? null,
+    telefono: row.user.phone ?? null,
+    activo: isActive,
+    createdAt: authUser?.created_at ?? row.user.created_at ?? null,
     lastSignInAt: authUser?.last_sign_in_at ?? null,
   };
 }
 
-async function ensureAdminAccess() {
-  const profile = await requireAuth();
+async function ensureAdminAccess(): Promise<AuthenticatedProfile> {
+  const profile = await requireAuth('admin_firma');
   if (profile.role !== 'admin_firma') throw new Error('Sin permisos administrativos');
+  if (!profile.org_id) throw new Error('Selecciona una organización activa para administrar usuarios.');
 
   if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
     throw new Error('Falta configurar SUPABASE_SERVICE_ROLE_KEY');
   }
+
+  return profile;
 }
 
 function parseCheckbox(value: FormDataEntryValue | null) {
@@ -117,6 +169,11 @@ function sortUsers(users: ManagedUser[]) {
 }
 
 async function buildAuthUserMap(client: ServiceClient) {
+  const now = Date.now();
+  if (authUserCache && now - authUserCacheFetchedAt < AUTH_USER_CACHE_TTL_MS) {
+    return authUserCache;
+  }
+
   const map = new Map<string, AuthUserLite>();
   const perPage = 200;
   let page = 1;
@@ -147,45 +204,55 @@ async function buildAuthUserMap(client: ServiceClient) {
   return map;
 }
 
+async function getAuthUserMap(client: ServiceClient) {
+  try {
+    const map = await buildAuthUserMap(client);
+    authUserCache = map;
+    authUserCacheFetchedAt = Date.now();
+    return map;
+  } catch (error) {
+    console.warn('[admin-users] fetch auth users fallback', error);
+    return null;
+  }
+}
+
 export async function fetchManagedUsers(): Promise<ManagedUsersResult> {
   try {
-    await ensureAdminAccess();
+    const adminProfile = await ensureAdminAccess();
     const supabase = await createServiceClient();
 
     const { data, error } = await supabase
-      .from('profiles')
+      .from('memberships')
       .select(`
-        id,
         user_id,
-        email,
-        nombre,
         role,
-        rut,
-        telefono,
-        activo,
-        created_at
+        status,
+        org_id,
+        created_at,
+        user:profiles(
+          id,
+          email,
+          full_name,
+          rut,
+          phone,
+          activo,
+          created_at,
+          status
+        )
       `)
-      .order('nombre', { ascending: true })
-      .returns<ProfileRow[]>();
+      .eq('org_id', adminProfile.org_id);
 
     if (error) {
       console.error('[fetchManagedUsers] error', error);
       return { success: false, error: 'No se pudieron obtener los usuarios' };
     }
 
-    let authUserMap: Map<string, AuthUserLite>;
-    try {
-      authUserMap = await buildAuthUserMap(supabase);
-    } catch (authError) {
-      console.error('[fetchManagedUsers] auth admin list error', authError);
-      return {
-        success: false,
-        error: authError instanceof Error ? authError.message : 'No se pudieron obtener usuarios de autenticación',
-      };
-    }
+    const authUserMap = await getAuthUserMap(supabase);
 
     const users = (data ?? [])
-      .map((row) => mapRowToManagedUser(row, authUserMap.get(row.user_id)))
+      .map((row) =>
+        mapMembershipToManagedUser(row as MembershipWithProfile, authUserMap?.get(row.user_id)),
+      )
       .filter((u): u is ManagedUser => Boolean(u));
 
     return { success: true, users: sortUsers(users) };
@@ -197,7 +264,7 @@ export async function fetchManagedUsers(): Promise<ManagedUsersResult> {
 
 export async function createManagedUser(formData: FormData): Promise<ManagedUsersResult> {
   try {
-    await ensureAdminAccess();
+    const adminProfile = await ensureAdminAccess();
     const parsed = sanitizeCreateInput(formData);
     const createData = parsed.data as CreateManagedUserInput | undefined;
     if (!createData) return { success: false, error: parsed.error ?? 'Datos inválidos' };
@@ -225,13 +292,13 @@ export async function createManagedUser(formData: FormData): Promise<ManagedUser
     // 🔧 FIX: añadimos el email en el payload
     const profilePayload: ProfileInsert = {
       id: userId,
-      user_id: userId,
       email: email as string,
-      nombre: nombre as string,
+      full_name: nombre as string,
       role: role as ManagedUserRole,
       rut: rutValue,
-      telefono: telefonoValue,
+      phone: telefonoValue,
       activo: activoValue,
+      status: profileStatusFromActive(activoValue),
     };
 
     const { error: profileError } = await supabase.from('profiles').upsert(profilePayload, {
@@ -244,6 +311,28 @@ export async function createManagedUser(formData: FormData): Promise<ManagedUser
       return { success: false, error: 'No se pudo guardar el perfil del usuario' };
     }
 
+    const membershipPayload = {
+      user_id: userId,
+      org_id: adminProfile.org_id,
+      role: membershipRoleFromManaged(role),
+      status: membershipStatusFromActive(activoValue),
+    } satisfies Partial<MembershipRow>;
+
+    const { error: membershipError } = await supabase.from('memberships').upsert(membershipPayload, {
+      onConflict: 'user_id,org_id',
+    });
+
+    if (membershipError) {
+      console.error('[createManagedUser] membership error', membershipError);
+      const { error: deleteProfileError } = await supabase.from('profiles').delete().eq('id', userId);
+      if (deleteProfileError) {
+        console.error('[createManagedUser] failed to rollback profile', deleteProfileError);
+      }
+      await supabase.auth.admin.deleteUser(userId).catch(() => undefined);
+      return { success: false, error: 'No se pudo asignar la organización al usuario' };
+    }
+
+    authUserCacheFetchedAt = 0;
     revalidatePath(ADMIN_USERS_PATH);
     return fetchManagedUsers();
   } catch (error) {
@@ -254,7 +343,7 @@ export async function createManagedUser(formData: FormData): Promise<ManagedUser
 
 export async function updateManagedUser(userId: string, formData: FormData): Promise<ManagedUsersResult> {
   try {
-    await ensureAdminAccess();
+    const adminProfile = await ensureAdminAccess();
     const parsed = sanitizeUpdateInput(formData);
     const updateData = parsed.data as UpdateManagedUserInput | undefined;
     if (!updateData) return { success: false, error: parsed.error ?? 'Datos inválidos' };
@@ -278,23 +367,41 @@ export async function updateManagedUser(userId: string, formData: FormData): Pro
     if (authError) return { success: false, error: authError.message };
 
     const profileUpdatePayload: ProfileUpdate = {
-      nombre: nombre as string,
+      full_name: nombre as string,
       email: email as string,
       role: role as ManagedUserRole,
       rut: rutValue,
-      telefono: telefonoValue,
+      phone: telefonoValue,
       activo: activoValue,
+      status: profileStatusFromActive(activoValue),
     };
 
     const { error: profileError } = await supabase.from('profiles')
       .update(profileUpdatePayload)
-      .eq('user_id', userId);
+      .eq('id', userId);
 
     if (profileError) {
       console.error('[updateManagedUser] profile error', profileError);
       return { success: false, error: 'No se pudo actualizar el perfil del usuario' };
     }
 
+    const membershipPayload = {
+      user_id: userId,
+      org_id: adminProfile.org_id,
+      role: membershipRoleFromManaged(role),
+      status: membershipStatusFromActive(activoValue),
+    } satisfies Partial<MembershipRow>;
+
+    const { error: membershipError } = await supabase
+      .from('memberships')
+      .upsert(membershipPayload, { onConflict: 'user_id,org_id' });
+
+    if (membershipError) {
+      console.error('[updateManagedUser] membership error', membershipError);
+      return { success: false, error: 'No se pudo actualizar la membresía del usuario' };
+    }
+
+    authUserCacheFetchedAt = 0;
     revalidatePath(ADMIN_USERS_PATH);
     return fetchManagedUsers();
   } catch (error) {
@@ -305,19 +412,31 @@ export async function updateManagedUser(userId: string, formData: FormData): Pro
 
 export async function deactivateManagedUser(userId: string): Promise<ManagedUsersResult> {
   try {
-    await ensureAdminAccess();
+    const adminProfile = await ensureAdminAccess();
     const supabase = await createServiceClient();
 
     const { error: profileError } = await supabase
       .from('profiles')
-      .update({ activo: false })
-      .eq('user_id', userId);
+      .update({ activo: false, status: profileStatusFromActive(false) })
+      .eq('id', userId);
 
     if (profileError) {
       console.error('[deactivateManagedUser] profile error', profileError);
       return { success: false, error: 'No se pudo desactivar la cuenta' };
     }
 
+    const { error: membershipError } = await supabase
+      .from('memberships')
+      .update({ status: membershipStatusFromActive(false) })
+      .eq('user_id', userId)
+      .eq('org_id', adminProfile.org_id);
+
+    if (membershipError) {
+      console.error('[deactivateManagedUser] membership error', membershipError);
+      return { success: false, error: 'No se pudo desactivar la membresía del usuario' };
+    }
+
+    authUserCacheFetchedAt = 0;
     revalidatePath(ADMIN_USERS_PATH);
     return fetchManagedUsers();
   } catch (error) {
@@ -328,8 +447,36 @@ export async function deactivateManagedUser(userId: string): Promise<ManagedUser
 
 export async function deleteManagedUser(userId: string): Promise<ManagedUsersResult> {
   try {
-    await ensureAdminAccess();
+    const adminProfile = await ensureAdminAccess();
     const supabase = await createServiceClient();
+
+    // Remove membership for current organization first
+    const { error: membershipDeleteError } = await supabase
+      .from('memberships')
+      .delete()
+      .eq('user_id', userId)
+      .eq('org_id', adminProfile.org_id);
+
+    if (membershipDeleteError) {
+      console.error('[deleteManagedUser] membership delete error', membershipDeleteError);
+      return { success: false, error: 'No se pudo desvincular al usuario de la organización' };
+    }
+
+    const { data: remainingMemberships, error: remainingError } = await supabase
+      .from('memberships')
+      .select('org_id')
+      .eq('user_id', userId);
+
+    if (remainingError) {
+      console.error('[deleteManagedUser] remaining memberships error', remainingError);
+      return { success: false, error: 'No se pudo verificar la membresía del usuario' };
+    }
+
+    if ((remainingMemberships?.length ?? 0) > 0) {
+      // User still belongs to other organizations; stop here.
+      revalidatePath(ADMIN_USERS_PATH);
+      return fetchManagedUsers();
+    }
 
     const attemptDelete = async () => supabase.auth.admin.deleteUser(userId);
 
@@ -352,7 +499,7 @@ export async function deleteManagedUser(userId: string): Promise<ManagedUsersRes
       const { error: profileDeleteError } = await supabase
         .from('profiles')
         .delete()
-        .eq('user_id', userId);
+        .eq('id', userId);
 
       if (!profileDeleteError) {
         const retry = await attemptDelete();
@@ -367,8 +514,8 @@ export async function deleteManagedUser(userId: string): Promise<ManagedUsersRes
 
       const { error: profileError } = await supabase
         .from('profiles')
-        .update({ activo: false })
-        .eq('user_id', userId);
+        .update({ activo: false, status: profileStatusFromActive(false) })
+        .eq('id', userId);
 
       if (profileError) {
         console.error('[deleteManagedUser] deactivate fallback error', profileError);

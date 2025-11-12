@@ -24,6 +24,7 @@ export type Database = {
           entity_type: string
           id: string
           ip_address: unknown | null
+          org_id: string
           user_agent: string | null
         }
         Insert: {
@@ -35,6 +36,7 @@ export type Database = {
           entity_type: string
           id?: string
           ip_address?: unknown | null
+          org_id: string
           user_agent?: string | null
         }
         Update: {
@@ -46,6 +48,7 @@ export type Database = {
           entity_type?: string
           id?: string
           ip_address?: unknown | null
+          org_id?: string
           user_agent?: string | null
         }
         Relationships: [
@@ -54,6 +57,13 @@ export type Database = {
             columns: ["actor_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audit_log_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -138,18 +148,21 @@ export type Database = {
           client_profile_id: string
           created_at: string | null
           id: string
+          org_id: string
         }
         Insert: {
           case_id: string
           client_profile_id: string
           created_at?: string | null
           id?: string
+          org_id: string
         }
         Update: {
           case_id?: string
           client_profile_id?: string
           created_at?: string | null
           id?: string
+          org_id?: string
         }
         Relationships: [
           {
@@ -174,18 +187,21 @@ export type Database = {
           case_id: string
           created_at: string | null
           id: string
+          org_id: string
         }
         Insert: {
           abogado_id: string
           case_id: string
           created_at?: string | null
           id?: string
+          org_id: string
         }
         Update: {
           abogado_id?: string
           case_id?: string
           created_at?: string | null
           id?: string
+          org_id?: string
         }
         Relationships: [
           {
@@ -210,6 +226,7 @@ export type Database = {
           created_at: string
           id: string
           nombre: string
+          org_id: string
           rut: string | null
           tipo: string
         }
@@ -218,6 +235,7 @@ export type Database = {
           created_at?: string
           id?: string
           nombre: string
+          org_id: string
           rut?: string | null
           tipo?: string
         }
@@ -226,6 +244,7 @@ export type Database = {
           created_at?: string
           id?: string
           nombre?: string
+          org_id?: string
           rut?: string | null
           tipo?: string
         }
@@ -247,6 +266,7 @@ export type Database = {
           contenido: string
           created_at: string | null
           id: string
+          org_id: string
           sender_profile_id: string
         }
         Insert: {
@@ -256,6 +276,7 @@ export type Database = {
           contenido: string
           created_at?: string | null
           id?: string
+          org_id: string
           sender_profile_id: string
         }
         Update: {
@@ -265,6 +286,7 @@ export type Database = {
           contenido?: string
           created_at?: string | null
           id?: string
+          org_id?: string
           sender_profile_id?: string
         }
         Relationships: [
@@ -306,6 +328,7 @@ export type Database = {
           pagado_en: string | null
           payku_payment_id: string | null
           porcentaje_variable: number | null
+          org_id: string
           requiere_testigos: boolean
           requiere_pago: boolean
           responsable_id: string | null
@@ -334,6 +357,7 @@ export type Database = {
           pagado_en?: string | null
           payku_payment_id?: string | null
           porcentaje_variable?: number | null
+          org_id: string
           requiere_testigos?: boolean
           requiere_pago?: boolean
           responsable_id?: string | null
@@ -362,6 +386,7 @@ export type Database = {
           pagado_en?: string | null
           payku_payment_id?: string | null
           porcentaje_variable?: number | null
+          org_id?: string
           requiere_testigos?: boolean
           requiere_pago?: boolean
           responsable_id?: string | null
@@ -418,6 +443,7 @@ export type Database = {
           id: string
           materia: string | null
           modalidad_cobro: string
+          org_id: string
           nombre_cliente: string
           numero_causa: string | null
           objetivo_cliente: string | null
@@ -456,6 +482,7 @@ export type Database = {
           id?: string
           materia?: string | null
           modalidad_cobro?: string
+          org_id: string
           nombre_cliente: string
           numero_causa?: string | null
           objetivo_cliente?: string | null
@@ -494,6 +521,7 @@ export type Database = {
           id?: string
           materia?: string | null
           modalidad_cobro?: string
+          org_id?: string
           nombre_cliente?: string
           numero_causa?: string | null
           objetivo_cliente?: string | null
@@ -538,6 +566,7 @@ export type Database = {
           created_at: string | null
           id: string
           nombre: string
+          org_id: string
           size_bytes: number | null
           tipo_mime: string | null
           updated_at: string | null
@@ -550,6 +579,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           nombre: string
+          org_id: string
           size_bytes?: number | null
           tipo_mime?: string | null
           updated_at?: string | null
@@ -564,6 +594,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           nombre?: string
+          org_id?: string
           size_bytes?: number | null
           tipo_mime?: string | null
           updated_at?: string | null
@@ -602,6 +633,7 @@ export type Database = {
           estado: Database["public"]["Enums"]["request_status"] | null
           fecha_limite: string | null
           id: string
+          org_id: string
           prioridad: Database["public"]["Enums"]["case_priority"] | null
           respondido_at: string | null
           respondido_por: string | null
@@ -621,6 +653,7 @@ export type Database = {
           estado?: Database["public"]["Enums"]["request_status"] | null
           fecha_limite?: string | null
           id?: string
+          org_id: string
           prioridad?: Database["public"]["Enums"]["case_priority"] | null
           respondido_at?: string | null
           respondido_por?: string | null
@@ -640,6 +673,7 @@ export type Database = {
           estado?: Database["public"]["Enums"]["request_status"] | null
           fecha_limite?: string | null
           id?: string
+          org_id?: string
           prioridad?: Database["public"]["Enums"]["case_priority"] | null
           respondido_at?: string | null
           respondido_por?: string | null
@@ -906,6 +940,7 @@ export type Database = {
           created_by: string | null
           id: string
           is_shared: boolean | null
+          org_id: string
           title: string
           updated_at: string | null
         }
@@ -916,6 +951,7 @@ export type Database = {
           created_by?: string | null
           id?: string
           is_shared?: boolean | null
+          org_id: string
           title: string
           updated_at?: string | null
         }
@@ -926,6 +962,7 @@ export type Database = {
           created_by?: string | null
           id?: string
           is_shared?: boolean | null
+          org_id?: string
           title?: string
           updated_at?: string | null
         }
@@ -1070,6 +1107,7 @@ export type Database = {
           contenido: string
           created_at: string | null
           id: string
+          org_id: string
           tipo: Database["public"]["Enums"]["note_type"]
           updated_at: string | null
         }
@@ -1079,6 +1117,7 @@ export type Database = {
           contenido: string
           created_at?: string | null
           id?: string
+          org_id: string
           tipo?: Database["public"]["Enums"]["note_type"]
           updated_at?: string | null
         }
@@ -1088,6 +1127,7 @@ export type Database = {
           contenido?: string
           created_at?: string | null
           id?: string
+          org_id?: string
           tipo?: Database["public"]["Enums"]["note_type"]
           updated_at?: string | null
         }
@@ -1195,42 +1235,182 @@ export type Database = {
           },
         ]
       }
+      organizations: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          plan: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          plan?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          plan?: string
+        }
+        Relationships: []
+      }
+      memberships: {
+        Row: {
+          created_at: string
+          id: string
+          org_id: string
+          role: Database["public"]["Enums"]["membership_role"]
+          status: Database["public"]["Enums"]["membership_status"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          org_id: string
+          role?: Database["public"]["Enums"]["membership_role"]
+          status?: Database["public"]["Enums"]["membership_status"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          org_id?: string
+          role?: Database["public"]["Enums"]["membership_role"]
+          status?: Database["public"]["Enums"]["membership_status"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "memberships_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "memberships_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      domains: {
+        Row: {
+          active: boolean
+          created_at: string
+          host: string
+          org_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          host: string
+          org_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          host?: string
+          org_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "domains_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audit_events: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          entity: string
+          entity_id: string | null
+          id: string
+          meta: Json | null
+          org_id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          entity: string
+          entity_id?: string | null
+          id?: string
+          meta?: Json | null
+          org_id: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          entity?: string
+          entity_id?: string | null
+          id?: string
+          meta?: Json | null
+          org_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_events_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audit_events_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           activo: boolean | null
           created_at: string | null
           email: string
           id: string
-          nombre: string
+          full_name: string
           role: Database["public"]["Enums"]["user_role"]
           rut: string | null
-          telefono: string | null
+          phone: string | null
+          status: Database["public"]["Enums"]["profile_status"]
           updated_at: string | null
-          user_id: string
         }
         Insert: {
           activo?: boolean | null
           created_at?: string | null
           email: string
           id?: string
-          nombre: string
+          full_name: string
           role?: Database["public"]["Enums"]["user_role"]
           rut?: string | null
-          telefono?: string | null
+          phone?: string | null
+          status?: Database["public"]["Enums"]["profile_status"]
           updated_at?: string | null
-          user_id: string
         }
         Update: {
           activo?: boolean | null
           created_at?: string | null
           email?: string
           id?: string
-          nombre?: string
+          full_name?: string
           role?: Database["public"]["Enums"]["user_role"]
           rut?: string | null
-          telefono?: string | null
+          phone?: string | null
+          status?: Database["public"]["Enums"]["profile_status"]
           updated_at?: string | null
-          user_id?: string
         }
         Relationships: []
       }
@@ -1242,6 +1422,7 @@ export type Database = {
           icon: string | null
           id: string
           is_default: boolean | null
+          org_id: string
           title: string
           url: string
         }
@@ -1252,6 +1433,7 @@ export type Database = {
           icon?: string | null
           id?: string
           is_default?: boolean | null
+          org_id: string
           title: string
           url: string
         }
@@ -1262,6 +1444,7 @@ export type Database = {
           icon?: string | null
           id?: string
           is_default?: boolean | null
+          org_id?: string
           title?: string
           url?: string
         }
@@ -1465,6 +1648,9 @@ export type Database = {
         | "solicitado"
       stage_status: "pendiente" | "en_proceso" | "completado"
       stage_audience_type: "preparatoria" | "juicio"
+      membership_role: "owner" | "admin" | "lawyer" | "analyst" | "client_guest"
+      membership_status: "active" | "invited" | "suspended"
+      profile_status: "pending" | "active" | "blocked"
       user_role: "admin_firma" | "abogado" | "cliente" | "analista" | "usuario"
     }
     CompositeTypes: {

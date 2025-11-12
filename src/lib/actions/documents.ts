@@ -18,12 +18,19 @@ import {
 
 import type { DocumentInsert } from '@/lib/supabase/types';
 
+const STORAGE_BUCKET = 'files';
+
+function buildStoragePath(orgId: string, caseId: string, fileName: string) {
+  return `${orgId}/cases/${caseId}/${fileName}`;
+}
+
 /**
  * Sube un documento al storage y guarda metadatos
  */
 export async function uploadDocument(formData: FormData) {
   try {
     const profile = await requireAuth();
+    if (!profile.org_id) throw new Error('Selecciona una organización activa.');
 
     const caseId = formData.get('case_id') as string;
     const nombre = formData.get('nombre') as string | null;
@@ -51,27 +58,28 @@ export async function uploadDocument(formData: FormData) {
       throw new Error('Tipo de archivo no permitido');
     }
 
-    // ⚠️ await al service client
-    const supabase = await createServiceClient();
+    const supabase = await createServerClient();
+    const storageClient = createServiceClient();
 
     // Generar nombre único para el archivo
     const fileExtension = file.name.includes('.') ? file.name.split('.').pop() : '';
     const rand = Math.random().toString(36).slice(2, 9);
     const fileName = `${Date.now()}-${rand}${fileExtension ? '.' + fileExtension : ''}`;
-    const filePath = `cases/${validatedInput.case_id}/${fileName}`;
+    const filePath = buildStoragePath(profile.org_id, validatedInput.case_id, fileName);
 
     // Subir archivo a Supabase Storage
-    const { error: uploadError } = await supabase.storage
-      .from('documents')
-      .upload(filePath, file, { cacheControl: '3600', upsert: false });
+    const { error: uploadError } = await storageClient.storage
+      .from(STORAGE_BUCKET)
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false,
+        contentType: file.type,
+      });
 
     if (uploadError) {
       console.error('Error uploading file:', uploadError);
       throw new Error('Error al subir el archivo');
     }
-
-    // Obtener URL pública
-    const { data: urlData } = supabase.storage.from('documents').getPublicUrl(filePath);
 
     // Guardar metadatos en la base de datos
     const documentData: DocumentInsert = {
@@ -80,8 +88,9 @@ export async function uploadDocument(formData: FormData) {
       nombre: validatedInput.nombre,
       tipo_mime: file.type,
       size_bytes: file.size,
-      url: urlData.publicUrl,
+      url: filePath,
       visibilidad: validatedInput.visibilidad,
+      org_id: profile.org_id,
     };
 
     const { data: newDocument, error: dbError } = await supabase
@@ -97,7 +106,7 @@ export async function uploadDocument(formData: FormData) {
     if (dbError) {
       console.error('Error saving document metadata:', dbError);
       // Intentar eliminar el archivo subido
-      await supabase.storage.from('documents').remove([filePath]).catch(() => {});
+      await storageClient.storage.from(STORAGE_BUCKET).remove([filePath]).catch(() => {});
       throw new Error('Error al guardar los metadatos del documento');
     }
 
@@ -127,6 +136,7 @@ export async function uploadDocument(formData: FormData) {
 export async function updateDocument(documentId: string, input: UpdateDocumentInput) {
   try {
     const profile = await requireAuth();
+    if (!profile.org_id) throw new Error('Selecciona una organización activa.');
     const validatedInput = updateDocumentSchema.parse(input);
     const supabase = await createServerClient();
 
@@ -135,6 +145,7 @@ export async function updateDocument(documentId: string, input: UpdateDocumentIn
       .from('documents')
       .select('*')
       .eq('id', documentId)
+      .eq('org_id', profile.org_id)
       .single();
 
     if (fetchError || !existingDocument) {
@@ -161,10 +172,11 @@ export async function updateDocument(documentId: string, input: UpdateDocumentIn
       .from('documents')
       .update(payload)
       .eq('id', documentId)
+      .eq('org_id', profile.org_id)
       .select(`
         *,
-        uploader:profiles(nombre),
-        case:cases(caratulado)
+        uploader:profiles(id, nombre:full_name),
+        case:cases(id, caratulado)
       `)
       .single();
 
@@ -202,13 +214,16 @@ export async function updateDocument(documentId: string, input: UpdateDocumentIn
 export async function deleteDocument(documentId: string) {
   try {
     const profile = await requireAuth();
-    const supabase = await createServiceClient();
+    if (!profile.org_id) throw new Error('Selecciona una organización activa.');
+    const supabase = await createServerClient();
+    const storageClient = createServiceClient();
 
     // Obtener el documento existente
     const { data: existingDocument, error: fetchError } = await supabase
       .from('documents')
       .select('*')
       .eq('id', documentId)
+      .eq('org_id', profile.org_id)
       .single();
 
     if (fetchError || !existingDocument) {
@@ -227,12 +242,9 @@ export async function deleteDocument(documentId: string) {
 
     // Eliminar archivo del storage
     // La URL pública es algo como: https://.../object/public/documents/cases/{case_id}/{filename}
-    const urlParts = existingDocument.url.split('/');
-    const filePath = urlParts.slice(-2).join('/'); // cases/{case_id}/{filename}
-
-    const { error: storageError } = await supabase.storage
-      .from('documents')
-      .remove([filePath]);
+    const { error: storageError } = await storageClient.storage
+      .from(STORAGE_BUCKET)
+      .remove([existingDocument.url]);
 
     if (storageError) {
       console.error('Error deleting file from storage:', storageError);
@@ -240,7 +252,11 @@ export async function deleteDocument(documentId: string) {
     }
 
     // Eliminar metadatos de la base de datos
-    const { error: dbError } = await supabase.from('documents').delete().eq('id', documentId);
+    const { error: dbError } = await supabase
+      .from('documents')
+      .delete()
+      .eq('id', documentId)
+      .eq('org_id', profile.org_id);
     if (dbError) {
       console.error('Error deleting document metadata:', dbError);
       throw new Error('Error al eliminar el documento');
@@ -271,6 +287,7 @@ export async function getDocuments(filters: DocumentFiltersInput = {} as Documen
   try {
     const profile = await getCurrentProfile();
     if (!profile) throw new Error('No autenticado');
+    if (!profile.org_id) throw new Error('Selecciona una organización activa.');
 
     // Normalizar defaults ANTES de validar (evita error de page/limit)
     const f: any = { ...(filters ?? {}) };
@@ -286,11 +303,12 @@ export async function getDocuments(filters: DocumentFiltersInput = {} as Documen
       .select(
         `
         *,
-        uploader:profiles(id, nombre),
+        uploader:profiles(id, nombre:full_name),
         case:cases(id, caratulado)
       `,
-        { count: 'exact' }
-      );
+        { count: 'exact' },
+      )
+      .eq('org_id', profile.org_id);
 
     // Acceso según rol
     if (profile.role === 'cliente') {
@@ -299,7 +317,8 @@ export async function getDocuments(filters: DocumentFiltersInput = {} as Documen
       const { data: clientCases } = await supabase
         .from('case_clients')
         .select('case_id')
-        .eq('client_profile_id', profile.id);
+        .eq('client_profile_id', profile.id)
+        .eq('org_id', profile.org_id);
 
       const caseIds = clientCases?.map((cc: { case_id: string }) => cc.case_id) || [];
       if (caseIds.length === 0) {
@@ -310,7 +329,8 @@ export async function getDocuments(filters: DocumentFiltersInput = {} as Documen
       const { data: abogadoCases } = await supabase
         .from('cases')
         .select('id')
-        .eq('abogado_responsable', profile.id);
+        .eq('abogado_responsable', profile.id)
+        .eq('org_id', profile.org_id);
 
       const caseIds = abogadoCases?.map((c: { id: string }) => c.id) || [];
       if (caseIds.length === 0) {
@@ -368,6 +388,7 @@ export async function getDocumentById(documentId: string) {
   try {
     const profile = await getCurrentProfile();
     if (!profile) throw new Error('No autenticado');
+    if (!profile.org_id) throw new Error('Selecciona una organización activa.');
 
     const supabase = await createServerClient();
 
@@ -375,10 +396,11 @@ export async function getDocumentById(documentId: string) {
       .from('documents')
       .select(`
         *,
-        uploader:profiles(id, nombre),
+        uploader:profiles(id, nombre:full_name),
         case:cases(id, caratulado)
       `)
       .eq('id', documentId)
+      .eq('org_id', profile.org_id)
       .single();
 
     if (error || !document) throw new Error('Documento no encontrado');
@@ -408,14 +430,17 @@ export async function getDocumentDownloadUrl(documentId: string) {
   try {
     const profile = await getCurrentProfile();
     if (!profile) throw new Error('No autenticado');
+    if (!profile.org_id) throw new Error('Selecciona una organización activa.');
 
-    const supabase = await createServiceClient();
+    const supabase = await createServerClient();
+    const storageClient = createServiceClient();
 
     // Obtener el documento
     const { data: document, error } = await supabase
       .from('documents')
       .select('*')
       .eq('id', documentId)
+      .eq('org_id', profile.org_id)
       .single();
 
     if (error || !document) throw new Error('Documento no encontrado');
@@ -428,41 +453,10 @@ export async function getDocumentDownloadUrl(documentId: string) {
       throw new Error('Sin permisos para descargar este documento');
     }
 
-    // Extraer path del archivo desde URL pública (bucket/path)
-    let filePath: string | null = null;
-    try {
-      const url = new URL(document.url);
-      const PUBLIC_PREFIX = '/storage/v1/object/public/';
-      if (url.pathname.startsWith(PUBLIC_PREFIX)) {
-        // Obtiene "bucket/path"
-        const fullPath = decodeURIComponent(url.pathname.slice(PUBLIC_PREFIX.length));
-        const [bucket, ...rest] = fullPath.split('/');
-        if (bucket === 'documents' && rest.length > 0) {
-          filePath = rest.join('/') || null;
-        }
-      }
-    } catch (parseError) {
-      // noop: fallback más abajo
-      console.warn('[documents] No se pudo parsear URL pública', parseError);
-    }
-
-    if (!filePath) {
-      // Fallback: extraer después del bucket manualmente
-      const parts = document.url.split('/documents/');
-      if (parts.length === 2) {
-        filePath = parts[1] || null;
-      }
-    }
-
-    if (!filePath) {
-      console.error('No se pudo resolver la ruta del archivo', document.url);
-      throw new Error('Error al preparar la descarga del documento');
-    }
-
     // Generar URL firmada (1 hora)
-    const { data: signedUrlData, error: signedUrlError } = await supabase.storage
-      .from('documents')
-      .createSignedUrl(filePath, 3600);
+    const { data: signedUrlData, error: signedUrlError } = await storageClient.storage
+      .from(STORAGE_BUCKET)
+      .createSignedUrl(document.url, 3600);
 
     if (signedUrlError) {
       console.error('Error creating signed URL:', signedUrlError);

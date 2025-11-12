@@ -16,6 +16,8 @@ CREATE TABLE IF NOT EXISTS legal_connections (
 CREATE INDEX IF NOT EXISTS legal_connections_provider_user_idx
     ON legal_connections (provider, provider_user_id);
 
+DROP TRIGGER IF EXISTS update_legal_connections_updated_at ON legal_connections;
+
 CREATE TRIGGER update_legal_connections_updated_at
     BEFORE UPDATE ON legal_connections
     FOR EACH ROW
@@ -23,22 +25,26 @@ CREATE TRIGGER update_legal_connections_updated_at
 
 ALTER TABLE legal_connections ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users select their legal connections" ON legal_connections;
 CREATE POLICY "Users select their legal connections"
     ON legal_connections
     FOR SELECT
     USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users insert their legal connections" ON legal_connections;
 CREATE POLICY "Users insert their legal connections"
     ON legal_connections
     FOR INSERT
     WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users update their legal connections" ON legal_connections;
 CREATE POLICY "Users update their legal connections"
     ON legal_connections
     FOR UPDATE
     USING (auth.uid() = user_id)
     WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users delete their legal connections" ON legal_connections;
 CREATE POLICY "Users delete their legal connections"
     ON legal_connections
     FOR DELETE
@@ -63,6 +69,8 @@ CREATE INDEX IF NOT EXISTS legal_sync_jobs_user_idx
 CREATE INDEX IF NOT EXISTS legal_sync_jobs_connection_idx
     ON legal_sync_jobs (connection_id);
 
+DROP TRIGGER IF EXISTS update_legal_sync_jobs_updated_at ON legal_sync_jobs;
+
 CREATE TRIGGER update_legal_sync_jobs_updated_at
     BEFORE UPDATE ON legal_sync_jobs
     FOR EACH ROW
@@ -70,22 +78,26 @@ CREATE TRIGGER update_legal_sync_jobs_updated_at
 
 ALTER TABLE legal_sync_jobs ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users select their sync jobs" ON legal_sync_jobs;
 CREATE POLICY "Users select their sync jobs"
     ON legal_sync_jobs
     FOR SELECT
     USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users insert their sync jobs" ON legal_sync_jobs;
 CREATE POLICY "Users insert their sync jobs"
     ON legal_sync_jobs
     FOR INSERT
     WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users update their sync jobs" ON legal_sync_jobs;
 CREATE POLICY "Users update their sync jobs"
     ON legal_sync_jobs
     FOR UPDATE
     USING (auth.uid() = user_id)
     WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users delete their sync jobs" ON legal_sync_jobs;
 CREATE POLICY "Users delete their sync jobs"
     ON legal_sync_jobs
     FOR DELETE
@@ -115,6 +127,8 @@ CREATE INDEX IF NOT EXISTS legal_cases_user_idx
 CREATE INDEX IF NOT EXISTS legal_cases_connection_idx
     ON legal_cases (connection_id);
 
+DROP TRIGGER IF EXISTS update_legal_cases_updated_at ON legal_cases;
+
 CREATE TRIGGER update_legal_cases_updated_at
     BEFORE UPDATE ON legal_cases
     FOR EACH ROW
@@ -122,22 +136,26 @@ CREATE TRIGGER update_legal_cases_updated_at
 
 ALTER TABLE legal_cases ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users select their synced cases" ON legal_cases;
 CREATE POLICY "Users select their synced cases"
     ON legal_cases
     FOR SELECT
     USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users insert their synced cases" ON legal_cases;
 CREATE POLICY "Users insert their synced cases"
     ON legal_cases
     FOR INSERT
     WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users update their synced cases" ON legal_cases;
 CREATE POLICY "Users update their synced cases"
     ON legal_cases
     FOR UPDATE
     USING (auth.uid() = user_id)
     WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users delete their synced cases" ON legal_cases;
 CREATE POLICY "Users delete their synced cases"
     ON legal_cases
     FOR DELETE
@@ -164,22 +182,26 @@ CREATE INDEX IF NOT EXISTS legal_case_events_user_idx
 
 ALTER TABLE legal_case_events ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users select their case events" ON legal_case_events;
 CREATE POLICY "Users select their case events"
     ON legal_case_events
     FOR SELECT
     USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users insert their case events" ON legal_case_events;
 CREATE POLICY "Users insert their case events"
     ON legal_case_events
     FOR INSERT
     WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users update their case events" ON legal_case_events;
 CREATE POLICY "Users update their case events"
     ON legal_case_events
     FOR UPDATE
     USING (auth.uid() = user_id)
     WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users delete their case events" ON legal_case_events;
 CREATE POLICY "Users delete their case events"
     ON legal_case_events
     FOR DELETE

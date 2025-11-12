@@ -136,12 +136,14 @@ export async function getAuditLogs(filters?: {
   try {
     const profile = await requireAuth();
     if (profile.role !== 'admin_firma') throw new Error('Sin permisos para ver logs de auditoría');
+    if (!profile.org_id) throw new Error('Selecciona una organización activa.');
 
     const supabase = await createServerClient();
 
     let query = supabase
       .from('audit_log')
       .select('*', { count: 'exact' })
+      .eq('org_id', profile.org_id)
       .order('created_at', { ascending: false });
 
     if (filters?.table_name) query = query.eq('table_name', filters.table_name);
@@ -175,8 +177,24 @@ export async function getSecurityAlerts(): Promise<{ success: boolean; alerts?: 
   try {
     const profile = await requireAuth();
     if (profile.role !== 'admin_firma') throw new Error('Sin permisos para ver alertas de seguridad');
+    if (!profile.org_id) throw new Error('Selecciona una organización activa.');
 
     const supabase = await createServerClient();
+    const { data: memberRows, error: membersError } = await supabase
+      .from('memberships')
+      .select('user:profiles(email)')
+      .eq('org_id', profile.org_id)
+      .eq('status', 'active');
+    if (membersError) throw membersError;
+
+    const allowedEmails = new Set<string>();
+    (memberRows ?? []).forEach((row: any) => {
+      const email = row?.user?.email;
+      if (typeof email === 'string' && email.length > 0) {
+        allowedEmails.add(email.toLowerCase());
+      }
+    });
+
     const { data, error } = await (supabase as any).rpc('detect_suspicious_activity');
     if (error) throw error;
 
@@ -186,7 +204,12 @@ export async function getSecurityAlerts(): Promise<{ success: boolean; alerts?: 
       ? [data as SecurityAlert]
       : [];
 
-    return { success: true, alerts };
+    const filteredAlerts = alerts.filter((alert) => {
+      if (!alert.user_email) return false;
+      return allowedEmails.has(alert.user_email.toLowerCase());
+    });
+
+    return { success: true, alerts: filteredAlerts };
   } catch (error) {
     console.error('getSecurityAlerts', error);
     return { success: false, error: error instanceof Error ? error.message : 'Error desconocido' };
@@ -199,9 +222,24 @@ export async function getSecurityAlerts(): Promise<{ success: boolean; alerts?: 
 export async function getUserSessions(userId?: string): Promise<{ success: boolean; sessions?: UserSession[]; error?: string }> {
   try {
     const profile = await requireAuth();
-    const targetUserId = profile.role === 'admin_firma' ? (userId || profile.id) : profile.id;
+    if (!profile.org_id) throw new Error('Selecciona una organización activa.');
 
     const supabase = await createServerClient();
+    let targetUserId = profile.id;
+
+    if (profile.role === 'admin_firma' && userId && userId !== profile.id) {
+      const { data: membership, error: membershipError } = await supabase
+        .from('memberships')
+        .select('user_id')
+        .eq('org_id', profile.org_id)
+        .eq('user_id', userId)
+        .eq('status', 'active')
+        .maybeSingle();
+      if (membershipError) throw membershipError;
+      if (!membership) throw new Error('El usuario no pertenece a esta organización');
+      targetUserId = userId;
+    }
+
     const { data, error } = await supabase
       .from('user_sessions')
       .select('*')
@@ -220,6 +258,7 @@ export async function getUserSessions(userId?: string): Promise<{ success: boole
 export async function endUserSession(sessionId: string): Promise<{ success: boolean; error?: string }> {
   try {
     const profile = await requireAuth();
+    if (!profile.org_id) throw new Error('Selecciona una organización activa.');
     const supabase = await createServerClient();
 
     const { data: session, error: sErr } = await supabase
@@ -230,7 +269,20 @@ export async function endUserSession(sessionId: string): Promise<{ success: bool
 
     if (sErr) throw sErr;
     if (!session) throw new Error('Sesión no encontrada');
+    if (!session.user_id) throw new Error('Sesión sin usuario asociado');
     if (profile.role !== 'admin_firma' && session.user_id !== profile.id) throw new Error('Sin permisos');
+
+    if (profile.role === 'admin_firma' && session.user_id !== profile.id) {
+      const { data: membership, error: membershipError } = await supabase
+        .from('memberships')
+        .select('user_id')
+        .eq('org_id', profile.org_id)
+        .eq('user_id', session.user_id)
+        .eq('status', 'active')
+        .maybeSingle();
+      if (membershipError) throw membershipError;
+      if (!membership) throw new Error('Sin permisos sobre esta sesión');
+    }
 
     const { error } = await supabase
       .from('user_sessions')
@@ -255,12 +307,27 @@ export async function getLoginAttempts(params?: {
   try {
     const profile = await requireAuth();
     if (profile.role !== 'admin_firma') throw new Error('Sin permisos para ver intentos de login');
+    if (!profile.org_id) throw new Error('Selecciona una organización activa.');
 
     const supabase = await createServerClient();
+
+    const { data: memberRows, error: membersError } = await supabase
+      .from('memberships')
+      .select('user_id')
+      .eq('org_id', profile.org_id)
+      .eq('status', 'active');
+    if (membersError) throw membersError;
+
+    const memberIds = (memberRows ?? []).map((row) => row.user_id).filter((id): id is string => Boolean(id));
+
+    if (memberIds.length === 0) {
+      return { success: true, attempts: [], total: 0 };
+    }
 
     let q = supabase
       .from('login_attempts')
       .select('*', { count: 'exact' })
+      .in('user_id', memberIds)
       .order('created_at', { ascending: false });
 
     if (typeof params?.limit === 'number') q = q.limit(params.limit);
@@ -304,6 +371,7 @@ export async function getAuditStats(
   try {
     const profile = await requireAuth();
     if (profile.role !== 'admin_firma') throw new Error('Sin permisos para ver estadísticas');
+    if (!profile.org_id) throw new Error('Selecciona una organización activa.');
 
     const supabase = await createServerClient();
 
@@ -317,6 +385,7 @@ export async function getAuditStats(
     const { data, error } = await supabase
       .from('audit_log')
       .select('action, actor_id, created_at')
+      .eq('org_id', profile.org_id)
       .gte('created_at', from.toISOString())
       .lte('created_at', now.toISOString());
 
@@ -351,8 +420,9 @@ export async function getAuditStats(
     if (actorIds.length > 0) {
       const { data: profilesData, error: pErr } = await supabase
         .from('profiles')
-        .select('id, email')
-        .in('id', actorIds);
+        .select('id, email, memberships:memberships!inner(org_id)')
+        .in('id', actorIds)
+        .eq('memberships.org_id', profile.org_id);
 
       if (!pErr && Array.isArray(profilesData)) {
         emailMap = (profilesData as Array<{ id: string | null; email: string | null }>).reduce((acc, p) => {
@@ -395,6 +465,7 @@ export async function cleanupOldLogs(days: number = 90): Promise<{ success: bool
   try {
     const profile = await requireAuth();
     if (profile.role !== 'admin_firma') throw new Error('Sin permisos');
+    if (!profile.org_id) throw new Error('Selecciona una organización activa.');
 
     const supabase = await createServerClient();
     const cutoff = new Date();
@@ -403,6 +474,7 @@ export async function cleanupOldLogs(days: number = 90): Promise<{ success: bool
     const { error, count } = await supabase
       .from('audit_log')
       .delete({ count: 'exact' })
+      .eq('org_id', profile.org_id)
       .lt('created_at', cutoff.toISOString());
 
     if (error) throw error;

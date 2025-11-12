@@ -3,23 +3,23 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 const badgeVariants = cva(
-  'inline-flex items-center gap-1 rounded-full border px-3 py-0.5 text-xs font-medium tracking-tight transition-all focus:outline-none focus:ring-2 focus:ring-offset-2',
+  'inline-flex items-center gap-1 rounded-sm border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] transition-colors focus:outline-none focus:ring-0',
   {
     variants: {
       variant: {
         default:
-          'border-white/30 bg-white/70 text-foreground/80 shadow-sm backdrop-blur-md',
+          'border-white/25 bg-white/12 text-white/80 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)]',
         secondary:
-          'border-white/20 bg-white/30 text-foreground/70',
+          'border-white/18 bg-white/8 text-white/65',
         destructive:
-          'border-transparent bg-destructive text-destructive-foreground shadow hover:bg-destructive/90',
-        outline: 'border-white/40 text-foreground/70',
+          'border-destructive/40 bg-destructive/15 text-destructive-foreground',
+        outline: 'border-white/28 text-white/70',
         success:
-          'border-transparent bg-emerald-500/15 text-emerald-500',
+          'border-emerald-400/50 bg-emerald-400/12 text-emerald-200',
         warning:
-          'border-transparent bg-amber-400/20 text-amber-600',
+          'border-amber-300/55 bg-amber-300/12 text-amber-200',
         info:
-          'border-transparent bg-sky-500/15 text-sky-500',
+          'border-sky-400/55 bg-sky-400/12 text-sky-200',
       },
     },
     defaultVariants: {

@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { createServerClient } from '@/lib/supabase/server';
-import { requireAuth } from '@/lib/auth/roles';
+import { requireAuth, canAccessCase } from '@/lib/auth/roles';
 import type { CaseCounterparty } from '@/lib/supabase/types';
 import { validateIdentityDocument } from '@/lib/validators/case';
 
@@ -36,9 +36,18 @@ export async function createCaseCounterparty(
   input: z.infer<typeof createCounterpartySchema>,
 ): Promise<CreateCounterpartyResult> {
   const profile = await requireAuth(['admin_firma', 'analista', 'abogado']);
+  if (!profile.org_id) throw new Error('Selecciona una organización activa.');
   const payload = createCounterpartySchema.parse(input);
 
   const supabase = await createServerClient();
+
+  const hasAccess = await canAccessCase(payload.caseId);
+  if (!hasAccess) {
+    return {
+      success: false as const,
+      error: 'Sin permisos para gestionar contrapartes en este caso.',
+    };
+  }
 
   const { data, error } = await supabase
     .from('case_counterparties')
@@ -47,6 +56,7 @@ export async function createCaseCounterparty(
       nombre: payload.nombre,
       rut: payload.rut ?? null,
       tipo: payload.tipo,
+      org_id: profile.org_id,
     })
     .select()
     .single<CaseCounterparty>();
@@ -72,16 +82,18 @@ export async function createCaseCounterparty(
 export async function deleteCaseCounterparty(
   input: z.infer<typeof deleteCounterpartySchema>,
 ): Promise<DeleteCounterpartyResult> {
-  await requireAuth(['admin_firma', 'analista', 'abogado']);
+  const profile = await requireAuth(['admin_firma', 'analista', 'abogado']);
+  if (!profile.org_id) throw new Error('Selecciona una organización activa.');
   const payload = deleteCounterpartySchema.parse(input);
 
   const supabase = await createServerClient();
 
   const { data: existing, error: fetchError } = await supabase
     .from('case_counterparties')
-    .select('id, case_id')
+    .select('id, case_id, org_id')
     .eq('id', payload.id)
-    .maybeSingle<{ id: string; case_id: string }>();
+    .eq('org_id', profile.org_id)
+    .maybeSingle<Pick<CaseCounterparty, 'id' | 'case_id' | 'org_id'>>();
 
   if (fetchError) {
     console.error('[deleteCaseCounterparty] error fetching counterparty', fetchError);
@@ -92,10 +104,19 @@ export async function deleteCaseCounterparty(
     return { success: false as const, error: 'La contraparte ya fue eliminada.' };
   }
 
+  const hasAccess = await canAccessCase(existing.case_id);
+  if (!hasAccess) {
+    return {
+      success: false as const,
+      error: 'Sin permisos para eliminar esta contraparte.',
+    };
+  }
+
   const { error } = await supabase
     .from('case_counterparties')
     .delete()
-    .eq('id', payload.id);
+    .eq('id', payload.id)
+    .eq('org_id', profile.org_id);
 
   if (error) {
     console.error('[deleteCaseCounterparty] error deleting counterparty', error);
