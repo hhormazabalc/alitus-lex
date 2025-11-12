@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Suite corporativa legal para firmas bolivianas",
   "private": true,
+  "packageManager": "pnpm@9.12.2",
   "scripts": {
     "dev": "next dev -p 3000",
     "build": "next build",
