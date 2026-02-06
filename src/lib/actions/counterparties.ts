@@ -3,9 +3,9 @@
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { createServerClient } from '@/lib/supabase/server';
-import { requireAuth, canAccessCase } from '@/lib/auth/roles';
+import { requireAuth } from '@/lib/auth/roles';
 import type { CaseCounterparty } from '@/lib/supabase/types';
-import { validateIdentityDocument } from '@/lib/validators/case';
+import { isValidRut } from '@/lib/validators/case';
 
 const createCounterpartySchema = z.object({
   caseId: z.string().uuid('ID de caso inválido'),
@@ -18,7 +18,7 @@ const createCounterpartySchema = z.object({
     .string()
     .optional()
     .transform((value) => value?.trim() || undefined)
-    .refine((value) => (value ? validateIdentityDocument(value) : true), { message: 'Documento de identidad inválido' }),
+    .refine((value) => (value ? isValidRut(value) : true), { message: 'RUT inválido' }),
   tipo: z.enum(['demandado', 'demandante', 'tercero']).default('demandado'),
 });
 
@@ -36,18 +36,9 @@ export async function createCaseCounterparty(
   input: z.infer<typeof createCounterpartySchema>,
 ): Promise<CreateCounterpartyResult> {
   const profile = await requireAuth(['admin_firma', 'analista', 'abogado']);
-  if (!profile.org_id) throw new Error('Selecciona una organización activa.');
   const payload = createCounterpartySchema.parse(input);
 
   const supabase = await createServerClient();
-
-  const hasAccess = await canAccessCase(payload.caseId);
-  if (!hasAccess) {
-    return {
-      success: false as const,
-      error: 'Sin permisos para gestionar contrapartes en este caso.',
-    };
-  }
 
   const { data, error } = await supabase
     .from('case_counterparties')
@@ -56,7 +47,6 @@ export async function createCaseCounterparty(
       nombre: payload.nombre,
       rut: payload.rut ?? null,
       tipo: payload.tipo,
-      org_id: profile.org_id,
     })
     .select()
     .single<CaseCounterparty>();
@@ -82,18 +72,16 @@ export async function createCaseCounterparty(
 export async function deleteCaseCounterparty(
   input: z.infer<typeof deleteCounterpartySchema>,
 ): Promise<DeleteCounterpartyResult> {
-  const profile = await requireAuth(['admin_firma', 'analista', 'abogado']);
-  if (!profile.org_id) throw new Error('Selecciona una organización activa.');
+  await requireAuth(['admin_firma', 'analista', 'abogado']);
   const payload = deleteCounterpartySchema.parse(input);
 
   const supabase = await createServerClient();
 
   const { data: existing, error: fetchError } = await supabase
     .from('case_counterparties')
-    .select('id, case_id, org_id')
+    .select('id, case_id')
     .eq('id', payload.id)
-    .eq('org_id', profile.org_id)
-    .maybeSingle<Pick<CaseCounterparty, 'id' | 'case_id' | 'org_id'>>();
+    .maybeSingle<{ id: string; case_id: string }>();
 
   if (fetchError) {
     console.error('[deleteCaseCounterparty] error fetching counterparty', fetchError);
@@ -104,19 +92,10 @@ export async function deleteCaseCounterparty(
     return { success: false as const, error: 'La contraparte ya fue eliminada.' };
   }
 
-  const hasAccess = await canAccessCase(existing.case_id);
-  if (!hasAccess) {
-    return {
-      success: false as const,
-      error: 'Sin permisos para eliminar esta contraparte.',
-    };
-  }
-
   const { error } = await supabase
     .from('case_counterparties')
     .delete()
-    .eq('id', payload.id)
-    .eq('org_id', profile.org_id);
+    .eq('id', payload.id);
 
   if (error) {
     console.error('[deleteCaseCounterparty] error deleting counterparty', error);

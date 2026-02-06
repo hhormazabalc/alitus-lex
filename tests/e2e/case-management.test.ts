@@ -3,7 +3,7 @@ import { test, expect, type Page } from '@playwright/test';
 // Helper functions for common actions
 async function loginAsLawyer(page: Page) {
   await page.goto('/login');
-  await page.fill('[data-testid="email-input"]', 'abogado@altiusignite.com');
+  await page.fill('[data-testid="email-input"]', 'abogado@xelchile.com');
   await page.fill('[data-testid="password-input"]', 'password123');
   await page.click('[data-testid="login-button"]');
   await page.waitForURL('/dashboard');
@@ -11,7 +11,7 @@ async function loginAsLawyer(page: Page) {
 
 async function loginAsAdmin(page: Page) {
   await page.goto('/login');
-  await page.fill('[data-testid="email-input"]', 'admin@altiusignite.com');
+  await page.fill('[data-testid="email-input"]', 'admin@xelchile.com');
   await page.fill('[data-testid="password-input"]', 'admin123');
   await page.click('[data-testid="login-button"]');
   await page.waitForURL('/dashboard');
@@ -70,7 +70,7 @@ test.describe('Case Management E2E Tests', () => {
     test('should prevent client from accessing admin features', async ({ page }) => {
       // This would need a client login function
       await page.goto('/login');
-      await page.fill('[data-testid="email-input"]', 'cliente@altiusignite.com');
+      await page.fill('[data-testid="email-input"]', 'cliente@xelchile.com');
       await page.fill('[data-testid="password-input"]', 'client123');
       await page.click('[data-testid="login-button"]');
       
@@ -87,9 +87,9 @@ test.describe('Case Management E2E Tests', () => {
         caratulado: 'Test Case vs Defendant',
         numero_causa: 'C-2024-E2E-001',
         materia: 'Civil',
-        tribunal: 'Juzgado Público Civil 1º de La Paz',
+        tribunal: 'Juzgado Civil de Santiago',
         nombre_cliente: 'Juan Pérez Test',
-        rut_cliente: '1234567 LP',
+        rut_cliente: '12345678-5',
       };
 
       await createTestCase(page, caseData);
@@ -113,15 +113,15 @@ test.describe('Case Management E2E Tests', () => {
       await expect(page.locator('[data-testid="nombre-cliente-error"]')).toBeVisible();
     });
 
-    test('should validate documento de identidad format', async ({ page }) => {
+    test('should validate RUT format', async ({ page }) => {
       await loginAsLawyer(page);
       await page.goto('/cases/new');
       
-      await page.fill('[data-testid="rut-cliente-input"]', 'ABC123');
+      await page.fill('[data-testid="rut-cliente-input"]', 'invalid-rut');
       await page.blur('[data-testid="rut-cliente-input"]');
       
       await expect(page.locator('[data-testid="rut-cliente-error"]')).toBeVisible();
-      await expect(page.locator('[data-testid="rut-cliente-error"]')).toContainText('Documento de identidad');
+      await expect(page.locator('[data-testid="rut-cliente-error"]')).toContainText('RUT');
     });
 
     test('should update case information', async ({ page }) => {
@@ -134,7 +134,7 @@ test.describe('Case Management E2E Tests', () => {
         materia: 'Civil',
         tribunal: 'Test Court',
         nombre_cliente: 'Test Client',
-        rut_cliente: '1234567 LP',
+        rut_cliente: '12345678-5',
       };
 
       await createTestCase(page, caseData);
@@ -188,7 +188,7 @@ test.describe('Case Management E2E Tests', () => {
         materia: 'Civil',
         tribunal: 'Test Court',
         nombre_cliente: 'Timeline Client',
-        rut_cliente: '1234567 LP',
+        rut_cliente: '12345678-5',
       };
 
       await createTestCase(page, caseData);

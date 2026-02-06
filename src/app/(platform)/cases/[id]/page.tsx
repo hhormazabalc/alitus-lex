@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: CaseDetailPageProps): Promise
     const result = await getCaseById(id);
     if (result.success && result.case) {
       return {
-        title: `${result.case.caratulado} - LEX Altius`,
+        title: `${result.case.caratulado} - Xel Chile`,
         description: `Detalles del caso: ${result.case.caratulado}`,
       };
     }
@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: CaseDetailPageProps): Promise
   }
 
   return {
-    title: 'Caso - LEX Altius',
+    title: 'Caso - Xel Chile',
     description: 'Detalles del caso legal',
   };
 }
@@ -45,16 +45,16 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
   const hasAccess = await canAccessCase(id);
   if (!hasAccess) {
     return (
-      <div className="min-h-screen bg-altius-navy-900 text-white flex items-center justify-center px-6">
+      <div className="min-h-screen bg-lexser-gray-950 text-white flex items-center justify-center px-6">
         <div className="max-w-md text-center space-y-4">
           <h1 className="text-2xl font-semibold">Sin permisos para ver este caso</h1>
-          <p className="text-altius-neutral-200 text-sm">
+          <p className="text-lexser-gray-300 text-sm">
             Tu usuario no tiene acceso al detalle de este caso.
           </p>
           <div className="flex items-center justify-center gap-3">
             <Link
               href="/dashboard"
-              className="inline-flex items-center justify-center rounded-md bg-altius-cyan-500 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-altius-cyan-400"
+              className="inline-flex items-center justify-center rounded-md bg-lexser-blue-600 px-4 py-2 text-sm font-medium hover:bg-lexser-blue-700"
             >
               Ir al dashboard
             </Link>

@@ -22,18 +22,17 @@ export function cn(...inputs: ClassValue[]) {
 /* ───────────────── formatos de dinero/fecha ───────────────── */
 
 export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('es-BO', {
+  return new Intl.NumberFormat('es-CL', {
     style: 'currency',
-    currency: 'BOB',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    currency: 'CLP',
+    minimumFractionDigits: 0,
   }).format(amount)
 }
 
 export function formatDate(date?: string | Date | null): string {
   const d = toDate(date ?? null)
   if (isNaN(d.getTime())) return ''
-  return new Intl.DateTimeFormat('es-BO', {
+  return new Intl.DateTimeFormat('es-CL', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -43,7 +42,7 @@ export function formatDate(date?: string | Date | null): string {
 export function formatDateShort(date?: string | Date | null): string {
   const d = toDate(date ?? null)
   if (isNaN(d.getTime())) return ''
-  return new Intl.DateTimeFormat('es-BO', {
+  return new Intl.DateTimeFormat('es-CL', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
@@ -53,7 +52,7 @@ export function formatDateShort(date?: string | Date | null): string {
 export function formatDateTime(date?: string | Date | null): string {
   const d = toDate(date ?? null)
   if (isNaN(d.getTime())) return ''
-  return new Intl.DateTimeFormat('es-BO', {
+  return new Intl.DateTimeFormat('es-CL', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
@@ -75,31 +74,33 @@ export function formatRelativeTime(date?: string | Date | null): string {
   return `hace ${Math.floor(diff / 31104000)} años`
 }
 
-/* ───────────────── documento de identidad ───────────────── */
+/* ───────────────── RUT ───────────────── */
 
-export function validateIdentityDocument(doc?: string | null): boolean {
-  const value = s(doc).trim()
-  if (!value) return true
+export function validateRUT(rut?: string | null): boolean {
+  const clean = s(rut).replace(/[^0-9kK]/g, '')
+  if (clean.length < 8 || clean.length > 9) return false
 
-  const normalized = value.replace(/\s+/g, ' ').replace('-', ' ').toUpperCase()
-  return /^[0-9]{4,12}( [A-Z]{1,2})?$/.test(normalized)
+  const body = clean.slice(0, -1)
+  const dv = clean.slice(-1).toUpperCase()
+
+  let sum = 0
+  let mul = 2
+  for (let i = body.length - 1; i >= 0; i--) {
+    sum += parseInt(body[i]!, 10) * mul
+    mul = mul === 7 ? 2 : mul + 1
+  }
+  const res = 11 - (sum % 11)
+  const calc = res === 11 ? '0' : res === 10 ? 'K' : String(res)
+  return dv === calc
 }
 
-export function formatIdentityDocument(doc?: string | null): string {
-  const value = s(doc).trim()
-  if (!value) return ''
-
-  const normalized = value.replace(/\s+/g, ' ').replace('-', ' ').toUpperCase()
-  const match = normalized.match(/^([0-9]{4,12})(?: ([A-Z]{1,2}))?$/)
-  if (!match) return normalized
-
-  const digits = match[1]
-  const ext = match[2]
-  if (!digits) return normalized
-  if (typeof ext === 'string') {
-    return `${digits} ${ext}`
-  }
-  return digits
+export function formatRUT(rut?: string | null): string {
+  const clean = s(rut).replace(/[^0-9kK]/g, '')
+  if (clean.length < 8) return clean
+  const body = clean.slice(0, -1)
+  const dv = clean.slice(-1)
+  const formatted = body.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+  return `${formatted}-${dv}`
 }
 
 /* ───────────────── texto ───────────────── */

@@ -7,15 +7,15 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: {
-    default: 'LEX Altius · Suite Jurídica Corporativa',
-    template: '%s | LEX Altius',
+    default: 'Xel Chile - Plataforma Jurídica Corporativa',
+    template: '%s | Xel Chile',
   },
   description:
-    'Plataforma corporativa para firmas legales en Bolivia. Gestiona expedientes, clientes y flujos procesales conforme a la normativa nacional.',
-  keywords: ['abogados', 'jurídico', 'casos', 'bolivia', 'legaltech', 'corporativo', 'lex altius'],
-  authors: [{ name: 'Altius Ignite', url: 'https://www.altiusignite.com' }],
-  creator: 'Altius Ignite',
-  publisher: 'Altius Ignite',
+    'Plataforma corporativa para estudios jurídicos en Chile. Gestión de casos, documentos, timeline procesal y portal cliente.',
+  keywords: ['abogados', 'jurídico', 'casos', 'chile', 'legal', 'corporativo'],
+  authors: [{ name: 'Xel Chile' }],
+  creator: 'Xel Chile',
+  publisher: 'Xel Chile',
   formatDetection: {
     email: false,
     address: false,
@@ -26,26 +26,24 @@ export const metadata: Metadata = {
   ),
   openGraph: {
     type: 'website',
-    locale: 'es_BO',
+    locale: 'es_CL',
     url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-    siteName: 'LEX Altius',
-    title: 'LEX Altius · Suite Jurídica Corporativa',
-    description:
-      'Gestión integral de expedientes, clientes y timeline procesal adaptado al marco legal boliviano.',
+    siteName: 'Xel Chile',
+    title: 'Xel Chile - Plataforma Jurídica Corporativa',
+    description: 'Plataforma corporativa para estudios jurídicos en Chile',
     images: [
       {
         url: '/logo.svg',
         width: 200,
         height: 60,
-        alt: 'LEX Altius',
+        alt: 'Xel Chile Logo',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'LEX Altius · Suite Jurídica Corporativa',
-    description:
-      'Gestión integral de expedientes, clientes y timeline procesal adaptado al marco legal boliviano.',
+    title: 'Xel Chile - Plataforma Jurídica Corporativa',
+    description: 'Plataforma corporativa para estudios jurídicos en Chile',
     images: ['/logo.svg'],
   },
   robots: {
@@ -70,15 +68,17 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="es-BO" className="h-full">
+    <html lang="es-CL" className="h-full">
       <body
         className={`${inter.className} h-full min-h-screen bg-background font-sans text-foreground antialiased`}
       >
-        <div className="relative min-h-screen overflow-hidden">
-          <div className="pointer-events-none fixed inset-0 -z-20 bg-[radial-gradient(140%_90%_at_15%_-10%,rgba(82,153,255,0.5),rgba(3,14,36,0)_60%),radial-gradient(120%_80%_at_85%_12%,rgba(42,206,255,0.32),rgba(3,14,36,0)_55%),linear-gradient(145deg,#030d24_0%,#041a3d_45%,#063067_100%)]" />
-          <div className="pointer-events-none absolute inset-0 -z-10 opacity-30 mix-blend-screen bg-[radial-gradient(circle_at_45%_-15%,rgba(255,255,255,0.45),transparent_60%),radial-gradient(circle_at_80%_15%,rgba(255,255,255,0.25),transparent_55%)]" />
+        <div className="relative min-h-screen">
+          <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top,_rgba(148,163,184,0.18),_transparent_55%),radial-gradient(circle_at_bottom,_rgba(96,165,250,0.2),_transparent_50%)]" />
           <div className="relative min-h-screen">
-            <main className="relative z-10 min-h-screen pb-18 pt-8">{children}</main>
+            <div className="absolute inset-x-0 top-0 mx-auto h-32 w-full max-w-5xl rounded-full bg-white/40 blur-3xl opacity-70" />
+            <main className="relative z-10 min-h-screen pb-10 pt-6">
+              {children}
+            </main>
           </div>
         </div>
         <Toaster />

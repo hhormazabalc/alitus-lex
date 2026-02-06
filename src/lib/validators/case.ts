@@ -1,24 +1,31 @@
 import { z } from 'zod';
 
-// ---------- Util: documento de identidad boliviano ----------
-export function validateIdentityDocument(doc?: unknown): boolean {
-  if (doc === undefined || doc === null) return true;
-  if (typeof doc !== 'string') return false;
+// ---------- Util: validador RUT ----------
+export function isValidRut(rut?: unknown): boolean {
+  // rut es opcional y debe ser string no vacío
+  if (typeof rut !== 'string' || rut.trim().length === 0) return true;
 
-  const normalized = doc.trim().replace(/\s+/g, ' ').replace('-', ' ').toUpperCase();
-  if (normalized.length === 0) return true;
+  const clean = rut.replace(/[^0-9kK]/g, '');
+  if (clean.length < 8 || clean.length > 9) return false;
 
-  return /^[0-9]{4,12}( [A-Z]{1,2})?$/.test(normalized);
+  const body = clean.slice(0, -1);
+  const dv = clean.slice(-1).toUpperCase();
+
+  let sum = 0;
+  let mul = 2;
+  for (let i = body.length - 1; i >= 0; i--) {
+    // body[i] es siempre char numérico en este punto
+    sum += parseInt(body[i] as string, 10) * mul;
+    mul = mul === 7 ? 2 : mul + 1;
+  }
+
+  const mod = 11 - (sum % 11);
+  const calcDV = mod === 11 ? '0' : mod === 10 ? 'K' : String(mod);
+  return dv === calcDV;
 }
 
-const identityDocumentBase = z
-  .string({ required_error: 'Documento de identidad requerido' })
-  .min(4, 'Documento de identidad inválido')
-  .max(16, 'Documento de identidad inválido')
-  .refine(validateIdentityDocument, { message: 'Documento de identidad inválido' });
-
-export const identityDocumentSchema = identityDocumentBase;
-export const optionalIdentityDocumentSchema = identityDocumentBase.optional();
+// Validador para RUT chileno (opcional)
+export const rutSchema = z.string().optional().refine(isValidRut, { message: 'RUT inválido' });
 
 // ---------- Base schema ----------
 const baseCaseSchema = z.object({
@@ -34,7 +41,7 @@ const baseCaseSchema = z.object({
   tribunal: z.string().optional(),
   region: z.string().optional(),
   comuna: z.string().optional(),
-  rut_cliente: identityDocumentSchema,
+  rut_cliente: rutSchema,
   nombre_cliente: z
     .string()
     .min(1, 'El nombre del cliente es requerido')
@@ -59,7 +66,7 @@ const baseCaseSchema = z.object({
     .max(100, 'El porcentaje variable no puede superar 100%')
     .optional(),
   honorario_variable_base: z.string().max(1000, 'La base variable no puede exceder 1000 caracteres').optional(),
-  honorario_moneda: z.enum(['BOB', 'UFV', 'USD']).default('BOB'),
+  honorario_moneda: z.enum(['UF', 'CLP', 'USD']).default('UF'),
   modalidad_cobro: z.enum(['prepago', 'postpago', 'mixto']).default('prepago'),
   honorario_notas: z.string().max(2000, 'Las notas no pueden exceder 2000 caracteres').optional(),
   tarifa_referencia: z
@@ -241,45 +248,44 @@ export const CASE_WORKFLOW_STATES = [
 ] as const;
 
 export const CASE_MATERIAS = [
+  'Laboral',
   'Civil',
   'Comercial',
-  'Laboral y Seguridad Social',
-  'Familia',
   'Penal',
+  'Familia',
   'Tributario',
   'Administrativo',
   'Constitucional',
   'Ambiental',
-  'Minero y Recursos Naturales',
-  'Hidrocarburos y Energía',
-  'Bancario y Financiero',
   'Propiedad Intelectual',
 ] as const;
 
-export const DEPARTAMENTOS_BOLIVIA = [
-  'La Paz',
-  'Cochabamba',
-  'Santa Cruz',
-  'Chuquisaca',
-  'Potosí',
-  'Oruro',
-  'Tarija',
-  'Beni',
-  'Pando',
+export const REGIONES_CHILE = [
+  'Arica y Parinacota',
+  'Tarapacá',
+  'Antofagasta',
+  'Atacama',
+  'Coquimbo',
+  'Valparaíso',
+  'Metropolitana',
+  "O'Higgins",
+  'Maule',
+  'Ñuble',
+  'Biobío',
+  'La Araucanía',
+  'Los Ríos',
+  'Los Lagos',
+  'Aysén',
+  'Magallanes',
 ] as const;
 
 export const ETAPAS_PROCESALES = [
-  'Presentación de demanda o acción',
-  'Admisión y radicatoria',
-  'Notificación a partes',
-  'Audiencia preliminar',
-  'Periodo probatorio',
-  'Audiencia complementaria / juicio',
+  'Ingreso Demanda',
+  'Notificación',
+  'Contestación',
+  'Audiencia Preparación',
+  'Audiencia Juicio',
   'Sentencia',
-  'Recursos / impugnaciones',
-  'Ejecución de sentencia',
+  'Recurso',
+  'Cumplimiento',
 ] as const;
-
-export const MATERIAS_LEGALES = [...CASE_MATERIAS];
-export const ESTADOS_CASO = CASE_STATUSES.map(status => status.value);
-export const PRIORIDADES_CASO = CASE_PRIORITIES.map(priority => priority.value);

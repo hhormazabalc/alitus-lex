@@ -1,83 +1,19 @@
+// src/app/page.tsx
 import Link from 'next/link';
 import {
   ArrowRight,
-  BadgeCheck,
-  Compass,
-  Layers,
-  LineChart,
+  CalendarClock,
+  DollarSign,
+  FolderKanban,
   ShieldCheck,
   Sparkles,
+  Upload,
+  Users,
   Workflow,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { createServerClient } from '@/lib/supabase/server';
-
-const solutionHighlights = [
-  {
-    icon: Workflow,
-    title: 'Operación unificada',
-    description:
-      'Expedientes con NUREJ, actuaciones y métricas financieras se sincronizan en un tablero vivo diseñado para firmas bolivianas.',
-  },
-  {
-    icon: Layers,
-    title: 'Documentación orquestada',
-    description:
-      'Memoriales, proveídos, oficios y anexos clasificados por visibilidad. Firma electrónica, control de versiones y enlaces seguros.',
-  },
-  {
-    icon: LineChart,
-    title: 'Finanzas en Bolivianos',
-    description:
-      'Modelos de honorarios en prepago, mixto o variable. Distribuye cobros por etapa, registra abonos y concilia contra UFV o USD.',
-  },
-  {
-    icon: BadgeCheck,
-    title: 'Cumplimiento reforzado',
-    description:
-      'Auditoría en tiempo real, bitácora de seguridad y permisos granulares alineados a la normativa de confidencialidad en Bolivia.',
-  },
-] as const;
-
-const runway = [
-  {
-    title: 'Onboarding guiado',
-    summary:
-      'Habilita la firma en menos de 48 horas: estructura de áreas, roles y catálogos legales personalizados.',
-    detail: 'Incluye checklist operativo, plantillas de timelines y capacitación remota con el equipo de Altius Ignite.',
-  },
-  {
-    title: 'Ejecución diaria',
-    summary:
-      'Coordina abogados, analistas y clientes sobre el mismo expediente: timeline procesal, SLA internos y tareas accionables.',
-    detail: 'Automatiza recordatorios de audiencias, vencimientos de plazos y solicitudes de evidencia.',
-  },
-  {
-    title: 'Escalado estratégico',
-    summary:
-      'Visualiza indicadores de rentabilidad y desempeño por área, materia o responsable para tomar decisiones informadas.',
-    detail: 'Dashboards listos para consejo directivo, exportaciones controladas y modo cliente corporativo.',
-  },
-] as const;
-
-const actionTiles = [
-  {
-    label: 'Registrar cliente corporativo',
-    body: 'Directorio con CI/NIT, poderes, matrices y contactos clave.',
-    hrefAuth: '/dashboard/clients/new',
-  },
-  {
-    label: 'Crear expediente con NUREJ',
-    body: 'Configura materia, juzgado público, fechas y responsables.',
-    hrefAuth: '/dashboard/cases/new',
-  },
-  {
-    label: 'Diseñar timeline y cobros',
-    body: 'Etapas preconfiguradas con hitos de honorarios en Bolivianos.',
-    hrefAuth: '/dashboard/cases',
-  },
-] as const;
 
 export default async function Home() {
   const supabase = await createServerClient();
@@ -85,125 +21,186 @@ export default async function Home() {
   const isAuthenticated = Boolean(data.session);
 
   const primaryCtaHref = isAuthenticated ? '/dashboard' : '/login';
-  const actionTilesWithHref = actionTiles.map(tile => ({
-    ...tile,
-    href: isAuthenticated ? tile.hrefAuth : '/login',
-  }));
+  const primaryCtaLabel = isAuthenticated ? 'Ir al panel' : 'Iniciar sesión';
+
+  const uspHighlights = [
+    {
+      icon: Workflow,
+      title: 'Expedientes sincronizados',
+      description:
+        'Cada caso combina timeline, audiencias, responsables y recordatorios en un solo tablero accionable.',
+    },
+    {
+      icon: Users,
+      title: 'Colaboración con contexto',
+      description:
+        'Clientes, contrapartes y equipo comparten la misma versión del expediente con permisos granulares.',
+    },
+    {
+      icon: Upload,
+      title: 'Documentos bajo control',
+      description:
+        'Sube evidencia, clasifícala por visibilidad y comparte enlaces seguros sin correos ni carpetas duplicadas.',
+    },
+    {
+      icon: DollarSign,
+      title: 'Cobranza sin fricción',
+      description:
+        'Configura hitos con prepago o variable, registra abonos y deja todo trazado para auditorías internas.',
+    },
+  ] as const;
+
+  const journeySteps = [
+    {
+      icon: Users,
+      title: '1. Levanta al cliente y su historia',
+      description:
+        'Crea el perfil, registra datos críticos y anota objetivos. El equipo comienza con contexto y sin pedir correcciones.',
+      callout: 'Panel → Clientes → Nuevo cliente',
+    },
+    {
+      icon: FolderKanban,
+      title: '2. Activa el caso con timeline y responsables',
+      description:
+        'Define materia, tribunal y etapas clave. El timeline reparte trabajo, plazos y costos desde el día uno.',
+      callout: 'Panel → Casos → Nuevo caso',
+    },
+    {
+      icon: CalendarClock,
+      title: '3. Coordina ejecución y comunicación',
+      description:
+        'Documentos, solicitudes, mensajes y pagos ocurren dentro del expediente. Nada se pierde en chats externos.',
+      callout: 'Caso → pestañas Documentos / Timeline / Solicitudes',
+    },
+  ] as const;
+
+  const quickStart = [
+    {
+      label: 'Registrar primer cliente',
+      description: 'Define contacto, notas y permisos.',
+      icon: Users,
+      href: isAuthenticated ? '/dashboard/clients/new' : '/login',
+    },
+    {
+      label: 'Crear el caso inicial',
+      description: 'Asigna materia, responsables y flujo de trabajo.',
+      icon: FolderKanban,
+      href: isAuthenticated ? '/dashboard/cases/new' : '/login',
+    },
+    {
+      label: 'Diseñar timeline y cobros',
+      description: 'Agrega etapas con fechas, responsables y pagos.',
+      icon: Workflow,
+      href: isAuthenticated ? '/dashboard/cases' : '/login',
+    },
+  ] as const;
 
   return (
-    <main className="relative min-h-screen overflow-hidden pb-24 text-slate-100">
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-[radial-gradient(150%_95%_at_18%_-8%,rgba(86,156,255,0.52),rgba(3,14,36,0)_60%),radial-gradient(120%_80%_at_82%_12%,rgba(42,206,255,0.32),rgba(3,14,36,0)_58%),linear-gradient(150deg,#030f27_0%,#041c3e_45%,#06326a_100%)]" />
-        <div className="absolute inset-0 opacity-25 mix-blend-screen bg-[radial-gradient(circle_at_45%_-10%,rgba(255,255,255,0.4),transparent_60%),radial-gradient(circle_at_80%_15%,rgba(255,255,255,0.18),transparent_55%)]" />
+    <main className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-white to-slate-100 text-foreground">
+      <div className="pointer-events-none absolute inset-0 select-none">
+        <span className="absolute -left-24 top-20 h-64 w-64 rounded-full bg-blue-200/40 blur-3xl" />
+        <span className="absolute right-0 top-56 h-72 w-72 rounded-full bg-indigo-200/30 blur-3xl" />
+        <span className="absolute -bottom-20 left-1/3 h-72 w-72 rounded-full bg-emerald-200/30 blur-3xl" />
       </div>
 
-      <div className="relative mx-auto flex w-full max-w-6xl flex-col gap-20 px-6 pt-16 sm:px-8 lg:px-10">
-        <section className="grid gap-12 lg:grid-cols-[1.25fr_1fr] lg:items-center">
+      <div className="relative mx-auto flex w-full max-w-6xl flex-col gap-20 px-6 pb-24 pt-20 sm:px-8 lg:px-10">
+        <section className="grid gap-12 lg:grid-cols-[1.4fr_1fr] lg:items-center">
           <div className="space-y-10">
-            <span className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-5 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.38em] text-cyan-100 shadow-lg shadow-altius-navy-900/40 backdrop-blur">
-              <Sparkles className="h-4 w-4 text-altius-cyan-300" />
-              Plataforma corporativa legal · Bolivia
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/40 bg-white/70 px-4 py-1 text-xs font-medium uppercase tracking-[0.3em] text-foreground/60 shadow-sm backdrop-blur">
+              <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+              LexChile · Suite Operativa
             </span>
-            <div className="space-y-6">
-              <h1 className="text-4xl font-semibold leading-tight text-white sm:text-5xl">
-                La suite jurídica que combina rigor procesal boliviano con experiencia premium para clientes corporativos.
+            <div className="space-y-5">
+              <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+                El expediente completo en un solo lugar. Timeline, clientes y cobros siempre sincronizados.
               </h1>
-              <p className="max-w-2xl text-lg text-altius-neutral-200/90">
-                Centraliza expedientes, actuaciones y cobranza en Bolivianos. LEX Altius entrega visibilidad ejecutiva, colaboración segura y cumplimiento auditado de extremo a extremo.
+              <p className="max-w-2xl text-lg text-foreground/65">
+                Centraliza audiencias, documentos, solicitudes y honorarios. Todo el equipo sabe qué sigue, quién lo ejecuta y cómo se cobra.
               </p>
             </div>
-
-            <div className="flex flex-wrap items-center gap-4">
-              <Button
-                asChild
-                size="lg"
-                className="rounded-full bg-gradient-to-r from-[#1a5bff] via-[#2787ff] to-[#30c2ff] px-8 text-base font-semibold text-white shadow-[0_25px_70px_-30px_rgba(18,82,178,0.8)] transition hover:brightness-110"
-              >
-                <Link href={primaryCtaHref}>
-                  {isAuthenticated ? 'Entrar al panel' : 'Solicitar acceso'}
-                </Link>
+            <div className="flex flex-wrap items-center gap-3">
+              <Button asChild size="lg" className="rounded-full px-6 text-base font-semibold shadow-lg">
+                <Link href={primaryCtaHref}>{primaryCtaLabel}</Link>
               </Button>
               <Button
                 asChild
-                variant="outline"
+                variant="ghost"
                 size="lg"
-                className="rounded-full border border-white/20 bg-white/5 px-8 text-base text-altius-neutral-200 hover:border-altius-cyan-400/60 hover:text-white"
+                className="rounded-full border border-white/40 px-6 text-base text-foreground/70 hover:text-foreground"
               >
-                <Link href="#suite">
-                  Explorar la suite
+                <Link href="#workflow">
+                  Cómo funciona
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
             </div>
-
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6 text-sm text-altius-neutral-200/80">
-              <p className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-altius-cyan-300" />
-                Seguridad multicapa: RLS en Supabase, auditoría en tiempo real y controles de sesión corporativos.
-              </p>
-              <p className="flex items-center gap-2">
-                <Compass className="h-4 w-4 text-altius-aurora-300" />
-                Diseñada por Altius Ignite con foco en firmas de litigios, corporativo y energía.
-              </p>
+            <div className="flex items-center gap-3 text-sm text-foreground/50">
+              <ShieldCheck className="h-4 w-4 text-emerald-500" />
+              <span>Roles con permisos granulares, auditoría en tiempo real y stack montado sobre Supabase.</span>
             </div>
           </div>
 
-          <Card className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-[0_35px_80px_-40px_rgba(7,15,44,0.85)] backdrop-blur">
-            <div className="absolute -right-10 top-6 h-40 w-40 rounded-full bg-cyan-400/20 blur-3xl" />
-            <CardHeader className="space-y-2 pb-2">
-              <CardTitle className="text-lg font-semibold text-white">Activar tu operación en minutos</CardTitle>
-              <p className="text-sm text-altius-neutral-200/75">
-                Tres acciones para liberar valor desde el primer expediente con LEX Altius.
-              </p>
-            </CardHeader>
-            <CardContent className="space-y-5">
-              {actionTilesWithHref.map((tile) => (
-                <Link
-                  key={tile.label}
-                  href={tile.href}
-                  className="group flex items-start gap-4 rounded-2xl border border-white/10 bg-white/3 px-5 py-4 text-sm text-altius-neutral-100 transition hover:border-altius-cyan-300/60 hover:bg-white/10"
-                >
-                  <span className="mt-0.5 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-altius-cyan-400/20 via-transparent to-transparent text-altius-cyan-200">
-                    <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
-                  </span>
-                  <div className="space-y-1">
-                    <p className="font-medium text-white">{tile.label}</p>
-                    <p className="text-xs text-altius-neutral-200/70">{tile.body}</p>
-                  </div>
+          <Card className="rounded-3xl border border-white/40 bg-white/85 shadow-xl backdrop-blur">
+            <CardContent className="space-y-6 px-8 py-9">
+              <div className="space-y-2">
+                <h2 className="text-lg font-semibold text-foreground">Primeros pasos sugeridos</h2>
+                <p className="text-sm text-foreground/55">
+                  Tres acciones rápidas para que la plataforma genere valor desde el primer expediente.
+                </p>
+              </div>
+              <div className="space-y-4">
+                {quickStart.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.label}
+                      href={item.href}
+                      className="flex items-start gap-3 rounded-2xl border border-white/40 bg-white/70 px-4 py-3 text-sm text-foreground/75 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
+                    >
+                      <span className="mt-0.5 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-transparent text-blue-600">
+                        <Icon className="h-4 w-4" />
+                      </span>
+                      <div>
+                        <p className="font-medium text-foreground">{item.label}</p>
+                        <p className="text-xs text-foreground/55">{item.description}</p>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+              <Button
+                asChild
+                variant="outline"
+                className="w-full rounded-full border-white/40 bg-white/60 text-sm font-semibold text-foreground/80 hover:bg-white"
+              >
+                <Link href={primaryCtaHref}>
+                  {isAuthenticated ? 'Abrir dashboard' : 'Ingresar ahora'}
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
-              ))}
+              </Button>
             </CardContent>
           </Card>
         </section>
 
-        <section id="suite" className="space-y-10">
-          <header className="max-w-3xl space-y-3">
-            <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.32em] text-altius-cyan-200/80">
-              Capacidades clave
-            </p>
-            <h2 className="text-3xl font-semibold text-white sm:text-[2.2rem]">
-              Una plataforma diseñada para firmas que lideran litigios complejos, energía, infraestructura y gestión de riesgo.
-            </h2>
-            <p className="text-base text-altius-neutral-200/85">
-              Cada módulo está alineado a las exigencias de compliance y performance de firmas corporativas bolivianas. Controla el expediente, el equipo y la relación con clientes estratégicos desde un mismo flujo.
+        <section className="space-y-8">
+          <header className="space-y-2">
+            <h2 className="text-2xl font-semibold text-foreground">Beneficios que impactan tu operación</h2>
+            <p className="text-foreground/55">
+              Conecta información, equipo y clientes en torno a un expediente vivo y accionable.
             </p>
           </header>
-
           <div className="grid gap-6 md:grid-cols-2">
-            {solutionHighlights.map((item) => {
-              const Icon = item.icon;
+            {uspHighlights.map((feature) => {
+              const Icon = feature.icon;
               return (
-                <Card
-                  key={item.title}
-                  className="group h-full rounded-3xl border border-white/10 bg-white/5 shadow-[0_30px_60px_-40px_rgba(3,13,37,0.8)] backdrop-blur transition hover:border-altius-cyan-400/60 hover:bg-white/10"
-                >
+                <Card key={feature.title} className="h-full rounded-3xl border border-white/40 bg-white/80 shadow-md backdrop-blur">
                   <CardContent className="space-y-4 px-6 py-7">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-altius-cyan-400/25 via-transparent to-transparent text-altius-cyan-200">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500/15 via-blue-500/5 to-transparent text-blue-600">
                       <Icon className="h-5 w-5" />
                     </span>
                     <div className="space-y-2">
-                      <h3 className="text-lg font-semibold text-white">{item.title}</h3>
-                      <p className="text-sm text-altius-neutral-200/80">{item.description}</p>
+                      <h3 className="text-lg font-semibold text-foreground">{feature.title}</h3>
+                      <p className="text-sm text-foreground/60">{feature.description}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -212,40 +209,70 @@ export default async function Home() {
           </div>
         </section>
 
-        <section className="space-y-10">
-          <header className="max-w-3xl space-y-3">
-            <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-altius-aurora-500/10 px-4 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.32em] text-altius-aurora-200/90">
-              Hoja de ruta operativa
+        <section id="workflow" className="space-y-8">
+          <header className="space-y-2">
+            <h2 className="text-2xl font-semibold text-foreground">Un recorrido claro para tu equipo</h2>
+            <p className="text-foreground/55">
+              Tres hitos para pasar de “tenemos archivos sueltos” a una operación jurídicamente orquestada.
             </p>
-            <h2 className="text-3xl font-semibold text-white sm:text-[2.1rem]">
-              Del intake al cierre: flujos que combinan eficiencia, cumplimiento y reputación frente al cliente.
-            </h2>
           </header>
-
           <div className="grid gap-6 lg:grid-cols-3">
-            {runway.map((stage, index) => (
-              <Card
-                key={stage.title}
-                className="relative h-full overflow-hidden rounded-3xl border border-white/10 bg-white/6 backdrop-blur transition hover:border-altius-aurora-400/60 hover:bg-white/12"
-              >
-                <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-altius-aurora-400/20 blur-3xl" />
-                <CardContent className="space-y-4 px-6 py-7">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold uppercase tracking-[0.32em] text-altius-neutral-200/60">
-                      Paso {index + 1}
+            {journeySteps.map((step) => {
+              const Icon = step.icon;
+              return (
+                <Card key={step.title} className="rounded-3xl border border-white/40 bg-white/80 shadow-md backdrop-blur">
+                  <CardContent className="space-y-4 px-6 py-7">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500/15 via-indigo-500/5 to-transparent text-indigo-600">
+                      <Icon className="h-5 w-5" />
                     </span>
-                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold tracking-[0.12em] text-altius-aurora-200/80">
-                      {stage.title}
-                    </span>
-                  </div>
-                  <p className="text-base font-medium text-white">{stage.summary}</p>
-                  <p className="text-sm text-altius-neutral-200/80 leading-relaxed">{stage.detail}</p>
-                </CardContent>
-              </Card>
-            ))}
+                    <div className="space-y-2">
+                      <h3 className="text-base font-semibold text-foreground">{step.title}</h3>
+                      <p className="text-sm text-foreground/60">{step.description}</p>
+                    </div>
+                    <p className="text-xs font-medium uppercase tracking-[0.24em] text-foreground/45">
+                      {step.callout}
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
+        </section>
+
+        <section className="space-y-6">
+          <Card className="rounded-3xl border border-white/40 bg-white/85 shadow-xl backdrop-blur">
+            <CardContent className="grid gap-8 px-7 py-8 md:grid-cols-[1.4fr_1fr] md:items-center">
+              <div className="space-y-3">
+                <h2 className="text-2xl font-semibold text-foreground">Prepárate para tu próximo expediente</h2>
+                <p className="text-sm text-foreground/60">
+                  Crea clientes, registra causas y arma el timeline. Al ingresar, continuaremos exactamente donde quedaste.
+                </p>
+                <Button asChild className="rounded-full px-6 text-sm font-semibold shadow-md">
+                  <Link href={primaryCtaHref}>
+                    {primaryCtaLabel}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+              <ul className="space-y-3 text-sm text-foreground/65">
+                <li className="flex items-center gap-2">
+                  <ShieldCheck className="h-4 w-4 text-emerald-500" />
+                  Roles y bitácora de auditoría siempre activos.
+                </li>
+                <li className="flex items-center gap-2">
+                  <FolderKanban className="h-4 w-4 text-blue-600" />
+                  Importa datos desde plantillas o tu gestor actual.
+                </li>
+                <li className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-amber-500" />
+                  Timeline visual, solicitudes y cobros listos desde el día uno.
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
         </section>
       </div>
     </main>
   );
+
 }

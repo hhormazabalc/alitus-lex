@@ -22,14 +22,14 @@ interface EmailTemplate {
 
 const EMAIL_TEMPLATES: Record<string, (data: any) => EmailTemplate> = {
   magic_link: (data) => ({
-    subject: `Acceso a tu caso en LEX Altius - ${data.case_name}`,
+    subject: `Acceso a tu caso en Xel Chile - ${data.case_name}`,
     html: `
       <!DOCTYPE html>
       <html>
         <head>
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Acceso a LEX Altius</title>
+          <title>Acceso a Xel Chile</title>
           <style>
             body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
             .container { max-width: 600px; margin: 0 auto; padding: 20px; }
@@ -50,13 +50,13 @@ const EMAIL_TEMPLATES: Record<string, (data: any) => EmailTemplate> = {
         <body>
           <div class="container">
             <div class="header">
-              <h1>⚖️ LEX Altius</h1>
+              <h1>⚖️ Xel Chile</h1>
               <p>Portal Cliente</p>
             </div>
             <div class="content">
               <h2>Acceso a tu caso: ${data.case_name}</h2>
               <p>Hola,</p>
-              <p>Tu abogado te ha dado acceso al portal cliente de LEX Altius para que puedas seguir el progreso de tu caso.</p>
+              <p>Tu abogado te ha dado acceso al portal cliente de Xel Chile para que puedas seguir el progreso de tu caso.</p>
               
               <p><strong>Caso:</strong> ${data.case_name}</p>
               <p><strong>Abogado:</strong> ${data.lawyer_name}</p>
@@ -64,7 +64,7 @@ const EMAIL_TEMPLATES: Record<string, (data: any) => EmailTemplate> = {
               <p>Haz clic en el siguiente enlace para acceder:</p>
               <a href="${data.magic_link}" class="button">Acceder al Portal</a>
               
-              <p><small>Este enlace expira el ${new Date(data.expires_at).toLocaleDateString('es-BO')}.</small></p>
+              <p><small>Este enlace expira el ${new Date(data.expires_at).toLocaleDateString('es-CL')}.</small></p>
               
               <p>En el portal podrás:</p>
               <ul>
@@ -77,9 +77,7 @@ const EMAIL_TEMPLATES: Record<string, (data: any) => EmailTemplate> = {
               <p>Si tienes alguna pregunta, no dudes en contactar a tu abogado.</p>
             </div>
             <div class="footer">
-              <p>LEX Altius - Sistema de Gestión Legal</p>
-              <p>Desarrollado por <a href="https://www.altiusignite.com" target="_blank" rel="noopener noreferrer">Altius Ignite</a></p>
-              <p><a href="https://www.altiusignite.com" target="_blank" rel="noopener noreferrer">www.altiusignite.com</a></p>
+              <p>Xel Chile - Sistema de Gestión Legal</p>
               <p>Este es un mensaje automático, por favor no respondas a este email.</p>
             </div>
           </div>
@@ -87,24 +85,22 @@ const EMAIL_TEMPLATES: Record<string, (data: any) => EmailTemplate> = {
       </html>
     `,
     text: `
-      LEX Altius - Acceso a tu caso
+      Xel Chile - Acceso a tu caso
       
       Hola,
       
-      Tu abogado te ha dado acceso al portal cliente de LEX Altius para seguir el progreso de tu caso.
+      Tu abogado te ha dado acceso al portal cliente de Xel Chile para seguir el progreso de tu caso.
       
       Caso: ${data.case_name}
       Abogado: ${data.lawyer_name}
       
       Accede aquí: ${data.magic_link}
       
-      Este enlace expira el ${new Date(data.expires_at).toLocaleDateString('es-BO')}.
+      Este enlace expira el ${new Date(data.expires_at).toLocaleDateString('es-CL')}.
       
       En el portal podrás ver el progreso, descargar documentos y comunicarte con tu abogado.
       
-      LEX Altius - Sistema de Gestión Legal
-
-      Desarrollado por Altius Ignite - www.altiusignite.com
+      Xel Chile - Sistema de Gestión Legal
     `
   }),
 
@@ -129,7 +125,7 @@ const EMAIL_TEMPLATES: Record<string, (data: any) => EmailTemplate> = {
         <body>
           <div class="container">
             <div class="header">
-              <h1>⚖️ LEX Altius</h1>
+              <h1>⚖️ Xel Chile</h1>
               <p>Actualización de Caso</p>
             </div>
             <div class="content">
@@ -142,24 +138,22 @@ const EMAIL_TEMPLATES: Record<string, (data: any) => EmailTemplate> = {
                 <p><strong>Tipo de actualización:</strong> ${data.update_type}</p>
                 <p><strong>Descripción:</strong> ${data.description}</p>
                 ${data.stage_name ? `<p><strong>Etapa:</strong> ${data.stage_name}</p>` : ''}
-                <p><strong>Fecha:</strong> ${new Date(data.date).toLocaleDateString('es-BO')}</p>
+                <p><strong>Fecha:</strong> ${new Date(data.date).toLocaleDateString('es-CL')}</p>
               </div>
               
               <p>Puedes ver más detalles accediendo al portal cliente.</p>
               
-              <p>Saludos,<br>Tu equipo legal en LEX Altius</p>
+              <p>Saludos,<br>Tu equipo legal en Xel Chile</p>
             </div>
             <div class="footer">
-              <p>LEX Altius - Sistema de Gestión Legal</p>
-              <p>Desarrollado por <a href="https://www.altiusignite.com" target="_blank" rel="noopener noreferrer">Altius Ignite</a></p>
-              <p><a href="https://www.altiusignite.com" target="_blank" rel="noopener noreferrer">www.altiusignite.com</a></p>
+              <p>Xel Chile - Sistema de Gestión Legal</p>
             </div>
           </div>
         </body>
       </html>
     `,
     text: `
-      LEX Altius - Actualización de Caso
+      Xel Chile - Actualización de Caso
       
       Hola,
       
@@ -168,15 +162,12 @@ const EMAIL_TEMPLATES: Record<string, (data: any) => EmailTemplate> = {
       Tipo: ${data.update_type}
       Descripción: ${data.description}
       ${data.stage_name ? `Etapa: ${data.stage_name}` : ''}
-      Fecha: ${new Date(data.date).toLocaleDateString('es-BO')}
+      Fecha: ${new Date(data.date).toLocaleDateString('es-CL')}
       
       Puedes ver más detalles en el portal cliente.
       
       Saludos,
-      Tu equipo legal en LEX Altius
-
-      LEX Altius - Sistema de Gestión Legal
-      Desarrollado por Altius Ignite - www.altiusignite.com
+      Tu equipo legal en Xel Chile
     `
   }),
 
@@ -201,7 +192,7 @@ const EMAIL_TEMPLATES: Record<string, (data: any) => EmailTemplate> = {
         <body>
           <div class="container">
             <div class="header">
-              <h1>⚖️ LEX Altius</h1>
+              <h1>⚖️ Xel Chile</h1>
               <p>Recordatorio de Vencimiento</p>
             </div>
             <div class="content">
@@ -212,26 +203,24 @@ const EMAIL_TEMPLATES: Record<string, (data: any) => EmailTemplate> = {
               <div class="alert-box">
                 <h3>${data.case_name}</h3>
                 <p><strong>Etapa:</strong> ${data.stage_name}</p>
-                <p><strong>Fecha límite:</strong> ${new Date(data.deadline).toLocaleDateString('es-BO')}</p>
+                <p><strong>Fecha límite:</strong> ${new Date(data.deadline).toLocaleDateString('es-CL')}</p>
                 <p><strong>Días restantes:</strong> ${data.days_remaining}</p>
                 ${data.description ? `<p><strong>Descripción:</strong> ${data.description}</p>` : ''}
               </div>
               
               <p>Es importante que estés al tanto de este vencimiento. Si tienes alguna pregunta, contacta a tu abogado.</p>
               
-              <p>Saludos,<br>Tu equipo legal en LEX Altius</p>
+              <p>Saludos,<br>Tu equipo legal en Xel Chile</p>
             </div>
             <div class="footer">
-              <p>LEX Altius - Sistema de Gestión Legal</p>
-              <p>Desarrollado por <a href="https://www.altiusignite.com" target="_blank" rel="noopener noreferrer">Altius Ignite</a></p>
-              <p><a href="https://www.altiusignite.com" target="_blank" rel="noopener noreferrer">www.altiusignite.com</a></p>
+              <p>Xel Chile - Sistema de Gestión Legal</p>
             </div>
           </div>
         </body>
       </html>
     `,
     text: `
-      LEX Altius - Recordatorio de Vencimiento
+      Xel Chile - Recordatorio de Vencimiento
       
       Estimado/a,
       
@@ -239,17 +228,14 @@ const EMAIL_TEMPLATES: Record<string, (data: any) => EmailTemplate> = {
       
       Caso: ${data.case_name}
       Etapa: ${data.stage_name}
-      Fecha límite: ${new Date(data.deadline).toLocaleDateString('es-BO')}
+      Fecha límite: ${new Date(data.deadline).toLocaleDateString('es-CL')}
       Días restantes: ${data.days_remaining}
       ${data.description ? `Descripción: ${data.description}` : ''}
       
       Contacta a tu abogado si tienes alguna pregunta.
       
       Saludos,
-      Tu equipo legal en LEX Altius
-
-      LEX Altius - Sistema de Gestión Legal
-      Desarrollado por Altius Ignite - www.altiusignite.com
+      Tu equipo legal en Xel Chile
     `
   }),
 
@@ -274,7 +260,7 @@ const EMAIL_TEMPLATES: Record<string, (data: any) => EmailTemplate> = {
         <body>
           <div class="container">
             <div class="header">
-              <h1>⚖️ LEX Altius</h1>
+              <h1>⚖️ Xel Chile</h1>
               <p>Respuesta a tu Solicitud</p>
             </div>
             <div class="content">
@@ -289,24 +275,22 @@ const EMAIL_TEMPLATES: Record<string, (data: any) => EmailTemplate> = {
                 <p><strong>Respuesta:</strong></p>
                 <p>${data.response}</p>
                 <p><strong>Respondido por:</strong> ${data.responder_name}</p>
-                <p><strong>Fecha:</strong> ${new Date(data.response_date).toLocaleDateString('es-BO')}</p>
+                <p><strong>Fecha:</strong> ${new Date(data.response_date).toLocaleDateString('es-CL')}</p>
               </div>
               
               <p>Puedes ver la respuesta completa en el portal cliente.</p>
               
-              <p>Saludos,<br>Tu equipo legal en LEX Altius</p>
+              <p>Saludos,<br>Tu equipo legal en Xel Chile</p>
             </div>
             <div class="footer">
-              <p>LEX Altius - Sistema de Gestión Legal</p>
-              <p>Desarrollado por <a href="https://www.altiusignite.com" target="_blank" rel="noopener noreferrer">Altius Ignite</a></p>
-              <p><a href="https://www.altiusignite.com" target="_blank" rel="noopener noreferrer">www.altiusignite.com</a></p>
+              <p>Xel Chile - Sistema de Gestión Legal</p>
             </div>
           </div>
         </body>
       </html>
     `,
     text: `
-      LEX Altius - Respuesta a tu Solicitud
+      Xel Chile - Respuesta a tu Solicitud
       
       Hola,
       
@@ -317,15 +301,12 @@ const EMAIL_TEMPLATES: Record<string, (data: any) => EmailTemplate> = {
       Respuesta: ${data.response}
       
       Respondido por: ${data.responder_name}
-      Fecha: ${new Date(data.response_date).toLocaleDateString('es-BO')}
+      Fecha: ${new Date(data.response_date).toLocaleDateString('es-CL')}
       
       Puedes ver la respuesta completa en el portal cliente.
       
       Saludos,
-      Tu equipo legal en LEX Altius
-
-      LEX Altius - Sistema de Gestión Legal
-      Desarrollado por Altius Ignite - www.altiusignite.com
+      Tu equipo legal en Xel Chile
     `
   })
 };

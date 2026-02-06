@@ -82,9 +82,9 @@ export function CaseMessagesPanel({ caseId, initialMessages, currentProfileId, a
   };
 
   return (
-    <div className='space-y-6 text-white/80'>
+    <div className='space-y-6'>
       <div className='flex items-center justify-between'>
-        <h3 className='text-lg font-semibold text-white'>Mensajes del caso</h3>
+        <h3 className='text-lg font-semibold text-lexser-gray-900'>Mensajes del caso</h3>
         <Button variant='outline' size='sm' onClick={refreshMessages} disabled={isRefreshing}>
           {isRefreshing ? <Loader2 className='h-4 w-4 animate-spin' /> : 'Actualizar'}
         </Button>
@@ -92,34 +92,31 @@ export function CaseMessagesPanel({ caseId, initialMessages, currentProfileId, a
 
       <div className='space-y-4'>
         {groupedMessages.length === 0 ? (
-          <p className='text-sm text-white/60'>Aún no hay mensajes para este caso.</p>
+          <p className='text-sm text-muted-foreground'>Aún no hay mensajes para este caso.</p>
         ) : (
           groupedMessages.map((msg) => {
             const isMine = msg.sender_profile_id === currentProfileId;
             return (
-              <Card
-                key={msg.id}
-                className={`panel-compact panel-no-accent border ${isMine ? 'border-cyan-300/50 bg-cyan-300/12' : 'border-white/12 bg-white/6'}`}
-              >
-                <CardContent className='space-y-2 p-4 text-white/75'>
-                  <div className='flex items-center justify-between text-xs text-white/60'>
+              <Card key={msg.id} className={`border ${isMine ? 'border-lexser-blue-200 bg-lexser-blue-50' : 'border-lexser-gray-100'}`}>
+                <CardContent className='p-4 space-y-2'>
+                  <div className='flex items-center justify-between text-xs text-muted-foreground'>
                     <span>
                       {msg.sender?.nombre ?? 'Usuario'}
                       {msg.sender?.role && (
-                        <Badge variant='outline' className='ml-2 capitalize text-[10px] text-white/70'>
+                        <Badge variant='outline' className='ml-2 capitalize text-[10px]'>
                           {msg.sender.role}
                         </Badge>
                       )}
                     </span>
                     <span>{formatDateTime(msg.created_at)}</span>
                   </div>
-                  <p className='whitespace-pre-wrap text-sm text-white/85'>{msg.contenido}</p>
+                  <p className='text-sm text-lexser-gray-900 whitespace-pre-wrap'>{msg.contenido}</p>
                   {msg.attachment_url && (
                     <a
                       href={msg.attachment_url}
                       target='_blank'
                       rel='noopener noreferrer'
-                      className='text-xs font-medium text-cyan-200 hover:text-white'
+                      className='text-xs font-medium text-lexser-blue-600 hover:text-lexser-blue-700'
                     >
                       Ver adjunto
                     </a>
@@ -132,7 +129,7 @@ export function CaseMessagesPanel({ caseId, initialMessages, currentProfileId, a
       </div>
 
       {allowSend && (
-        <div className='space-y-3 border border-white/15 bg-white/6 p-4'>
+        <div className='rounded-lg border border-lexser-gray-200 p-4 space-y-3'>
           <Textarea
             placeholder='Escribe un mensaje para tu cliente o equipo...'
             value={message}

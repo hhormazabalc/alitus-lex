@@ -62,7 +62,7 @@ export interface StageTemplate {
   diasEstimados: number;
   esPublica?: boolean;
   requierePago?: boolean;
-  costoBs?: number;
+  costoUF?: number;
   porcentajeVariable?: number;
   porcentajeHonorario?: number;
   notasPago?: string;
@@ -81,41 +81,40 @@ const PROCEDURE_STAGE_TEMPLATES: Record<
   StageTemplate[]
 > = {
   Civil: [
-    { etapa: 'Presentación de demanda', descripcion: 'Ingreso de la demanda ante juzgado público civil y control de requisitos formales.', diasEstimados: 0 },
-    { etapa: 'Admisión y radicatoria', descripcion: 'Radicatoria en juzgado, sorteo y requerimientos iniciales.', diasEstimados: 10 },
-    { etapa: 'Notificación a demandados', descripcion: 'Notificación personal, por cédula o edictos a las partes demandadas.', diasEstimados: 25 },
-    { etapa: 'Contestación y excepciones', descripcion: 'Recepción de contestación, excepciones previas y reconvenciones.', diasEstimados: 20 },
-    { etapa: 'Audiencia preliminar', descripcion: 'Conciliación, fijación de puntos controvertidos y admisión de pruebas.', diasEstimados: 30 },
-    { etapa: 'Periodo probatorio', descripcion: 'Producción de prueba testimonial, pericial y documental conforme al Código Procesal Civil.', diasEstimados: 45 },
-    { etapa: 'Audiencia complementaria y alegatos', descripcion: 'Presentación de conclusiones y alegatos orales previos a la sentencia.', diasEstimados: 20 },
-    { etapa: 'Sentencia de primera instancia', descripcion: 'Redacción, firma y notificación de la sentencia.', diasEstimados: 60 },
-    { etapa: 'Recursos y ejecución', descripcion: 'Interposición de apelación, compulsa o ejecución de sentencia.', diasEstimados: 30 },
+    { etapa: 'Ingreso Demanda', descripcion: 'Presentación de la demanda con antecedentes y revisión formal del tribunal.', diasEstimados: 0 },
+    { etapa: 'Notificación a la contraparte', descripcion: 'Gestiones de notificación personal o por cédula al demandado.', diasEstimados: 30 },
+    { etapa: 'Contestación de la demanda', descripcion: 'Plazo legal para que la contraparte conteste y proponga excepciones.', diasEstimados: 20 },
+    { etapa: 'Réplicas y dúplicas', descripcion: 'Intercambio de escritos aclarando puntos controvertidos.', diasEstimados: 15 },
+    { etapa: 'Audiencia preparatoria', descripcion: 'Fijación de puntos de prueba y acuerdos probatorios.', diasEstimados: 30 },
+    { etapa: 'Periodo probatorio', descripcion: 'Recepción de declaraciones, oficios, peritajes y documental.', diasEstimados: 45 },
+    { etapa: 'Alegatos y vista de la causa', descripcion: 'Audiencia de cierre donde las partes exponen sus argumentos finales.', diasEstimados: 20 },
+    { etapa: 'Sentencia de primera instancia', descripcion: 'Redacción y publicación del fallo por el tribunal.', diasEstimados: 60 },
+    { etapa: 'Recursos y cumplimiento', descripcion: 'Interposición de recursos o cumplimiento voluntario/forzado.', diasEstimados: 30 },
   ],
   Comercial: [
-    { etapa: 'Presentación de demanda comercial', descripcion: 'Ingreso de la acción monitorea, ejecutiva o concursal ante juzgado público comercial.', diasEstimados: 0 },
-    { etapa: 'Control de admisión y medidas cautelares', descripcion: 'Revisión formal y resolución de medidas precautorias solicitadas.', diasEstimados: 7 },
-    { etapa: 'Notificación a la parte demandada', descripcion: 'Notificación con la demanda y requerimientos de pago o entrega.', diasEstimados: 20 },
-    { etapa: 'Contestación y excepciones', descripcion: 'Recepción de la contestación, excepciones y reconvenciones.', diasEstimados: 20 },
-    { etapa: 'Audiencia preliminar', descripcion: 'Depuración de la litis, conciliación y ordenamiento de la prueba.', diasEstimados: 25 },
-    { etapa: 'Producción probatoria', descripcion: 'Práctica de prueba documental, pericial, contable y testifical.', diasEstimados: 35 },
-    { etapa: 'Audiencia complementaria y sentencia', descripcion: 'Alegatos finales y deliberación para la sentencia.', diasEstimados: 45 },
-    { etapa: 'Ejecución o recursos', descripcion: 'Demandas de cumplimiento, apelación o casación según corresponda.', diasEstimados: 30 },
+    { etapa: 'Ingreso Demanda', descripcion: 'Presentación de la demanda y verificación formal.', diasEstimados: 0 },
+    { etapa: 'Notificación demandado', descripcion: 'Gestión de notificación a la contraparte y acreditación en autos.', diasEstimados: 20 },
+    { etapa: 'Contestación y reconvención', descripcion: 'Respuesta del demandado y eventuales reconvenciones.', diasEstimados: 20 },
+    { etapa: 'Audiencia preparatoria', descripcion: 'Determinación de hechos a probar y medios de prueba.', diasEstimados: 25 },
+    { etapa: 'Prueba y alegatos', descripcion: 'Producción de prueba documental, testimonial y alegatos finales.', diasEstimados: 40 },
+    { etapa: 'Sentencia', descripcion: 'Decisión del tribunal y notificación a las partes.', diasEstimados: 45 },
+    { etapa: 'Ejecución o recursos', descripcion: 'Cumplimiento del fallo o tramitación de recursos.', diasEstimados: 30 },
   ],
   Laboral: [
-    { etapa: 'Presentación de demanda laboral', descripcion: 'Ingreso de la demanda o denuncia ante el juez de trabajo y seguridad social.', diasEstimados: 0 },
-    { etapa: 'Conciliación administrativa previa', descripcion: 'Verificación de conciliación en el Ministerio de Trabajo o presentación de constancia.', diasEstimados: 5 },
-    { etapa: 'Notificación al empleador', descripcion: 'Notificación personal o por cédula al empleador y citación a audiencia.', diasEstimados: 10 },
-    { etapa: 'Audiencia preliminar', descripcion: 'Intento de conciliación judicial, fijación de hechos y admisión de prueba.', diasEstimados: 15 },
-    { etapa: 'Audiencia de juicio laboral', descripcion: 'Desahogo de prueba testifical, documental y pericial, con alegatos finales.', diasEstimados: 20 },
-    { etapa: 'Sentencia y ejecución', descripcion: 'Emisión de sentencia, recursos y ejecución laboral preferente.', diasEstimados: 20 },
+    { etapa: 'Ingreso tutela o demanda laboral', descripcion: 'Ingreso del escrito y asignación de audiencia preliminar.', diasEstimados: 0 },
+    { etapa: 'Citaciones y notificación empleador', descripcion: 'Notificación de la demanda y citación a audiencia preparatoria.', diasEstimados: 10 },
+    { etapa: 'Audiencia preparatoria', descripcion: 'Intento de conciliación y fijación de puntos controvertidos.', diasEstimados: 15 },
+    { etapa: 'Audiencia de juicio', descripcion: 'Producción de prueba y alegatos finales.', diasEstimados: 20 },
+    { etapa: 'Sentencia laboral', descripcion: 'Pronunciamiento del tribunal y notificación a las partes.', diasEstimados: 15 },
+    { etapa: 'Cumplimiento / Recurso de nulidad', descripcion: 'Tramitación de recursos o ejecución de la sentencia.', diasEstimados: 20 },
   ],
   Familia: [
-    { etapa: 'Presentación de solicitud o demanda familiar', descripcion: 'Ingreso de medidas de protección, asistencia familiar o procesos de guarda ante juzgado público de familia.', diasEstimados: 0 },
-    { etapa: 'Admisión y medidas urgentes', descripcion: 'Evaluación de competencia, medidas provisionales y señalamiento de audiencias.', diasEstimados: 7 },
-    { etapa: 'Notificación y trabajo social', descripcion: 'Notificación a partes, informes psicosociales y citaciones.', diasEstimados: 12 },
-    { etapa: 'Audiencia de conciliación y prueba anticipada', descripcion: 'Intento de conciliación, acuerdos y recepción de prueba imprescindible.', diasEstimados: 15 },
-    { etapa: 'Audiencia de juicio familiar', descripcion: 'Declaraciones, prueba interdisciplinaria y alegatos finales.', diasEstimados: 20 },
-    { etapa: 'Sentencia y seguimiento', descripcion: 'Notificación de sentencia, homologación de acuerdos y control de cumplimiento.', diasEstimados: 25 },
+    { etapa: 'Ingreso demanda o escrito inicial', descripcion: 'Ingreso de medida de protección o demanda ante tribunal de familia.', diasEstimados: 0 },
+    { etapa: 'Notificación y citación a audiencia', descripcion: 'Notificación a la contraparte y citación a audiencia preparatoria.', diasEstimados: 10 },
+    { etapa: 'Audiencia preparatoria', descripcion: 'Determinación de puntos controvertidos y acumulación de prueba.', diasEstimados: 15 },
+    { etapa: 'Audiencia de juicio', descripcion: 'Presentación de prueba, declaraciones y alegatos.', diasEstimados: 20 },
+    { etapa: 'Sentencia', descripcion: 'Redacción y comunicación del fallo.', diasEstimados: 20 },
+    { etapa: 'Cumplimiento y seguimiento', descripcion: 'Ejecución de medidas decretadas y seguimiento del cumplimiento.', diasEstimados: 25 },
   ],
 };
 

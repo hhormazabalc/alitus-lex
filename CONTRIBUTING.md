@@ -1,16 +1,16 @@
-# Contributing to LEX Altius
+# Contributing to Xel Chile
 
-First off, thank you for considering contributing to LEX Altius! It's people like you that make LEX Altius such a great tool.
+First off, thank you for considering contributing to Xel Chile! It's people like you that make Xel Chile such a great tool.
 
 ## Code of Conduct
 
-This project and everyone participating in it is governed by the [LEX Altius Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to [contacto@altiusignite.com](mailto:contacto@altiusignite.com).
+This project and everyone participating in it is governed by the [Xel Chile Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to [contact@xelchile.com](mailto:contact@xelchile.com).
 
 ## How Can I Contribute?
 
 ### Reporting Bugs
 
-This is one of the simplest ways to contribute. If you find a bug, please open an issue on our support channel at [contacto@altiusignite.com](mailto:contacto@altiusignite.com).
+This is one of the simplest ways to contribute. If you find a bug, please open an issue on our [GitHub repository](https://github.com/xelchile/xelchile-platform/issues).
 
 ### Suggesting Enhancements
 

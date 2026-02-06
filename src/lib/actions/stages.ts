@@ -40,7 +40,6 @@ type CreateStageDB = Pick<
   | 'monto_pagado_uf'
   | 'solicitado_por'
   | 'solicitado_at'
-  | 'org_id'
 >;
 type UpdateStageDB = Partial<
   Pick<
@@ -59,14 +58,13 @@ type UpdateStageDB = Partial<
     | 'costo_uf'
     | 'porcentaje_variable'
     | 'estado_pago'
-  | 'enlace_pago'
-  | 'notas_pago'
-  | 'monto_variable_base'
-  | 'monto_pagado_uf'
-  | 'solicitado_por'
-  | 'solicitado_at'
-  | 'org_id'
->
+    | 'enlace_pago'
+    | 'notas_pago'
+    | 'monto_variable_base'
+    | 'monto_pagado_uf'
+    | 'solicitado_por'
+    | 'solicitado_at'
+  >
 >;
 type CompleteStageDB = Partial<Pick<CaseStage, 'estado' | 'fecha_cumplida' | 'descripcion'>>;
 
@@ -97,24 +95,12 @@ function copyIfPresent<T extends object, K extends keyof any>(
 export async function createStage(input: CreateStageInput) {
   try {
     const profile = await requireAuth();
-    if (!profile.org_id) throw new Error('Selecciona una organización activa.');
     const validatedInput = createStageSchema.parse(input) as CreateStageInput;
     const hasAccess = await canAccessCase(validatedInput.case_id);
     if (!hasAccess) throw new Error('Sin permisos para acceder a este caso');
     if (profile.role === 'cliente') throw new Error('Sin permisos para crear etapas');
 
     const supabase = await getSB();
-
-    const { data: caseRow, error: caseError } = await supabase
-      .from('cases')
-      .select('id')
-      .eq('id', validatedInput.case_id)
-      .eq('org_id', profile.org_id)
-      .maybeSingle();
-
-    if (caseError || !caseRow) {
-      throw new Error('Caso no encontrado o sin permisos en esta organización');
-    }
 
     const vi: any = validatedInput;
     const stageData: CreateStageDB = {
@@ -140,7 +126,6 @@ export async function createStage(input: CreateStageInput) {
       monto_pagado_uf: vi.monto_pagado_uf ?? 0,
       solicitado_por: null,
       solicitado_at: null,
-      org_id: profile.org_id,
     };
 
     const { data: newStage, error } = await supabase
@@ -148,7 +133,7 @@ export async function createStage(input: CreateStageInput) {
       .insert(stageData)
       .select(`
         *,
-        responsable:profiles!case_stages_responsable_id_fkey(id, nombre:full_name)
+        responsable:profiles!case_stages_responsable_id_fkey(nombre)
       `)
       .single();
 
@@ -175,7 +160,6 @@ export async function createStage(input: CreateStageInput) {
 export async function updateStage(stageId: string, input: UpdateStageInput) {
   try {
     const profile = await requireAuth();
-    if (!profile.org_id) throw new Error('Selecciona una organización activa.');
     const validatedInput = updateStageSchema.parse(input) as unknown as Record<string, any>;
     const supabase = await getSB();
 
@@ -183,7 +167,6 @@ export async function updateStage(stageId: string, input: UpdateStageInput) {
       .from('case_stages')
       .select('*')
       .eq('id', stageId)
-      .eq('org_id', profile.org_id)
       .single();
     if (fetchError || !existingStage) throw new Error('Etapa no encontrada');
 
@@ -223,10 +206,9 @@ export async function updateStage(stageId: string, input: UpdateStageInput) {
       .from('case_stages')
       .update(updatePayload)
       .eq('id', stageId)
-      .eq('org_id', profile.org_id)
       .select(`
         *,
-        responsable:profiles!case_stages_responsable_id_fkey(id, nombre:full_name)
+        responsable:profiles!case_stages_responsable_id_fkey(nombre)
       `)
       .single();
 
@@ -253,7 +235,6 @@ export async function updateStage(stageId: string, input: UpdateStageInput) {
 export async function completeStage(stageId: string, input: CompleteStageInput = {}) {
   try {
     const profile = await requireAuth();
-    if (!profile.org_id) throw new Error('Selecciona una organización activa.');
     const validatedInput = completeStageSchema.parse(input) as unknown as Record<string, any>;
     const supabase = await getSB();
 
@@ -261,7 +242,6 @@ export async function completeStage(stageId: string, input: CompleteStageInput =
       .from('case_stages')
       .select('*')
       .eq('id', stageId)
-      .eq('org_id', profile.org_id)
       .single();
     if (fetchError || !existingStage) throw new Error('Etapa no encontrada');
 
@@ -288,16 +268,15 @@ export async function completeStage(stageId: string, input: CompleteStageInput =
       .from('case_stages')
       .update(updatePayload)
       .eq('id', stageId)
-      .eq('org_id', profile.org_id)
       .select(`
         *,
-        responsable:profiles!case_stages_responsable_id_fkey(id, nombre:full_name)
+        responsable:profiles!case_stages_responsable_id_fkey(nombre)
       `)
       .single();
 
     if (error) throw new Error('Error al completar la etapa');
 
-    await updateCaseCurrentStage(existingStage.case_id, profile.org_id);
+    await updateCaseCurrentStage(existingStage.case_id);
 
     await logAuditAction({
       action: 'COMPLETE',
@@ -320,14 +299,12 @@ export async function completeStage(stageId: string, input: CompleteStageInput =
 export async function deleteStage(stageId: string) {
   try {
     const profile = await requireAuth();
-    if (!profile.org_id) throw new Error('Selecciona una organización activa.');
     const supabase = await getSB();
 
     const { data: existingStage, error: fetchError } = await supabase
       .from('case_stages')
       .select('*')
       .eq('id', stageId)
-      .eq('org_id', profile.org_id)
       .single();
     if (fetchError || !existingStage) throw new Error('Etapa no encontrada');
 
@@ -335,11 +312,7 @@ export async function deleteStage(stageId: string) {
     if (!hasAccess) throw new Error('Sin permisos para acceder a este caso');
     if (profile.role !== 'admin_firma') throw new Error('Sin permisos para eliminar etapas');
 
-    const { error } = await supabase
-      .from('case_stages')
-      .delete()
-      .eq('id', stageId)
-      .eq('org_id', profile.org_id);
+    const { error } = await supabase.from('case_stages').delete().eq('id', stageId);
     if (error) throw new Error('Error al eliminar la etapa');
 
     await logAuditAction({
@@ -364,7 +337,6 @@ export async function getStages(filters?: Partial<StageFiltersInput>) {
   try {
     const profile = await getCurrentProfile();
     if (!profile) throw new Error('No autenticado');
-    if (!profile.org_id) throw new Error('Selecciona una organización activa.');
 
     const input = { page: 1, limit: 20, ...(filters ?? {}) };
     const validatedFilters = stageFiltersSchema.parse(input) as any;
@@ -376,30 +348,24 @@ export async function getStages(filters?: Partial<StageFiltersInput>) {
       .select(
         `
         *,
-        responsable:profiles!case_stages_responsable_id_fkey(id, nombre:full_name)
+        responsable:profiles!case_stages_responsable_id_fkey(id, nombre)
       `,
-        { count: 'exact' },
-      )
-      .eq('org_id', profile.org_id);
+        { count: 'exact' }
+      );
 
     if (profile.role === 'cliente') {
       query = query.eq('es_publica', true);
       const { data: clientCases } = await supabase
         .from('case_clients')
         .select('case_id')
-        .eq('client_profile_id', profile.id)
-        .eq('org_id', profile.org_id);
+        .eq('client_profile_id', profile.id);
       const caseIds = clientCases?.map((cc: { case_id: string }) => cc.case_id) || [];
       if (caseIds.length === 0) {
         return { success: true, stages: [], total: 0, page: validatedFilters.page, limit: validatedFilters.limit };
       }
       query = query.in('case_id', caseIds);
     } else if (profile.role === 'abogado') {
-      const { data: abogadoCases } = await supabase
-        .from('cases')
-        .select('id')
-        .eq('abogado_responsable', profile.id)
-        .eq('org_id', profile.org_id);
+      const { data: abogadoCases } = await supabase.from('cases').select('id').eq('abogado_responsable', profile.id);
       const caseIds = abogadoCases?.map((c: { id: string }) => c.id) || [];
       if (caseIds.length === 0) {
         return { success: true, stages: [], total: 0, page: validatedFilters.page, limit: validatedFilters.limit };
@@ -443,14 +409,13 @@ export async function getStages(filters?: Partial<StageFiltersInput>) {
 /**
  * Función auxiliar
  */
-async function updateCaseCurrentStage(caseId: string, orgId: string) {
+async function updateCaseCurrentStage(caseId: string) {
   const supabase = await getSB();
 
   const { data: nextStage } = await supabase
     .from('case_stages')
     .select('etapa')
     .eq('case_id', caseId)
-    .eq('org_id', orgId)
     .eq('estado', 'pendiente')
     .order('orden', { ascending: true })
     .limit(1)
@@ -458,10 +423,6 @@ async function updateCaseCurrentStage(caseId: string, orgId: string) {
 
   const nextEtapa = (nextStage as { etapa: string } | null)?.etapa ?? null;
   if (nextEtapa) {
-    await supabase
-      .from('cases')
-      .update({ etapa_actual: nextEtapa })
-      .eq('id', caseId)
-      .eq('org_id', orgId);
+    await supabase.from('cases').update({ etapa_actual: nextEtapa }).eq('id', caseId);
   }
 }

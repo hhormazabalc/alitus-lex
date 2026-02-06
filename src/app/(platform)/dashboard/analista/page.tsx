@@ -15,7 +15,7 @@ import LogoutButton from '@/components/LogoutButton'; // <- default import
 import type { Case } from '@/lib/supabase/types';
 
 export const metadata: Metadata = {
-  title: 'Panel de Analista - LEX Altius',
+  title: 'Panel de Analista - Xel Chile',
   description: 'Centraliza la información inicial de los casos y su asignación.',
 };
 

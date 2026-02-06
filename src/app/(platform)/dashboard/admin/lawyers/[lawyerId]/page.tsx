@@ -9,7 +9,7 @@ import { getLawyerDetail } from '@/lib/actions/analytics';
 import { AdminLawyerDetail } from '@/components/AdminLawyerDetail';
 
 export const metadata: Metadata = {
-  title: 'Detalle de abogado - LEX Altius',
+  title: 'Detalle de abogado - Xel Chile',
   description: 'Seguimiento de gestión individual para el equipo jurídico',
 };
 

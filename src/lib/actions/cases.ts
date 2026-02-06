@@ -82,7 +82,6 @@ function parseWorkflow(v: unknown): Workflow {
 export async function createCase(input: CreateCaseInput) {
   try {
     const profile = await requireAuth(['abogado', 'analista']);
-    const orgId = profile.org_id;
     const parsed = createCaseSchema.parse(input);
     const {
       marcar_validado,
@@ -104,7 +103,6 @@ export async function createCase(input: CreateCaseInput) {
         .from('cases')
         .select('id')
         .eq('numero_causa', numeroCausaClean)
-        .eq('org_id', orgId)
         .limit(1)
         .maybeSingle();
 
@@ -120,7 +118,6 @@ export async function createCase(input: CreateCaseInput) {
     const baseData: CaseInsert = {
       caratulado: caseInput.caratulado,
       nombre_cliente: caseInput.nombre_cliente,
-      org_id: orgId,
 
       numero_causa: numeroCausaClean,
       materia: sOrNull(caseInput.materia),
@@ -146,7 +143,7 @@ export async function createCase(input: CreateCaseInput) {
       honorario_total_uf: nOrNull(caseInput.honorario_total_uf),
       honorario_variable_porcentaje: nOrNull(caseInput.honorario_variable_porcentaje),
       honorario_variable_base: sOrNull(caseInput.honorario_variable_base),
-      honorario_moneda: caseInput.honorario_moneda ?? 'BOB',
+      honorario_moneda: caseInput.honorario_moneda ?? 'UF',
       modalidad_cobro: caseInput.modalidad_cobro ?? 'prepago',
       honorario_notas: sOrNull(caseInput.honorario_notas),
       tarifa_referencia: sOrNull(caseInput.tarifa_referencia),
@@ -180,7 +177,7 @@ export async function createCase(input: CreateCaseInput) {
       .single();
     if (error) throw error;
 
-    await upsertPrimaryClient(newCase.id, orgId, baseData.cliente_principal_id);
+    await upsertPrimaryClient(newCase.id, baseData.cliente_principal_id);
     await createInitialStages(newCase);
 
     if (audiencia_inicial_tipo) {
@@ -246,11 +243,11 @@ export async function createCaseFromBrief(input: CreateCaseFromBriefInput) {
       honorario_pagado_uf: extracted.honorario_pagado_uf ?? undefined,
       honorario_variable_porcentaje: extracted.honorario_variable_porcentaje ?? undefined,
       honorario_variable_base: extracted.honorario_variable_base ?? undefined,
-      honorario_moneda: extracted.honorario_moneda ?? 'BOB',
+      honorario_moneda: extracted.honorario_moneda ?? 'UF',
       modalidad_cobro: extracted.modalidad_cobro ?? 'prepago',
       honorario_notas: extracted.honorario_notas ?? undefined,
       tarifa_referencia: extracted.tarifa_referencia ?? undefined,
-      rut_cliente: extracted.rut_cliente ?? '0000 LP',
+      rut_cliente: extracted.rut_cliente ?? undefined,
       cliente_principal_id: (extracted as any).cliente_principal_id ?? undefined,
       fecha_inicio: extracted.fecha_inicio ?? undefined,
 
@@ -278,9 +275,8 @@ export async function createCaseFromBrief(input: CreateCaseFromBriefInput) {
       prioridad: (overrides as any)?.prioridad ?? base.prioridad!,
       descripcion_inicial:
         (overrides as any)?.descripcion_inicial ?? base.descripcion_inicial ?? '',
-      rut_cliente: (overrides as any)?.rut_cliente ?? base.rut_cliente ?? '0000 LP',
       modalidad_cobro: (overrides as any)?.modalidad_cobro ?? base.modalidad_cobro ?? 'prepago',
-      honorario_moneda: (overrides as any)?.honorario_moneda ?? base.honorario_moneda ?? 'BOB',
+      honorario_moneda: (overrides as any)?.honorario_moneda ?? base.honorario_moneda ?? 'UF',
       honorario_total_uf:
         (overrides as any)?.honorario_total_uf ?? (base.honorario_total_uf as number | undefined),
       honorario_pagado_uf:
@@ -311,7 +307,6 @@ export async function createCaseFromBrief(input: CreateCaseFromBriefInput) {
 export async function updateCase(caseId: string, input: UpdateCaseInput) {
   try {
     const profile = await requireAuth();
-    const orgId = profile.org_id;
     const validated = updateCaseSchema.parse(input);
     const {
       marcar_validado,
@@ -325,7 +320,6 @@ export async function updateCase(caseId: string, input: UpdateCaseInput) {
       .from('cases')
       .select('*')
       .eq('id', caseId)
-      .eq('org_id', orgId)
       .single();
     if (fetchError || !existingCase) throw new Error('Caso no encontrado');
 
@@ -405,7 +399,6 @@ export async function updateCase(caseId: string, input: UpdateCaseInput) {
           .from('cases')
           .select('id')
           .eq('numero_causa', trimmedNumero)
-          .eq('org_id', orgId)
           .neq('id', caseId)
           .limit(1)
           .maybeSingle();
@@ -437,12 +430,11 @@ export async function updateCase(caseId: string, input: UpdateCaseInput) {
       .from('cases')
       .update(updatePayload)
       .eq('id', caseId)
-      .eq('org_id', orgId)
       .select()
       .single();
     if (error) throw error;
 
-    await upsertPrimaryClient(caseId, orgId, rest.cliente_principal_id ?? undefined);
+    await upsertPrimaryClient(caseId, rest.cliente_principal_id ?? undefined);
 
     await logAuditAction({
       action: 'UPDATE',
@@ -474,14 +466,12 @@ export async function updateCase(caseId: string, input: UpdateCaseInput) {
 export async function requestCaseAdvance(caseId: string, stageId: string) {
   try {
     const profile = await requireAuth('cliente');
-    const orgId = profile.org_id;
     const supabase = await getSB();
 
     const { data: caseRow, error: caseError } = await supabase
       .from('cases')
       .select('id, cliente_principal_id, alcance_cliente_autorizado, alcance_cliente_solicitado')
       .eq('id', caseId)
-      .eq('org_id', orgId)
       .maybeSingle();
     if (caseError || !caseRow) throw new Error('Caso no encontrado');
 
@@ -492,7 +482,6 @@ export async function requestCaseAdvance(caseId: string, stageId: string) {
         .select('id')
         .eq('case_id', caseId)
         .eq('client_profile_id', profile.id)
-        .eq('org_id', orgId)
         .maybeSingle();
       hasAccess = Boolean(link);
     }
@@ -502,7 +491,6 @@ export async function requestCaseAdvance(caseId: string, stageId: string) {
       .from('case_stages')
       .select('id, case_id, orden, requiere_pago, es_publica, estado, estado_pago')
       .eq('id', stageId)
-      .eq('org_id', orgId)
       .maybeSingle();
     if (stageError || !stageRow) throw new Error('Etapa no encontrada');
     if (stageRow.case_id !== caseId) throw new Error('La etapa seleccionada no pertenece al caso');
@@ -531,8 +519,7 @@ export async function requestCaseAdvance(caseId: string, stageId: string) {
         alcance_cliente_solicitado: effectiveRequested,
         updated_at: nowIso,
       })
-      .eq('id', caseId)
-      .eq('org_id', orgId);
+      .eq('id', caseId);
     if (updateCaseError) throw updateCaseError;
 
     const { error: updateStagesError } = await supabase
@@ -543,7 +530,6 @@ export async function requestCaseAdvance(caseId: string, stageId: string) {
         solicitado_at: nowIso,
       })
       .eq('case_id', caseId)
-      .eq('org_id', orgId)
       .lte('orden', targetOrder)
       .eq('requiere_pago', true)
       .in('estado_pago', ['pendiente', 'vencido']);
@@ -573,7 +559,6 @@ export async function requestCaseAdvance(caseId: string, stageId: string) {
 export async function authorizeCaseAdvance(caseId: string, targetOrder: number) {
   try {
     const profile = await requireAuth(['admin_firma', 'analista']);
-    const orgId = profile.org_id;
     const supabase = await getSB();
 
     if (!Number.isInteger(targetOrder) || targetOrder <= 0) {
@@ -584,7 +569,6 @@ export async function authorizeCaseAdvance(caseId: string, targetOrder: number) 
       .from('cases')
       .select('id, alcance_cliente_autorizado, alcance_cliente_solicitado')
       .eq('id', caseId)
-      .eq('org_id', orgId)
       .maybeSingle();
     if (caseError || !caseRow) throw new Error('Caso no encontrado');
 
@@ -604,7 +588,6 @@ export async function authorizeCaseAdvance(caseId: string, targetOrder: number) 
       .from('case_stages')
       .select('id')
       .eq('case_id', caseId)
-      .eq('org_id', orgId)
       .eq('orden', cappedOrder)
       .maybeSingle();
     if (!stageExists) throw new Error('La etapa seleccionada no existe en el caso');
@@ -618,8 +601,7 @@ export async function authorizeCaseAdvance(caseId: string, targetOrder: number) 
         alcance_cliente_solicitado: Math.max(currentRequested ?? 0, cappedOrder),
         updated_at: nowIso,
       })
-      .eq('id', caseId)
-      .eq('org_id', orgId);
+      .eq('id', caseId);
     if (updateCaseError) throw updateCaseError;
 
     const { error: stageUpdateError } = await supabase
@@ -628,7 +610,6 @@ export async function authorizeCaseAdvance(caseId: string, targetOrder: number) 
         estado_pago: 'en_proceso',
       })
       .eq('case_id', caseId)
-      .eq('org_id', orgId)
       .lte('orden', cappedOrder)
       .eq('requiere_pago', true)
       .in('estado_pago', ['solicitado']);
@@ -664,42 +645,26 @@ type LawyerSummary = {
 
 export async function listAvailableLawyers() {
   try {
-    const profile = await requireAuth(['admin_firma', 'analista']);
-    const orgId = profile.org_id;
+    await requireAuth(['admin_firma', 'analista']);
     const supabase = await getSB();
 
     const { data, error } = await supabase
-      .from('memberships')
-      .select('role, user:profiles!inner(id, nombre:full_name, email, telefono:phone, activo)')
-      .eq('org_id', orgId)
-      .eq('status', 'active')
-      .in('role', ['owner', 'admin', 'lawyer'])
-      .order('created_at', { ascending: true });
+      .from('profiles')
+      .select('id, nombre, email, telefono, activo')
+      .eq('role', 'abogado')
+      .order('nombre', { ascending: true });
     if (error) throw error;
 
-    const lawyers: LawyerSummary[] = (data ?? []).flatMap((row: any) => {
-      const user = row.user as {
-        id: string;
-        nombre: string | null;
-        email: string | null;
-        telefono: string | null;
-        activo: boolean | null;
-      } | null;
-
-      if (!user) {
-        return [];
-      }
-
-      return [
-        {
-          id: user.id,
-          nombre: user.nombre ?? 'Sin nombre',
-          email: user.email,
-          telefono: user.telefono,
-          activo: user.activo,
-        },
-      ];
-    });
+    const lawyers: LawyerSummary[] =
+      (data as Array<{ id: string; nombre: string | null; email: string | null; telefono: string | null; activo: boolean | null }> | null)?.map(
+        (row) => ({
+          id: row.id,
+          nombre: row.nombre,
+          email: row.email,
+          telefono: row.telefono,
+          activo: row.activo,
+        }),
+      ) ?? [];
 
     return { success: true as const, lawyers };
   } catch (error) {
@@ -711,15 +676,13 @@ export async function listAvailableLawyers() {
 export async function assignLawyer(input: AssignLawyerInput) {
   try {
     const profile = await requireAuth(['admin_firma', 'analista']);
-    const orgId = profile.org_id;
     const validated = assignLawyerSchema.parse(input);
     const supabase = await getSB();
 
     const { data: existingCase, error: fetchError } = await supabase
       .from('cases')
-      .select('id, abogado_responsable, org_id')
+      .select('id, abogado_responsable')
       .eq('id', validated.case_id)
-      .eq('org_id', orgId)
       .single();
     if (fetchError || !existingCase) throw fetchError ?? new Error('Caso no encontrado');
 
@@ -730,36 +693,20 @@ export async function assignLawyer(input: AssignLawyerInput) {
       };
     }
 
-    const { data: lawyerMembership } = await supabase
-      .from('memberships')
-      .select('id')
-      .eq('org_id', orgId)
-      .eq('user_id', validated.abogado_id)
-      .eq('status', 'active')
-      .maybeSingle();
-
-    if (!lawyerMembership) {
-      return {
-        success: false as const,
-        error: 'El abogado seleccionado no pertenece a tu organización.',
-      };
-    }
-
     const nowIso = new Date().toISOString();
     const { data: updatedCase, error } = await supabase
       .from('cases')
       .update({ abogado_responsable: validated.abogado_id, updated_at: nowIso })
       .eq('id', validated.case_id)
-      .eq('org_id', orgId)
       .select('id, abogado_responsable')
       .single();
     if (error) throw error;
 
     const { data: newLawyerProfile } = await supabase
       .from('profiles')
-      .select('id, full_name, email, phone')
+      .select('id, nombre, email, telefono')
       .eq('id', validated.abogado_id)
-      .maybeSingle<{ id: string; full_name: string | null; email: string | null; phone: string | null }>();
+      .maybeSingle<{ id: string; nombre: string | null; email: string | null; telefono: string | null }>();
 
     await logAuditAction({
       action: 'ASSIGN_LAWYER',
@@ -779,14 +726,7 @@ export async function assignLawyer(input: AssignLawyerInput) {
     return {
       success: true as const,
       case: updatedCase,
-      lawyer: newLawyerProfile
-        ? {
-            id: newLawyerProfile.id,
-            nombre: newLawyerProfile.full_name,
-            email: newLawyerProfile.email,
-            telefono: newLawyerProfile.phone,
-          }
-        : null,
+      lawyer: newLawyerProfile ?? null,
     };
   } catch (error) {
     console.error('Error in assignLawyer:', error);
@@ -796,15 +736,10 @@ export async function assignLawyer(input: AssignLawyerInput) {
 
 export async function deleteCase(caseId: string) {
   try {
-    const profile = await requireAuth('admin_firma');
-    const orgId = profile.org_id;
+    await requireAuth('admin_firma');
     const supabase = await getSB();
 
-    const { error } = await supabase
-      .from('cases')
-      .delete()
-      .eq('id', caseId)
-      .eq('org_id', orgId);
+    const { error } = await supabase.from('cases').delete().eq('id', caseId);
     if (error) throw error;
 
     await logAuditAction({
@@ -835,18 +770,15 @@ export async function getCases(filters: Partial<CaseFiltersInput> = {}) {
 
     const supabase = await getSB();
 
-    let query = supabase
-      .from('cases')
-      .select(
-        `
+    let query = supabase.from('cases').select(
+      `
         *,
-        abogado_responsable:profiles!cases_abogado_responsable_fkey(id, nombre:full_name, telefono:phone),
+        abogado_responsable:profiles!cases_abogado_responsable_fkey(id, nombre),
         case_stages(id, etapa, estado, fecha_programada, orden),
         counterparties:case_counterparties(nombre, tipo)
       `,
-        { count: 'exact' },
-      )
-      .eq('org_id', profile.org_id);
+      { count: 'exact' }
+    );
 
     if (profile.role === 'abogado') {
       query = query.eq('abogado_responsable', profile.id);
@@ -854,8 +786,7 @@ export async function getCases(filters: Partial<CaseFiltersInput> = {}) {
       const { data: clientCases } = await supabase
         .from('case_clients')
         .select('case_id')
-        .eq('client_profile_id', profile.id)
-        .eq('org_id', profile.org_id);
+        .eq('client_profile_id', profile.id);
       const caseIds = clientCases?.map((cc: { case_id: string }) => cc.case_id) ?? [];
       if (caseIds.length === 0) {
         return { success: true, cases: [], total: 0, page: validatedFilters.page, limit: validatedFilters.limit };
@@ -901,8 +832,6 @@ export async function getCaseById(caseId: string) {
   try {
     const profile = await getCurrentProfile();
     if (!profile) throw new Error('No autenticado');
-    const orgId = profile.org_id;
-    if (!orgId) throw new Error('Selecciona una organización');
 
     const supabase = await getSB();
 
@@ -910,7 +839,6 @@ export async function getCaseById(caseId: string) {
       .from('cases')
       .select('*')
       .eq('id', caseId)
-      .eq('org_id', orgId)
       .single();
     if (caseError || !caseRow) throw new Error('Caso no encontrado');
 
@@ -921,7 +849,6 @@ export async function getCaseById(caseId: string) {
         .select('id')
         .eq('case_id', caseId)
         .eq('client_profile_id', profile.id)
-        .eq('org_id', orgId)
         .maybeSingle();
       if (!clientCase) throw new Error('Sin permisos para ver este caso');
     }
@@ -933,7 +860,7 @@ export async function getCaseById(caseId: string) {
         if (!caseRow.abogado_responsable) return null;
         const { data, error } = await supabase
           .from('profiles')
-          .select('id, nombre:full_name, telefono:phone, rut')
+          .select('id, nombre, telefono, rut')
           .eq('id', caseRow.abogado_responsable)
           .maybeSingle();
         if (error) {
@@ -944,39 +871,33 @@ export async function getCaseById(caseId: string) {
       })(),
       supabase
         .from('case_stages')
-        .select('*, responsable:profiles!case_stages_responsable_id_fkey(id, nombre:full_name, telefono:phone)')
+        .select('*, responsable:profiles!case_stages_responsable_id_fkey(id, nombre)')
         .eq('case_id', caseId)
-        .eq('org_id', orgId)
         .order('orden', { ascending: true }),
       supabase
         .from('notes')
-        .select('*, author:profiles!notes_author_id_fkey(id, nombre:full_name)')
+        .select('*, author:profiles!notes_author_id_fkey(id, nombre)')
         .eq('case_id', caseId)
-        .eq('org_id', orgId)
         .order('created_at', { ascending: false }),
       supabase
         .from('documents')
-        .select('*, uploader:profiles!documents_uploader_id_fkey(id, nombre:full_name)')
+        .select('*, uploader:profiles!documents_uploader_id_fkey(id, nombre)')
         .eq('case_id', caseId)
-        .eq('org_id', orgId)
         .order('created_at', { ascending: false }),
       supabase
         .from('info_requests')
-        .select('*, creador:profiles!info_requests_creador_id_fkey(id, nombre:full_name)')
+        .select('*, creador:profiles!info_requests_creador_id_fkey(id, nombre)')
         .eq('case_id', caseId)
-        .eq('org_id', orgId)
         .order('created_at', { ascending: false }),
       supabase
         .from('case_counterparties')
         .select('*')
         .eq('case_id', caseId)
-        .eq('org_id', orgId)
         .order('created_at', { ascending: false }),
       supabase
         .from('case_clients')
-        .select('client:profiles!case_clients_client_profile_id_fkey(id, nombre:full_name, email, telefono:phone)')
+        .select('client:profiles!case_clients_client_profile_id_fkey(id, nombre, email, telefono)')
         .eq('case_id', caseId)
-        .eq('org_id', orgId)
         .order('created_at', { ascending: true }),
     ]);
 
@@ -1016,13 +937,13 @@ export async function getCaseById(caseId: string) {
 /*                                 Auxiliares                                 */
 /* -------------------------------------------------------------------------- */
 
-async function upsertPrimaryClient(caseId: string, orgId: string, clientProfileId?: string | null) {
+async function upsertPrimaryClient(caseId: string, clientProfileId?: string | null) {
   if (!clientProfileId) return;
   try {
     const supabase = await getSB();
     await supabase
       .from('case_clients')
-      .upsert([{ case_id: caseId, client_profile_id: clientProfileId, org_id: orgId }], {
+      .upsert([{ case_id: caseId, client_profile_id: clientProfileId }], {
         onConflict: 'case_id,client_profile_id',
       });
   } catch (error) {
@@ -1040,18 +961,18 @@ async function createInitialStages(caseRecord: Case) {
   const totalAsignado =
     typeof caseRecord.honorario_total_uf === 'number'
       ? Number(caseRecord.honorario_total_uf)
-      : tarifaReferencia?.montoBs ?? null;
+      : tarifaReferencia?.montoUf ?? null;
 
   const shouldDistributeCosts =
     (caseRecord.modalidad_cobro ?? 'prepago') === 'prepago' &&
-    caseRecord.honorario_moneda === 'BOB' &&
+    caseRecord.honorario_moneda === 'UF' &&
     totalAsignado !== null;
   const honorarioTotal = shouldDistributeCosts ? totalAsignado : null;
 
-  const toFixedAmount = (value: number) => Number(value.toFixed(2));
+  const toFixedUf = (value: number) => Number(value.toFixed(2));
 
   let cumulativeDays = 0;
-  let allocatedAmount = 0;
+  let allocatedUf = 0;
 
   const stages: CaseStageInsert[] = templates.map((template: StageTemplate, index: number) => {
     cumulativeDays += template.diasEstimados;
@@ -1065,17 +986,16 @@ async function createInitialStages(caseRecord: Case) {
       const porcentaje = template.porcentajeHonorario ?? 0;
       if (porcentaje > 0) {
         if (index === templates.length - 1) {
-          costoEtapa = toFixedAmount(honorarioTotal - allocatedAmount);
+          costoEtapa = toFixedUf(honorarioTotal - allocatedUf);
         } else {
-          costoEtapa = toFixedAmount(honorarioTotal * porcentaje);
-          allocatedAmount += costoEtapa;
+          costoEtapa = toFixedUf(honorarioTotal * porcentaje);
+          allocatedUf += costoEtapa;
         }
       }
     }
 
     return {
       case_id: caseRecord.id,
-      org_id: caseRecord.org_id,
       etapa: template.etapa,
       descripcion: template.descripcion ?? null,
       estado: 'pendiente',
@@ -1119,7 +1039,6 @@ async function applyInitialAudiencePreferences(
       .from('case_stages')
       .select('id, etapa')
       .eq('case_id', caseRecord.id)
-      .eq('org_id', caseRecord.org_id)
       .in('etapa', targetNames)
       .order('orden', { ascending: true })
       .limit(1)
@@ -1136,7 +1055,6 @@ async function applyInitialAudiencePreferences(
         .from('case_stages')
         .select('id, etapa')
         .eq('case_id', caseRecord.id)
-        .eq('org_id', caseRecord.org_id)
         .ilike('etapa', '%audiencia%')
         .order('orden', { ascending: true })
         .limit(1)
@@ -1156,8 +1074,7 @@ async function applyInitialAudiencePreferences(
         audiencia_tipo: audienciaTipo,
         requiere_testigos: Boolean(requiereTestigos),
       })
-      .eq('id', stageId)
-      .eq('org_id', caseRecord.org_id);
+      .eq('id', stageId);
   } catch (error) {
     console.error('Error aplicando preferencia de audiencia inicial:', error);
   }

@@ -22,7 +22,7 @@ ALTER TABLE cases
   ADD COLUMN honorario_total_uf NUMERIC(10,2),
   ADD COLUMN honorario_variable_porcentaje NUMERIC(6,3),
   ADD COLUMN honorario_variable_base TEXT,
-  ADD COLUMN honorario_moneda TEXT NOT NULL DEFAULT 'BOB',
+  ADD COLUMN honorario_moneda TEXT NOT NULL DEFAULT 'UF',
   ADD COLUMN honorario_notas TEXT,
   ADD COLUMN tarifa_referencia TEXT,
   ADD COLUMN honorario_pagado_uf NUMERIC(10,2) NOT NULL DEFAULT 0;

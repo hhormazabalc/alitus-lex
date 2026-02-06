@@ -19,47 +19,21 @@ async function getSupabaseClientForDirectory(role: Profile['role']) {
 
 async function fetchProfilesByRole(targetRole: Profile['role']): Promise<DirectoryProfile[]> {
   const authProfile = await requireAuth();
-  if (!authProfile.org_id) throw new Error('Selecciona una organización activa.');
   const supabase = await getSupabaseClientForDirectory(authProfile.role);
 
   const { data, error } = await supabase
     .from('profiles')
-    .select(
-      `
-        id,
-        full_name,
-        role,
-        phone,
-        rut,
-        email,
-        status,
-        memberships:memberships!inner (
-          org_id,
-          status
-        )
-      `,
-    )
-    .eq('memberships.org_id', authProfile.org_id)
-    .eq('memberships.status', 'active')
-    .eq('status', 'active')
+    .select('id, nombre, role, telefono, rut, email')
     .eq('role', targetRole)
-    .order('full_name');
+    .eq('activo', true)
+    .order('nombre');
 
   if (error) {
     console.error(`Error fetching profiles for role ${targetRole}:`, error);
     return [];
   }
 
-  return (
-    data?.map((row: any) => ({
-      id: row.id,
-      nombre: row.full_name,
-      role: row.role,
-      telefono: row.phone,
-      rut: row.rut,
-      email: row.email,
-    })) ?? []
-  );
+  return (data as DirectoryProfile[]) || [];
 }
 
 export async function getAssignableLawyers() {

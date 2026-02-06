@@ -175,17 +175,19 @@ export function SecurityDashboard({ canManage = false }: SecurityDashboardProps)
   const getSeverityBadge = (severity: string | null | undefined) => {
     const key = (severity ?? 'info').toLowerCase();
     const variants: Record<string, string> = {
-      low: 'border-white/15 bg-white/10 text-foreground/75',
-      info: 'border-sky-400/35 bg-sky-500/20 text-sky-50',
-      warning: 'border-amber-400/40 bg-amber-500/20 text-amber-50',
-      high: 'border-orange-500/40 bg-orange-500/20 text-orange-50',
-      critical: 'border-red-500/45 bg-red-600/25 text-red-50',
+      low: 'bg-gray-100 text-gray-800',
+      info: 'bg-blue-100 text-blue-800',
+      warning: 'bg-yellow-100 text-yellow-800',
+      high: 'bg-orange-100 text-orange-800',
+      critical: 'bg-red-100 text-red-800',
     };
     const label = key.charAt(0).toUpperCase() + key.slice(1);
-    const baseClasses =
-      'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium backdrop-blur';
     return (
-      <span className={`${baseClasses} ${variants[key] || variants.info}`}>
+      <span
+        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+          variants[key] || variants.info
+        }`}
+      >
         {label}
       </span>
     );
@@ -194,26 +196,26 @@ export function SecurityDashboard({ canManage = false }: SecurityDashboardProps)
   const getDeviceIcon = (deviceType: string | null | undefined) => {
     switch ((deviceType ?? 'desktop').toLowerCase()) {
       case 'mobile':
-        return <Smartphone className="h-4 w-4 text-white/70" />;
+        return <Smartphone className="h-4 w-4" />;
       case 'tablet':
-        return <Tablet className="h-4 w-4 text-white/70" />;
+        return <Tablet className="h-4 w-4" />;
       default:
-        return <Laptop className="h-4 w-4 text-white/70" />;
+        return <Laptop className="h-4 w-4" />;
     }
   };
 
   const getActionIcon = (action: string | null | undefined) => {
     switch ((action ?? '').toUpperCase()) {
       case 'INSERT':
-        return <CheckCircle className="h-4 w-4 text-emerald-300" />;
+        return <CheckCircle className="h-4 w-4 text-green-600" />;
       case 'UPDATE':
-        return <Activity className="h-4 w-4 text-sky-300" />;
+        return <Activity className="h-4 w-4 text-blue-600" />;
       case 'DELETE':
-        return <XCircle className="h-4 w-4 text-red-400" />;
+        return <XCircle className="h-4 w-4 text-red-600" />;
       case 'SELECT':
-        return <Eye className="h-4 w-4 text-white/60" />;
+        return <Eye className="h-4 w-4 text-gray-600" />;
       default:
-        return <Activity className="h-4 w-4 text-white/60" />;
+        return <Activity className="h-4 w-4 text-gray-600" />;
     }
   };
 
@@ -221,9 +223,9 @@ export function SecurityDashboard({ canManage = false }: SecurityDashboardProps)
     return (
       <Card>
         <CardContent className="pt-6">
-          <div className="py-8 text-center text-foreground/65">
-            <Shield className="mx-auto mb-4 h-12 w-12 text-white/30" />
-            <p>Sin permisos para acceder al panel de seguridad</p>
+          <div className="text-center py-8">
+            <Shield className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+            <p className="text-gray-500">Sin permisos para acceder al panel de seguridad</p>
           </div>
         </CardContent>
       </Card>
@@ -257,33 +259,23 @@ export function SecurityDashboard({ canManage = false }: SecurityDashboardProps)
   ];
 
   return (
-    <div className="space-y-6 text-foreground">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="flex items-center gap-2 text-2xl font-semibold text-foreground">
+          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <Shield className="h-6 w-6" />
             Panel de Seguridad
           </h1>
-          <p className="text-sm text-foreground/70">Monitoreo y auditoría del sistema</p>
+          <p className="text-gray-600">Monitoreo y auditoría del sistema</p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            className="rounded-full border-white/20 bg-white/12 text-foreground transition hover:bg-white/16"
-            onClick={loadData}
-          >
-            <RefreshCw className="mr-2 h-4 w-4" />
+        <div className="flex items-center space-x-2">
+          <Button size="sm" variant="outline" onClick={loadData}>
+            <RefreshCw className="h-4 w-4 mr-2" />
             Actualizar
           </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            className="rounded-full border-white/20 bg-white/12 text-foreground transition hover:bg-white/16"
-            onClick={handleCleanupLogs}
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
+          <Button size="sm" variant="outline" onClick={handleCleanupLogs}>
+            <Trash2 className="h-4 w-4 mr-2" />
             Limpiar Logs
           </Button>
         </div>
@@ -291,9 +283,9 @@ export function SecurityDashboard({ canManage = false }: SecurityDashboardProps)
 
       {/* Alertas críticas */}
       {securityAlerts.filter((a) => a.severity === 'critical' || a.severity === 'high').length > 0 && (
-        <Card className="border-red-500/40 bg-red-500/12">
+        <Card className="border-red-200 bg-red-50">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-red-100">
+            <CardTitle className="flex items-center gap-2 text-red-700">
               <AlertTriangle className="h-5 w-5" />
               Alertas de Seguridad Críticas
             </CardTitle>
@@ -306,11 +298,11 @@ export function SecurityDashboard({ canManage = false }: SecurityDashboardProps)
                 .map((alert, i) => (
                   <div
                     key={i}
-                    className="flex items-center justify-between rounded-2xl border border-red-400/35 bg-red-500/15 p-4 text-foreground"
+                    className="flex items-center justify-between p-3 bg-white rounded-lg border border-red-200"
                   >
                     <div>
-                      <h4 className="font-medium text-foreground">{alert.description}</h4>
-                      <p className="text-sm text-red-100/80">
+                      <h4 className="font-medium text-red-900">{alert.description}</h4>
+                      <p className="text-sm text-red-700">
                         {alert.user_email ? `Usuario: ${alert.user_email} • ` : ''}
                         Eventos: {alert.event_count} • Último: {formatRelativeTime(alert.last_seen)}
                       </p>
@@ -324,18 +316,18 @@ export function SecurityDashboard({ canManage = false }: SecurityDashboardProps)
       )}
 
       {/* Tabs de navegación */}
-      <div className="border-b border-white/10">
-        <nav className="-mb-px flex gap-6">
+      <div className="border-b border-gray-200">
+        <nav className="-mb-px flex space-x-8">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 border-b-2 px-1 py-2 text-sm font-medium transition ${
+                className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
                   activeTab === tab.id
-                    ? 'border-primary/60 text-primary'
-                    : 'border-transparent text-foreground/60 hover:border-white/20 hover:text-foreground'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
                 <Icon className="h-4 w-4" />
@@ -356,16 +348,14 @@ export function SecurityDashboard({ canManage = false }: SecurityDashboardProps)
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-foreground/60">
-                        Eventos de Auditoría
-                      </p>
-                      <p className="mt-2 text-3xl font-semibold text-foreground">{auditStats.total_events}</p>
-                      <p className="mt-2 text-sm text-foreground/65">
+                      <p className="text-sm font-medium text-gray-600">Eventos de Auditoría</p>
+                      <p className="text-3xl font-bold text-gray-900">{auditStats.total_events}</p>
+                      <p className="text-sm text-gray-500 mt-1">
                         Últimos {selectedPeriod === 'day' ? '1 día' : selectedPeriod === 'week' ? '7 días' : '30 días'}
                       </p>
                     </div>
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/20 bg-white/12 shadow-[0_22px_60px_-34px_rgba(40,120,255,0.8)]">
-                      <Activity className="h-6 w-6 text-sky-400" />
+                    <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <Activity className="h-6 w-6 text-blue-600" />
                     </div>
                   </div>
                 </CardContent>
@@ -375,14 +365,12 @@ export function SecurityDashboard({ canManage = false }: SecurityDashboardProps)
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-foreground/60">
-                        Sesiones Activas
-                      </p>
-                      <p className="mt-2 text-3xl font-semibold text-foreground">{userSessions.length}</p>
-                      <p className="mt-2 text-sm text-foreground/65">Usuarios conectados</p>
+                      <p className="text-sm font-medium text-gray-600">Sesiones Activas</p>
+                      <p className="text-3xl font-bold text-gray-900">{userSessions.length}</p>
+                      <p className="text-sm text-gray-500 mt-1">Usuarios conectados</p>
                     </div>
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/20 bg-white/12 shadow-[0_22px_60px_-34px_rgba(40,200,160,0.75)]">
-                      <Monitor className="h-6 w-6 text-emerald-300" />
+                    <div className="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
+                      <Monitor className="h-6 w-6 text-green-600" />
                     </div>
                   </div>
                 </CardContent>
@@ -392,17 +380,15 @@ export function SecurityDashboard({ canManage = false }: SecurityDashboardProps)
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-foreground/60">
-                        Alertas de Seguridad
-                      </p>
-                      <p className="mt-2 text-3xl font-semibold text-foreground">{securityAlerts.length}</p>
-                      <p className="mt-2 text-sm text-foreground/65">
+                      <p className="text-sm font-medium text-gray-600">Alertas de Seguridad</p>
+                      <p className="text-3xl font-bold text-gray-900">{securityAlerts.length}</p>
+                      <p className="text-sm text-gray-500 mt-1">
                         {securityAlerts.filter((a) => a.severity === 'high' || a.severity === 'critical').length}{' '}
                         críticas
                       </p>
                     </div>
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/20 bg-white/12 shadow-[0_22px_60px_-34px_rgba(255,160,60,0.7)]">
-                      <AlertTriangle className="h-6 w-6 text-amber-300" />
+                    <div className="h-12 w-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                      <AlertTriangle className="h-6 w-6 text-orange-600" />
                     </div>
                   </div>
                 </CardContent>
@@ -412,16 +398,14 @@ export function SecurityDashboard({ canManage = false }: SecurityDashboardProps)
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-foreground/60">
-                        Intentos de Login
-                      </p>
-                      <p className="mt-2 text-3xl font-semibold text-foreground">{loginAttempts.length}</p>
-                      <p className="mt-2 text-sm text-foreground/65">
+                      <p className="text-sm font-medium text-gray-600">Intentos de Login</p>
+                      <p className="text-3xl font-bold text-gray-900">{loginAttempts.length}</p>
+                      <p className="text-sm text-gray-500 mt-1">
                         {loginAttempts.filter((a) => !a.success).length} fallidos
                       </p>
                     </div>
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/20 bg-white/12 shadow-[0_22px_60px_-34px_rgba(135,110,255,0.75)]">
-                      <Users className="h-6 w-6 text-violet-300" />
+                    <div className="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                      <Users className="h-6 w-6 text-purple-600" />
                     </div>
                   </div>
                 </CardContent>
@@ -492,20 +476,18 @@ export function SecurityDashboard({ canManage = false }: SecurityDashboardProps)
                     return (
                       <div
                         key={index}
-                        className="flex items-center justify-between rounded-2xl border border-white/12 bg-white/8 px-4 py-3 text-foreground/85"
+                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                       >
                         <div className="flex items-center space-x-3">
                           <div
-                            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 text-sm font-medium text-white shadow-[inset_0_0_25px_rgba(255,255,255,0.18)]"
+                            className="h-8 w-8 rounded-full flex items-center justify-center text-white font-medium text-sm"
                             style={{ backgroundColor: stringToColor(email) }}
                           >
                             {getInitials(email || 'Usuario')}
                           </div>
-                          <span className="text-sm font-medium text-foreground">{email || 'Usuario'}</span>
+                          <span className="font-medium">{email || 'Usuario'}</span>
                         </div>
-                        <Badge variant="outline" className="border-white/20 bg-white/10 text-foreground/80">
-                          {user.count} eventos
-                        </Badge>
+                        <Badge variant="outline">{user.count} eventos</Badge>
                       </div>
                     );
                   })}
@@ -523,57 +505,48 @@ export function SecurityDashboard({ canManage = false }: SecurityDashboardProps)
             <CardContent>
               <div className="space-y-4">
                 {auditLogs.map((log) => (
-                  <Card key={log.id} className="border-l-4 border-l-sky-400/70">
+                  <Card key={log.id} className="border-l-4 border-l-blue-500">
                     <CardContent className="pt-4">
-                      <div className="mb-3 flex items-start justify-between">
+                      <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-3">
                           {getActionIcon(log.action)}
                           <div>
-                            <h4 className="font-medium text-foreground">
+                            <h4 className="font-medium text-gray-900">
                               {(log.action ?? '').toUpperCase()} en {log.table_name ?? '—'}
                             </h4>
-                            <p className="text-sm text-foreground/70">
+                            <p className="text-sm text-gray-600">
                               {log.description || `Registro ${log.record_id ?? '—'}`}
                             </p>
                             {log.user_email && (
-                              <p className="text-xs text-foreground/60">Por: {log.user_email}</p>
+                              <p className="text-sm text-gray-500">Por: {log.user_email}</p>
                             )}
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
                           {getSeverityBadge(log.severity)}
-                          <Badge
-                            variant="outline"
-                            className="border-white/20 bg-white/10 text-[11px] uppercase tracking-wide text-foreground/75"
-                          >
-                            {(log.action ?? '').toUpperCase()}
-                          </Badge>
+                          <Badge variant="outline">{(log.action ?? '').toUpperCase()}</Badge>
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between text-sm text-foreground/60">
-                        <div className="flex items-center gap-4">
+                      <div className="flex items-center justify-between text-sm text-gray-500">
+                        <div className="flex items-center space-x-4">
                           <span>{formatRelativeTime(log.created_at)}</span>
                           {log.ip_address && (
                             <span className="flex items-center">
-                              <Globe className="mr-1 h-3 w-3" />
+                              <Globe className="h-3 w-3 mr-1" />
                               {log.ip_address}
                             </span>
                           )}
                         </div>
-                        <span className="text-foreground/55">{log.category ?? '—'}</span>
+                        <span>{log.category ?? '—'}</span>
                       </div>
 
                       {Array.isArray(log.changed_fields) && log.changed_fields.length > 0 && (
-                        <div className="mt-3 rounded-2xl border border-white/12 bg-white/8 px-4 py-3">
-                          <p className="mb-2 text-sm font-medium text-foreground/80">Campos modificados:</p>
-                          <div className="flex flex-wrap gap-1.5">
+                        <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                          <p className="text-sm font-medium text-gray-700 mb-1">Campos modificados:</p>
+                          <div className="flex flex-wrap gap-1">
                             {log.changed_fields.map((field, index) => (
-                              <Badge
-                                key={index}
-                                variant="outline"
-                                className="border-white/15 bg-white/10 px-2 text-[11px] text-foreground/75"
-                              >
+                              <Badge key={index} variant="outline" className="text-xs">
                                 {field}
                               </Badge>
                             ))}
@@ -596,54 +569,47 @@ export function SecurityDashboard({ canManage = false }: SecurityDashboardProps)
             <CardContent>
               <div className="space-y-4">
                 {userSessions.map((session) => (
-                  <Card key={session.id} className="border-l-4 border-l-emerald-400/70">
+                  <Card key={session.id} className="border-l-4 border-l-green-500">
                     <CardContent className="pt-4">
-                      <div className="mb-3 flex items-start justify-between">
+                      <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-3">
                           {getDeviceIcon(session.device_type)}
                           <div>
-                            <h4 className="font-medium text-foreground">
+                            <h4 className="font-medium text-gray-900">
                               {session.browser ?? 'Navegador desconocido'} en {session.os ?? 'SO desconocido'}
                             </h4>
-                            <p className="text-sm text-foreground/70">
+                            <p className="text-sm text-gray-600">
                               {(session.device_type ?? 'desktop')} • {(session.ip_address ?? '—')}
                             </p>
                             {session.location_city && session.location_country ? (
-                              <p className="text-xs text-foreground/60">
+                              <p className="text-sm text-gray-500">
                                 {session.location_city}, {session.location_country}
                               </p>
                             ) : null}
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Badge className="border border-emerald-400/50 bg-emerald-500/15 text-emerald-100">
-                            Activa
-                          </Badge>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="rounded-full border-white/20 bg-white/12 text-foreground/80 hover:bg-white/16"
-                            onClick={() => handleEndSession(session.id)}
-                          >
+                          <Badge className="bg-green-100 text-green-800">Activa</Badge>
+                          <Button size="sm" variant="outline" onClick={() => handleEndSession(session.id)}>
                             Terminar
                           </Button>
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between text-sm text-foreground/60">
-                        <div className="flex items-center gap-4">
+                      <div className="flex items-center justify-between text-sm text-gray-500">
+                        <div className="flex items-center space-x-4">
                           <span>Iniciada: {formatRelativeTime(session.created_at)}</span>
                           <span>Última actividad: {formatRelativeTime(session.last_activity)}</span>
                         </div>
-                        <span className="text-foreground/55">Expira: {formatDateTime(session.expires_at)}</span>
+                        <span>Expira: {formatDateTime(session.expires_at)}</span>
                       </div>
                     </CardContent>
                   </Card>
                 ))}
 
                 {userSessions.length === 0 && (
-                  <div className="py-8 text-center text-foreground/60">
-                    <Monitor className="mx-auto mb-4 h-12 w-12 text-white/30" />
+                  <div className="text-center py-8 text-gray-500">
+                    <Monitor className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                     <p>No hay sesiones activas</p>
                   </div>
                 )}
@@ -664,19 +630,19 @@ export function SecurityDashboard({ canManage = false }: SecurityDashboardProps)
                     key={index}
                     className={`border-l-4 ${
                       alert.severity === 'critical'
-                        ? 'border-l-red-500/70'
+                        ? 'border-l-red-500'
                         : alert.severity === 'high'
-                        ? 'border-l-orange-400/70'
+                        ? 'border-l-orange-500'
                         : alert.severity === 'warning'
-                        ? 'border-l-amber-400/70'
-                        : 'border-l-sky-400/70'
+                        ? 'border-l-yellow-500'
+                        : 'border-l-blue-500'
                     }`}
                   >
                     <CardContent className="pt-4">
-                      <div className="mb-3 flex items-start justify-between">
+                      <div className="flex items-start justify-between mb-3">
                         <div>
-                          <h4 className="font-medium text-foreground">{alert.description}</h4>
-                          <p className="text-sm text-foreground/70">
+                          <h4 className="font-medium text-gray-900">{alert.description}</h4>
+                          <p className="text-sm text-gray-600">
                             {alert.user_email ? `Usuario: ${alert.user_email}` : ''}
                             {alert.user_email && alert.ip_address ? ' • ' : ''}
                             {alert.ip_address ? `IP: ${alert.ip_address}` : ''}
@@ -685,22 +651,22 @@ export function SecurityDashboard({ canManage = false }: SecurityDashboardProps)
                         {getSeverityBadge(alert.severity)}
                       </div>
 
-                      <div className="flex items-center justify-between text-sm text-foreground/60">
-                        <div className="flex items-center gap-4">
+                      <div className="flex items-center justify-between text-sm text-gray-500">
+                        <div className="flex items-center space-x-4">
                           <span>Eventos: {alert.event_count}</span>
                           <span>Primer evento: {formatRelativeTime(alert.first_seen)}</span>
                         </div>
-                        <span className="text-foreground/55">Último: {formatRelativeTime(alert.last_seen)}</span>
+                        <span>Último: {formatRelativeTime(alert.last_seen)}</span>
                       </div>
                     </CardContent>
                   </Card>
                 ))}
 
                 {securityAlerts.length === 0 && (
-                  <div className="py-8 text-center text-foreground/60">
-                    <CheckCircle className="mx-auto mb-4 h-12 w-12 text-emerald-200/60" />
+                  <div className="text-center py-8 text-gray-500">
+                    <CheckCircle className="h-12 w-12 mx-auto mb-4 text-green-300" />
                     <p>No hay alertas de seguridad</p>
-                    <p className="mt-2 text-sm text-foreground/55">El sistema está funcionando normalmente</p>
+                    <p className="text-sm mt-2">El sistema está funcionando normalmente</p>
                   </div>
                 )}
               </div>
@@ -718,51 +684,40 @@ export function SecurityDashboard({ canManage = false }: SecurityDashboardProps)
                 {loginAttempts.map((attempt) => (
                   <Card
                     key={attempt.id}
-                    className={`border-l-4 ${
-                      attempt.success ? 'border-l-emerald-400/70' : 'border-l-red-500/70'
-                    }`}
+                    className={`border-l-4 ${attempt.success ? 'border-l-green-500' : 'border-l-red-500'}`}
                   >
                     <CardContent className="pt-4">
-                      <div className="mb-3 flex items-start justify-between">
+                      <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-3">
                           {attempt.success ? (
-                            <CheckCircle className="h-5 w-5 text-emerald-300" />
+                            <CheckCircle className="h-5 w-5 text-green-600" />
                           ) : (
-                            <XCircle className="h-5 w-5 text-red-400" />
+                            <XCircle className="h-5 w-5 text-red-600" />
                           )}
                           <div>
-                            <h4 className="font-medium text-foreground">{attempt.email}</h4>
-                            <p className="text-sm text-foreground/70">IP: {attempt.ip_address}</p>
+                            <h4 className="font-medium text-gray-900">{attempt.email}</h4>
+                            <p className="text-sm text-gray-600">IP: {attempt.ip_address}</p>
                             {!attempt.success && attempt.failure_reason && (
-                              <p className="text-sm text-red-200/80">Razón: {attempt.failure_reason}</p>
+                              <p className="text-sm text-red-600">Razón: {attempt.failure_reason}</p>
                             )}
                           </div>
                         </div>
-                        <Badge
-                          variant={attempt.success ? 'default' : 'destructive'}
-                          className={`${
-                            attempt.success
-                              ? 'border border-emerald-400/40 bg-emerald-500/20 text-emerald-50'
-                              : 'border border-red-500/45 bg-red-600/25 text-red-50'
-                          }`}
-                        >
+                        <Badge variant={attempt.success ? 'default' : 'destructive'}>
                           {attempt.success ? 'Exitoso' : 'Fallido'}
                         </Badge>
                       </div>
 
-                      <div className="flex items-center justify-between text-sm text-foreground/60">
+                      <div className="flex items-center justify-between text-sm text-gray-500">
                         <span>{formatRelativeTime(attempt.created_at)}</span>
-                        {attempt.user_agent && (
-                          <span className="max-w-md truncate text-foreground/55">{attempt.user_agent}</span>
-                        )}
+                        {attempt.user_agent && <span className="truncate max-w-md">{attempt.user_agent}</span>}
                       </div>
                     </CardContent>
                   </Card>
                 ))}
 
                 {loginAttempts.length === 0 && (
-                  <div className="py-8 text-center text-foreground/60">
-                    <Users className="mx-auto mb-4 h-12 w-12 text-white/30" />
+                  <div className="text-center py-8 text-gray-500">
+                    <Users className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                     <p>No hay intentos de login recientes</p>
                   </div>
                 )}

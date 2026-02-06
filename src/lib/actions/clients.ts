@@ -20,15 +20,13 @@ function resolveDefaultPassword() {
 
 export async function createClientProfile(input: CreateClientInput): Promise<CreateClientResult> {
   try {
-    const profile = await requireAuth(['analista', 'admin_firma']);
-    const orgId = profile.org_id;
-    if (!orgId) throw new Error('Selecciona una organización activa.');
+    await requireAuth(['analista', 'admin_firma']);
 
     if (!process.env.SUPABASE_SERVICE_KEY) {
       throw new Error('Falta configurar SUPABASE_SERVICE_KEY en el entorno.');
     }
 
-    const payload: CreateClientInput = createClientSchema.parse(input);
+    const payload = createClientSchema.parse(input);
     const supabase = await createServiceClient();
 
     const password = resolveDefaultPassword();
@@ -46,47 +44,28 @@ export async function createClientProfile(input: CreateClientInput): Promise<Cre
     }
 
     const userId = createdUser.data.user.id;
-    const nowIso = new Date().toISOString();
 
     const { data: profileRow, error: profileError } = await supabase
       .from('profiles')
       .upsert(
         {
           id: userId,
+          user_id: userId,
           email: payload.email,
-          full_name: payload.nombre,
+          nombre: payload.nombre,
           role: 'cliente',
           rut: payload.rut || null,
-          phone: payload.telefono || null,
+          telefono: payload.telefono || null,
           activo: true,
-          status: 'active',
-          updated_at: nowIso,
         },
-        { onConflict: 'id' },
+        { onConflict: 'id' }
       )
-      .select('id, full_name, email, rut, phone')
+      .select('id, nombre, email, rut, telefono')
       .single();
 
     if (profileError || !profileRow) {
       await supabase.auth.admin.deleteUser(userId).catch(() => undefined);
       throw new Error(profileError?.message ?? 'No se pudo guardar el perfil del cliente');
-    }
-
-    const { error: membershipError } = await supabase
-      .from('memberships')
-      .upsert(
-        {
-          user_id: userId,
-          org_id: orgId,
-          role: 'client_guest',
-          status: 'active',
-        },
-        { onConflict: 'user_id,org_id' },
-      );
-
-    if (membershipError) {
-      await supabase.auth.admin.deleteUser(userId).catch(() => undefined);
-      throw new Error(membershipError.message ?? 'No se pudo asignar la organización al cliente');
     }
 
     revalidatePath('/cases/new');
@@ -97,10 +76,10 @@ export async function createClientProfile(input: CreateClientInput): Promise<Cre
       success: true,
       client: {
         id: profileRow.id,
-        nombre: profileRow.full_name,
+        nombre: profileRow.nombre,
         email: profileRow.email,
         rut: profileRow.rut,
-        telefono: profileRow.phone,
+        telefono: profileRow.telefono,
       },
     };
   } catch (error) {
@@ -135,35 +114,19 @@ function resolveClientSupabase() {
 
 export async function listClients(params: { search?: string } = {}): Promise<ListClientsResult> {
   try {
-    const profile = await requireAuth(['analista', 'admin_firma']);
-    const orgId = profile.org_id;
-    if (!orgId) throw new Error('Selecciona una organización activa.');
-
+    await requireAuth(['analista', 'admin_firma']);
     const supabase = await resolveClientSupabase();
 
     let query = supabase
-      .from('memberships')
-      .select(
-        `
-        user:profiles!inner(
-          id,
-          full_name,
-          email,
-          phone,
-          rut,
-          created_at
-        )
-      `,
-      )
-      .eq('org_id', orgId)
-      .eq('status', 'active')
-      .eq('role', 'client_guest')
-      .order('created_at', { ascending: true });
+      .from('profiles')
+      .select('id, nombre, email, telefono, rut, created_at')
+      .eq('role', 'cliente')
+      .order('nombre', { ascending: true });
 
     const search = params.search?.trim();
     if (search) {
       query = query.or(
-        `user.full_name.ilike.%${search}%,user.email.ilike.%${search}%,user.rut.ilike.%${search}%`,
+        `nombre.ilike.%${search}%,email.ilike.%${search}%,rut.ilike.%${search}%`
       );
     }
 
@@ -172,15 +135,7 @@ export async function listClients(params: { search?: string } = {}): Promise<Lis
 
     return {
       success: true,
-      clients:
-        data?.map((row: any) => ({
-          id: row.user.id,
-          nombre: row.user.full_name,
-          email: row.user.email,
-          telefono: row.user.phone,
-          rut: row.user.rut,
-          created_at: row.user.created_at,
-        })) ?? [],
+      clients: data ?? [],
     };
   } catch (error) {
     console.error('Error in listClients:', error);

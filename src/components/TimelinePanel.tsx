@@ -13,7 +13,7 @@ import {
   getStages 
 } from '@/lib/actions/stages';
 import { requestCaseAdvance } from '@/lib/actions/cases';
-import { cn, formatCurrency, formatDate, formatRelativeTime, isDateInPast } from '@/lib/utils';
+import { cn, formatDate, formatRelativeTime, isDateInPast } from '@/lib/utils';
 import { 
   Clock, 
   CheckCircle, 
@@ -206,7 +206,7 @@ export function TimelinePanel({
     if (newStage.requiere_pago && (costoUf === undefined || Number.isNaN(costoUf))) {
       toast({
         title: 'Costo requerido',
-        description: 'Debes indicar el costo en Bolivianos de la etapa para poder registrarlo.',
+        description: 'Debes indicar el costo en UF de la etapa para poder cobrarla.',
         variant: 'destructive',
       });
       return;
@@ -215,7 +215,7 @@ export function TimelinePanel({
     if (costoUf !== undefined && costoUf < 0) {
       toast({
         title: 'Monto inválido',
-        description: 'El monto en Bolivianos debe ser un número positivo.',
+        description: 'El costo en UF debe ser un número positivo.',
         variant: 'destructive',
       });
       return;
@@ -434,12 +434,12 @@ export function TimelinePanel({
     );
   };
 
-  const formatAmount = (value?: number | null) => {
+  const formatUf = (value?: number | null) => {
     if (value === undefined || value === null) return '—';
     return `${new Intl.NumberFormat('es-CL', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    }).format(value)} Bs`;
+    }).format(value)} UF`;
   };
 
   const getPaymentStatusBadge = (estado: string | null) => {
@@ -555,13 +555,13 @@ export function TimelinePanel({
     const inspiration = stage.monto_pagado_uf ?? (stage.costo_uf ?? 0);
     const promptValue =
       inspiration > 0 ? inspiration.toString() : stage.costo_uf?.toString() ?? '';
-    const input = prompt('Monto pagado (Bs)', promptValue);
+    const input = prompt('Monto pagado (UF)', promptValue);
     if (input === null) return;
     const parsed = Number(input.replace(',', '.'));
     if (Number.isNaN(parsed) || parsed < 0) {
       toast({
         title: 'Monto inválido',
-        description: 'Ingresa un monto válido en Bolivianos.',
+        description: 'Ingresa un número válido en UF.',
         variant: 'destructive',
       });
       return;
@@ -761,11 +761,11 @@ export function TimelinePanel({
           >
             <div className="space-y-1">
               <p className="text-[11px] uppercase tracking-[0.28em] text-foreground/45">Honorario distribuido</p>
-              <p className="text-lg font-semibold text-foreground">{formatAmount(totalCostoEtapas)}</p>
+              <p className="text-lg font-semibold text-foreground">{formatUf(totalCostoEtapas)}</p>
             </div>
             <div className="space-y-1">
               <p className="text-[11px] uppercase tracking-[0.28em] text-foreground/45">Pagado</p>
-              <p className="text-lg font-semibold text-foreground">{formatAmount(totalPagadoEtapas)}</p>
+              <p className="text-lg font-semibold text-foreground">{formatUf(totalPagadoEtapas)}</p>
             </div>
             <div className="space-y-1">
               <p className="text-[11px] uppercase tracking-[0.28em] text-foreground/45">Etapas liberadas</p>
@@ -846,7 +846,7 @@ export function TimelinePanel({
                         descripcion: template?.descripcion || newStage.descripcion,
                         isCustom: false,
                         requiere_pago: template?.requierePago ?? newStage.requiere_pago,
-                        costo_uf: template?.costoBs !== undefined ? template.costoBs.toString() : '',
+                        costo_uf: template?.costoUF !== undefined ? template.costoUF.toString() : '',
                         porcentaje_variable:
                           template?.porcentajeVariable !== undefined
                             ? template.porcentajeVariable.toString()
@@ -993,7 +993,7 @@ export function TimelinePanel({
                     <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                       <div className='space-y-2'>
                         <label className='block text-[12px] font-semibold uppercase tracking-[0.28em] text-foreground/45'>
-                          Monto fijo (Bs)
+                          Monto fijo (UF)
                         </label>
                         <input
                           type='number'
@@ -1076,7 +1076,7 @@ export function TimelinePanel({
                       </div>
                       <div className='space-y-2'>
                         <label className='block text-[12px] font-semibold uppercase tracking-[0.28em] text-foreground/45'>
-                          Monto ya pagado (Bs)
+                          Monto ya pagado (UF)
                         </label>
                         <input
                           type='number'
@@ -1286,7 +1286,7 @@ export function TimelinePanel({
                                     Cobranza
                                   </p>
                                   <p className='mt-1 text-sm font-medium text-foreground'>
-                                    {formatAmount(stage.costo_uf)}
+                                    {formatUf(stage.costo_uf)}
                                   </p>
                                   {typeof stage.porcentaje_variable === 'number' && stage.porcentaje_variable > 0 && (
                                     <p className='mt-1 text-xs text-foreground/55'>
@@ -1295,7 +1295,7 @@ export function TimelinePanel({
                                   )}
                                   <p className='mt-1 text-xs text-foreground/55'>
                                     {stage.monto_pagado_uf && stage.monto_pagado_uf > 0
-                                      ? `Pagado ${formatAmount(stage.monto_pagado_uf)}`
+                                      ? `Pagado ${formatUf(stage.monto_pagado_uf)}`
                                       : 'Pago pendiente'}
                                   </p>
                                 </div>

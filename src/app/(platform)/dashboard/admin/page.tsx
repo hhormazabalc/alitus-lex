@@ -18,7 +18,7 @@ import {
 } from '@/lib/actions/analytics';
 
 export const metadata: Metadata = {
-  title: 'Dashboard Administrativo - LEX Altius',
+  title: 'Dashboard Administrativo - Xel Chile',
   description: 'Panel de control para la firma',
 };
 

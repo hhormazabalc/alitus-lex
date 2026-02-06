@@ -1,6 +1,6 @@
 export interface LegalFeeScale {
   condicion: string;
-  montoBs?: number;
+  montoUf?: number;
   porcentaje?: number;
   porcentajeSobre?: string;
   minimoUf?: number;
@@ -11,7 +11,7 @@ export interface LegalFeeItem {
   id: string;
   nombre: string;
   descripcion?: string;
-  montoBs?: number;
+  montoUf?: number;
   porcentaje?: number;
   porcentajeSobre?: string;
   minimoUf?: number;
@@ -33,14 +33,14 @@ export const LEGAL_FEE_CATEGORIES: LegalFeeCategory[] = [
       {
         id: 'consulta_atencion_personal',
         nombre: 'Consulta profesional (atención personal)',
-        montoBs: 275,
+        montoUf: 1,
         notas:
           'Se descuenta del honorario final si el cliente contrata el servicio asociado.',
       },
       {
         id: 'consulta_informe_escrito',
         nombre: 'Consulta con estudio documental e informe escrito',
-        montoBs: 550,
+        montoUf: 2,
         notas:
           'Incluye revisión de antecedentes y envío de informe. Se descuenta del honorario final si se contrata el servicio.',
       },
@@ -53,8 +53,8 @@ export const LEGAL_FEE_CATEGORIES: LegalFeeCategory[] = [
       {
         id: 'recurso_proteccion',
         nombre: 'Recurso de protección',
-        montoBs: 8250,
-        notas: 'Bs 11.000 si se tramita apelación.',
+        montoUf: 30,
+        notas: '40 UF si se tramita apelación.',
       },
       {
         id: 'recurso_proteccion_isapre',
@@ -65,8 +65,8 @@ export const LEGAL_FEE_CATEGORIES: LegalFeeCategory[] = [
       {
         id: 'recurso_amparo',
         nombre: 'Recurso de amparo',
-        montoBs: 4125,
-        notas: 'Bs 5.500 si se tramita apelación.',
+        montoUf: 15,
+        notas: '20 UF si se tramita apelación.',
       },
     ],
   },
@@ -81,48 +81,48 @@ export const LEGAL_FEE_CATEGORIES: LegalFeeCategory[] = [
           {
             condicion:
               'Si con la medida se resuelve el conflicto que motivaba el juicio posterior',
-            montoBs: 4125,
+            montoUf: 15,
           },
           {
             condicion: 'En caso contrario',
-            montoBs: 1375,
+            montoUf: 5,
           },
         ],
       },
       {
         id: 'juicio_ordinario_mayor_cuantia',
         nombre: 'Juicio ordinario de mayor cuantía',
-        montoBs: 8250,
+        montoUf: 30,
         porcentaje: 10,
         porcentajeSobre: 'lo obtenido con la demanda o lo ahorrado por la defensa',
         notas:
-          'Si hay reconvención: Bs 13.750 + 10% de la demanda principal + 10% de lo obtenido o ahorrado por la reconvención.',
+          'Si hay reconvención: 50 UF + 10% de la demanda principal + 10% de lo obtenido o ahorrado por la reconvención.',
       },
       {
         id: 'juicio_ordinario_menor_cuantia',
         nombre: 'Juicio ordinario de menor cuantía',
-        montoBs: 5500,
+        montoUf: 20,
         porcentaje: 10,
         porcentajeSobre: 'lo obtenido con la demanda o lo ahorrado por la defensa',
         notas:
-          'Con reconvención: Bs 8.250 + 10% de la demanda principal + 10% de la reconvención.',
+          'Con reconvención: 30 UF + 10% de la demanda principal + 10% de la reconvención.',
       },
       {
         id: 'juicio_ordinario_minima_cuantia',
         nombre: 'Juicio ordinario de mínima cuantía',
-        montoBs: 2750,
+        montoUf: 10,
         porcentaje: 10,
         porcentajeSobre: 'lo obtenido con la demanda o lo ahorrado por la defensa',
       },
       {
         id: 'preparacion_via_ejecutiva',
         nombre: 'Preparación de la vía ejecutiva',
-        montoBs: 2750,
+        montoUf: 10,
       },
       {
         id: 'juicio_ejecutivo',
         nombre: 'Juicio ejecutivo (principal o incidental)',
-        montoBs: 5500,
+        montoUf: 20,
         porcentaje: 10,
         porcentajeSobre: 'lo obtenido con la demanda o lo ahorrado por la defensa',
       },
@@ -130,7 +130,7 @@ export const LEGAL_FEE_CATEGORIES: LegalFeeCategory[] = [
         id: 'tercerias_ejecutivo',
         nombre: 'Tercerías en juicio ejecutivo',
         escalas: [
-          { condicion: 'De dominio o de posesión', montoBs: 2750 },
+          { condicion: 'De dominio o de posesión', montoUf: 10 },
           {
             condicion: 'De prelación o pago',
             porcentaje: 10,
@@ -142,7 +142,7 @@ export const LEGAL_FEE_CATEGORIES: LegalFeeCategory[] = [
       {
         id: 'juicio_sumario',
         nombre: 'Juicio sumario',
-        montoBs: 5500,
+        montoUf: 20,
         porcentaje: 10,
         porcentajeSobre: 'lo obtenido o lo ahorrado',
       },
@@ -150,27 +150,27 @@ export const LEGAL_FEE_CATEGORIES: LegalFeeCategory[] = [
         id: 'juicio_arrendamiento',
         nombre: 'Juicio especial de arrendamiento',
         escalas: [
-          { condicion: 'Deuda hasta Bs 13.750', montoBs: 2750 },
-          { condicion: 'Deuda entre Bs 14.025 y Bs 27.500', montoBs: 4125 },
-          { condicion: 'Deuda superior a Bs 27.500', montoBs: 5500 },
+          { condicion: 'Deuda hasta 50 UF', montoUf: 10 },
+          { condicion: 'Deuda entre 51 y 100 UF', montoUf: 15 },
+          { condicion: 'Deuda superior a 100 UF', montoUf: 20 },
         ],
       },
       {
         id: 'juicio_posesorio',
         nombre: 'Juicio posesorio',
-        montoBs: 5500,
+        montoUf: 20,
       },
       {
         id: 'juicio_interdiccion',
         nombre: 'Juicio de interdicción',
-        montoBs: 5500,
+        montoUf: 20,
       },
       {
         id: 'juicio_cuentas',
         nombre: 'Juicio sobre cuentas',
         escalas: [
-          { condicion: 'Sin observaciones', montoBs: 2750 },
-          { condicion: 'Con observaciones', montoBs: 6875 },
+          { condicion: 'Sin observaciones', montoUf: 10 },
+          { condicion: 'Con observaciones', montoUf: 25 },
         ],
       },
       {
@@ -182,28 +182,28 @@ export const LEGAL_FEE_CATEGORIES: LegalFeeCategory[] = [
       {
         id: 'pago_consignacion',
         nombre: 'Pago por consignación',
-        montoBs: 2750,
+        montoUf: 10,
         notas: 'En la calificación de suficiencia se aplican los honorarios del juicio ordinario.',
       },
       {
         id: 'retencion_accion_especial',
         nombre: 'Declaración judicial del derecho de retención',
-        montoBs: 2750,
+        montoUf: 10,
       },
       {
         id: 'insinuacion_donaciones',
         nombre: 'Insinuación de donaciones',
-        montoBs: 5500,
+        montoUf: 20,
       },
       {
         id: 'cambio_nombre',
         nombre: 'Cambio de nombre',
-        montoBs: 5500,
+        montoUf: 20,
       },
       {
         id: 'rectificacion_partida_civil',
         nombre: 'Rectificación de partida de estado civil',
-        montoBs: 5500,
+        montoUf: 20,
       },
       {
         id: 'estudio_titulo_bienes_raices',
@@ -221,15 +221,15 @@ export const LEGAL_FEE_CATEGORIES: LegalFeeCategory[] = [
         porcentajeSobre: 'valor del negocio',
         minimoUf: 5,
         notas:
-          'Sin cuantía: Bs 2.200. Modificaciones: 50% del honorario original con mínimo de Bs 1.100.',
+          'Sin cuantía: 8 UF. Modificaciones: 50% del honorario original con mínimo de 4 UF.',
       },
       {
         id: 'redaccion_testamento',
         nombre: 'Redacción de testamento',
         escalas: [
-          { condicion: 'Bienes hasta Bs 275.000', montoBs: 5500 },
+          { condicion: 'Bienes hasta 1.000 UF', montoUf: 20 },
           {
-            condicion: 'Bienes superiores a Bs 275.000',
+            condicion: 'Bienes superiores a 1.000 UF',
             porcentaje: 5,
             porcentajeSobre: 'del valor de la masa',
           },
@@ -238,23 +238,23 @@ export const LEGAL_FEE_CATEGORIES: LegalFeeCategory[] = [
       {
         id: 'muerte_presunta',
         nombre: 'Declaración de muerte presunta',
-        montoBs: 5500,
+        montoUf: 20,
       },
       {
         id: 'herencia_yacente',
         nombre: 'Declaración de herencia yacente',
-        montoBs: 5500,
+        montoUf: 20,
         notas: 'Incluye nombramiento de curador.',
       },
       {
         id: 'apertura_testamento',
         nombre: 'Apertura o publicación de testamento',
-        montoBs: 5500,
+        montoUf: 20,
       },
       {
         id: 'posesion_efectiva_judicial',
         nombre: 'Posesión efectiva judicial',
-        montoBs: 5500,
+        montoUf: 20,
       },
       {
         id: 'albaceazgo',
@@ -278,40 +278,40 @@ export const LEGAL_FEE_CATEGORIES: LegalFeeCategory[] = [
         id: 'gestiones_judiciales_varias',
         nombre: 'Otras gestiones judiciales',
         escalas: [
-          { condicion: 'Nombramiento de guardadores y discernimiento', montoBs: 4125 },
-          { condicion: 'Notificación de actos jurídicos a terceros', montoBs: 1375 },
-          { condicion: 'Notificación de protestos', montoBs: 1375 },
-          { condicion: 'Inscripción por negativa del conservador', montoBs: 2750 },
-          { condicion: 'Inventario solemne', montoBs: 1375 },
+          { condicion: 'Nombramiento de guardadores y discernimiento', montoUf: 15 },
+          { condicion: 'Notificación de actos jurídicos a terceros', montoUf: 5 },
+          { condicion: 'Notificación de protestos', montoUf: 5 },
+          { condicion: 'Inscripción por negativa del conservador', montoUf: 10 },
+          { condicion: 'Inventario solemne', montoUf: 5 },
         ],
       },
       {
         id: 'expropiacion_utilidad_publica',
         nombre: 'Expropiación de causa de utilidad pública',
         escalas: [
-          { condicion: 'Hasta Bs 275.000', porcentaje: 10, porcentajeSobre: 'valor ordenado pagar' },
-          { condicion: 'Sobre Bs 275.000', porcentaje: 5, porcentajeSobre: 'valor ordenado pagar' },
+          { condicion: 'Hasta 1.000 UF', porcentaje: 10, porcentajeSobre: 'valor ordenado pagar' },
+          { condicion: 'Sobre 1.000 UF', porcentaje: 5, porcentajeSobre: 'valor ordenado pagar' },
         ],
         minimoUf: 15,
         notas:
-          'No incluye la suma ofrecida voluntariamente por el expropiante. El mínimo es Bs 4.125.',
+          'No incluye la suma ofrecida voluntariamente por el expropiante. El mínimo es 15 UF.',
       },
       {
         id: 'materias_aguas',
         nombre: 'Materias de aguas',
         escalas: [
-          { condicion: 'Regularización art. 1° transitorio', montoBs: 8250 },
-          { condicion: 'Regularización art. 2° transitorio', montoBs: 11000 },
+          { condicion: 'Regularización art. 1° transitorio', montoUf: 30 },
+          { condicion: 'Regularización art. 2° transitorio', montoUf: 40 },
           {
             condicion: 'Otras formas administrativas de regularización',
-            montoBs: 8250,
+            montoUf: 30,
           },
           {
             condicion: 'Constitución o reforma de organizaciones de usuarios',
-            montoBs: 8250,
+            montoUf: 30,
           },
-          { condicion: 'Juicios sumarios', montoBs: 5500 },
-          { condicion: 'Acciones de amparo de aguas', montoBs: 5500 },
+          { condicion: 'Juicios sumarios', montoUf: 20 },
+          { condicion: 'Acciones de amparo de aguas', montoUf: 20 },
         ],
       },
       {
@@ -319,23 +319,23 @@ export const LEGAL_FEE_CATEGORIES: LegalFeeCategory[] = [
         nombre: 'Arbitrajes',
         escalas: [
           {
-            condicion: 'Masa hasta Bs 1.375.000',
+            condicion: 'Masa hasta 5.000 UF',
             porcentaje: 10,
             porcentajeSobre: 'valor de la masa',
             minimoUf: 30,
           },
           {
-            condicion: 'Masa entre Bs 1.375.000 y Bs 4.125.000',
+            condicion: 'Masa entre 5.000 y 15.000 UF',
             porcentaje: 6,
             porcentajeSobre: 'valor de la masa',
           },
           {
-            condicion: 'Masa entre Bs 4.125.000 y Bs 8.250.000',
+            condicion: 'Masa entre 15.000 y 30.000 UF',
             porcentaje: 4,
             porcentajeSobre: 'valor de la masa',
           },
           {
-            condicion: 'Exceso sobre Bs 8.250.000',
+            condicion: 'Exceso sobre 30.000 UF',
             porcentaje: 2,
             porcentajeSobre: 'valor de la masa excedente',
           },
@@ -352,32 +352,32 @@ export const LEGAL_FEE_CATEGORIES: LegalFeeCategory[] = [
       {
         id: 'propiedad_minera_carbon',
         nombre: 'Constitución de propiedad minera en yacimientos carboníferos',
-        montoBs: 13750,
+        montoUf: 50,
       },
       {
         id: 'autorizacion_catar_cavar',
         nombre: 'Autorización judicial para catar y cavar',
-        montoBs: 11000,
+        montoUf: 40,
       },
       {
         id: 'constitucion_propiedad_minera',
         nombre: 'Constitución de propiedad minera',
-        montoBs: 13750,
+        montoUf: 50,
       },
       {
         id: 'permiso_exclusivo_explotar',
         nombre: 'Autorización judicial de permiso exclusivo para explotar',
-        montoBs: 13750,
+        montoUf: 50,
       },
       {
         id: 'oposicion_mensura',
         nombre: 'Juicio de oposición o nulidad de mensura',
-        notas: 'Entre Bs 13.750 y Bs 41.250 según complejidad.',
+        notas: 'Entre 50 y 150 UF según complejidad.',
       },
       {
         id: 'administracion_minera',
         nombre: 'Juicios sobre administración del minero o servidumbres mineras',
-        notas: 'Entre Bs 13.750 y Bs 41.250 según complejidad.',
+        notas: 'Entre 50 y 150 UF según complejidad.',
       },
       {
         id: 'internacion_pertenencias',
@@ -385,11 +385,11 @@ export const LEGAL_FEE_CATEGORIES: LegalFeeCategory[] = [
         escalas: [
           {
             condicion: 'Si es susceptible de apreciación pecuniaria',
-            montoBs: 8250,
+            montoUf: 30,
             porcentaje: 1,
             porcentajeSobre: 'valor de la pertenencia',
           },
-          { condicion: 'Casos sin apreciación pecuniaria', montoBs: 8250 },
+          { condicion: 'Casos sin apreciación pecuniaria', montoUf: 30 },
         ],
       },
     ],
@@ -428,13 +428,13 @@ export const LEGAL_FEE_CATEGORIES: LegalFeeCategory[] = [
         id: 'quiebras',
         nombre: 'Quiebras',
         notas:
-          'Defensa del fallido: 50% del honorario del juicio ordinario. Defensa de acreedores: 10% de lo que perciban. Impugnaciones: 10% de la cantidad discutida. Alzamiento o discusión de la quiebra: 75% del juicio ordinario. Rehabilitación del fallido: Bs 5.500. Convenio judicial preventivo o extrajudicial: 10% del pasivo con mínimo de Bs 5.500.',
+          'Defensa del fallido: 50% del honorario del juicio ordinario. Defensa de acreedores: 10% de lo que perciban. Impugnaciones: 10% de la cantidad discutida. Alzamiento o discusión de la quiebra: 75% del juicio ordinario. Rehabilitación del fallido: 20 UF. Convenio judicial preventivo o extrajudicial: 10% del pasivo con mínimo de 20 UF.',
       },
       {
         id: 'registro_marcas',
         nombre: 'Registro de marcas',
-        montoBs: 4125,
-        notas: 'Con oposición: Bs 8.250.',
+        montoUf: 15,
+        notas: 'Con oposición: 30 UF.',
       },
     ],
   },
@@ -446,97 +446,97 @@ export const LEGAL_FEE_CATEGORIES: LegalFeeCategory[] = [
         id: 'juicio_laboral_ordinario',
         nombre: 'Juicio laboral ordinario (cobro prestaciones)',
         notas:
-          'Trabajador: Bs 2.750 + 10% de lo obtenido. Empleador: Bs 5.500 + 20% de lo ahorrado.',
+          'Trabajador: 10 UF + 10% de lo obtenido. Empleador: 20 UF + 20% de lo ahorrado.',
       },
       {
         id: 'juicio_laboral_monitorio',
         nombre: 'Juicio monitorio laboral',
-        notas: 'Trabajador: Bs 4.125. Empleador: Bs 6.875.',
+        notas: 'Trabajador: 15 UF. Empleador: 25 UF.',
       },
       {
         id: 'juicio_laboral_ejecutivo',
         nombre: 'Juicio ejecutivo laboral',
         notas:
-          'Trabajador: Bs 2.750 + 10% de lo obtenido. Empleador: Bs 5.500 + 20% de lo ahorrado.',
+          'Trabajador: 10 UF + 10% de lo obtenido. Empleador: 20 UF + 20% de lo ahorrado.',
       },
       {
         id: 'desafuero',
         nombre: 'Juicios de desafuero',
-        notas: 'Trabajador: Bs 4.125. Empleador: Bs 5.500.',
+        notas: 'Trabajador: 15 UF. Empleador: 20 UF.',
       },
       {
         id: 'amparo_laboral',
         nombre: 'Amparo laboral',
-        notas: 'Trabajador: Bs 4.125. Empleador: Bs 6.875.',
+        notas: 'Trabajador: 15 UF. Empleador: 25 UF.',
       },
       {
         id: 'avenimiento_extrajudicial',
         nombre: 'Avenimiento extrajudicial',
         notas:
-          'Trabajador: Bs 1.375 + 10% de lo obtenido. Empleador: Bs 2.750 + 20% de lo ahorrado.',
+          'Trabajador: 5 UF + 10% de lo obtenido. Empleador: 10 UF + 20% de lo ahorrado.',
       },
       {
         id: 'indemnizacion_accidente',
         nombre: 'Indemnización por accidente del trabajo',
         notas:
-          'Trabajador: Bs 2.750 + 10% de lo obtenido. Empleador: Bs 5.500 + 20% de lo ahorrado.',
+          'Trabajador: 10 UF + 10% de lo obtenido. Empleador: 20 UF + 20% de lo ahorrado.',
       },
       {
         id: 'indemnizacion_enfermedad',
         nombre: 'Indemnización por enfermedad profesional',
         notas:
-          'Trabajador: Bs 2.750 + 10% de lo obtenido. Empleador: Bs 5.500 + 20% de lo ahorrado.',
+          'Trabajador: 10 UF + 10% de lo obtenido. Empleador: 20 UF + 20% de lo ahorrado.',
       },
       {
         id: 'constitucion_sindicato',
         nombre: 'Constitución de sindicatos',
-        montoBs: 8250,
+        montoUf: 30,
       },
       {
         id: 'constitucion_federaciones',
         nombre: 'Constitución de federaciones o confederaciones',
-        montoBs: 13750,
+        montoUf: 50,
       },
       {
         id: 'defensa_sindicato',
         nombre: 'Defensa de sindicato (disolución)',
-        montoBs: 8250,
+        montoUf: 30,
       },
       {
         id: 'defensa_dirigente',
         nombre: 'Defensa de dirigente sindical',
-        montoBs: 4125,
+        montoUf: 15,
       },
       {
         id: 'negociacion_colectiva',
         nombre: 'Negociación colectiva',
         notas:
-          'Representando a trabajadores: Bs 4.125 + Bs 138 por trabajador. Representando al empleador: Bs 6.875 + Bs 275 por trabajador.',
+          'Representando a trabajadores: 15 UF + 0,5 UF por trabajador. Representando al empleador: 25 UF + 1 UF por trabajador.',
       },
       {
         id: 'reclamos_empresa',
         nombre: 'Reclamos por prácticas de la empresa',
-        montoBs: 4125,
+        montoUf: 15,
       },
       {
         id: 'reclamos_sindicato',
         nombre: 'Reclamos contra sindicato',
-        montoBs: 4125,
+        montoUf: 15,
       },
       {
         id: 'reclamo_multas',
         nombre: 'Reclamo de multas',
-        montoBs: 4125,
+        montoUf: 15,
       },
       {
         id: 'reclamo_resoluciones',
         nombre: 'Reclamo de otras resoluciones administrativas',
-        montoBs: 2750,
+        montoUf: 10,
       },
       {
         id: 'cobranza_previsional',
         nombre: 'Cobranza previsional',
-        montoBs: 4125,
+        montoUf: 15,
       },
     ],
   },
@@ -547,101 +547,101 @@ export const LEGAL_FEE_CATEGORIES: LegalFeeCategory[] = [
       {
         id: 'cuidado_personal',
         nombre: 'Causas de cuidado personal',
-        montoBs: 5500,
+        montoUf: 20,
       },
       {
         id: 'patria_potestad',
         nombre: 'Ejercicio, suspensión o pérdida de patria potestad',
-        montoBs: 4125,
+        montoUf: 15,
       },
       {
         id: 'alimentos',
         nombre: 'Causas de alimentos',
-        montoBs: 4125,
+        montoUf: 15,
         porcentaje: 50,
         porcentajeSobre: 'de la pensión demandada',
       },
       {
         id: 'disensos',
         nombre: 'Disensos para contraer matrimonio',
-        montoBs: 5500,
+        montoUf: 20,
       },
       {
         id: 'guardas',
         nombre: 'Guardas',
-        montoBs: 4125,
+        montoUf: 15,
       },
       {
         id: 'medidas_proteccion',
         nombre: 'Medidas de protección',
-        montoBs: 4125,
+        montoUf: 15,
       },
       {
         id: 'filiacion',
         nombre: 'Acciones de filiación',
-        montoBs: 5500,
+        montoUf: 20,
       },
       {
         id: 'salida_menor',
         nombre: 'Autorización de salida del país para menores',
-        montoBs: 5500,
+        montoUf: 20,
       },
       {
         id: 'procedimiento_prev_adopcion',
         nombre: 'Procedimientos previos a la adopción',
-        montoBs: 4125,
+        montoUf: 15,
       },
       {
         id: 'adopcion',
         nombre: 'Procedimiento de adopción',
-        montoBs: 5500,
+        montoUf: 20,
       },
       {
         id: 'regimen_matrimonial',
         nombre: 'Asuntos patrimoniales entre cónyuges',
         escalas: [
-          { condicion: 'Bienes hasta Bs 275.000', porcentaje: 5, porcentajeSobre: 'valor de los bienes' },
-          { condicion: 'Bienes sobre Bs 275.000', porcentaje: 2, porcentajeSobre: 'valor de los bienes' },
+          { condicion: 'Bienes hasta 1.000 UF', porcentaje: 5, porcentajeSobre: 'valor de los bienes' },
+          { condicion: 'Bienes sobre 1.000 UF', porcentaje: 2, porcentajeSobre: 'valor de los bienes' },
         ],
       },
       {
         id: 'bienes_familiares',
         nombre: 'Declaración o desafectación de bienes familiares',
         notas:
-          '5% sobre bienes hasta Bs 275.000; 2% sobre el exceso. Se aplica también a usufructo, uso o habitación.',
+          '5% sobre bienes hasta 1.000 UF; 2% sobre el exceso. Se aplica también a usufructo, uso o habitación.',
       },
       {
         id: 'separacion_judicial',
         nombre: 'Separación judicial',
-        montoBs: 4125,
+        montoUf: 15,
       },
       {
         id: 'nulidad_matrimonio',
         nombre: 'Nulidad de matrimonio',
-        montoBs: 5500,
+        montoUf: 20,
       },
       {
         id: 'divorcio_culpa',
         nombre: 'Divorcio por culpa',
-        montoBs: 8250,
+        montoUf: 30,
       },
       {
         id: 'divorcio_cese_convivencia',
         nombre: 'Divorcio por cese efectivo de la convivencia',
         escalas: [
-          { condicion: 'Demandado unilateralmente', montoBs: 5500 },
-          { condicion: 'Solicitado de común acuerdo', montoBs: 2200, notas: 'Por cada cónyuge representado' },
+          { condicion: 'Demandado unilateralmente', montoUf: 20 },
+          { condicion: 'Solicitado de común acuerdo', montoUf: 8, notas: 'Por cada cónyuge representado' },
         ],
       },
       {
         id: 'interdiccion',
         nombre: 'Declaración de interdicción',
-        montoBs: 5500,
+        montoUf: 20,
       },
       {
         id: 'violencia_intrafamiliar',
         nombre: 'Violencia intrafamiliar',
-        montoBs: 4125,
+        montoUf: 15,
       },
       {
         id: 'compensacion_economica',
@@ -653,19 +653,19 @@ export const LEGAL_FEE_CATEGORIES: LegalFeeCategory[] = [
       {
         id: 'policia_local',
         nombre: 'Materias de policía local (querellas infraccionales)',
-        montoBs: 4125,
+        montoUf: 15,
       },
       {
         id: 'policia_local_indemnizacion',
         nombre: 'Materias de policía local (indemnización de perjuicios)',
-        montoBs: 2750,
+        montoUf: 10,
         porcentaje: 10,
         porcentajeSobre: 'de lo obtenido o ahorrado',
       },
       {
         id: 'consumidor',
         nombre: 'Demandas ley del consumidor',
-        notas: 'Clientes: Bs 2.750 + 10% de lo obtenido. Empresas: Bs 5.500.',
+        notas: 'Clientes: 10 UF + 10% de lo obtenido. Empresas: 20 UF.',
       },
     ],
   },
@@ -677,28 +677,28 @@ export const LEGAL_FEE_CATEGORIES: LegalFeeCategory[] = [
         id: 'defensa_ordinario',
         nombre: 'Defensa en procedimiento ordinario',
         escalas: [
-          { condicion: 'Termina con salida alternativa', montoBs: 4125 },
-          { condicion: 'Termina en juicio abreviado', montoBs: 27500 },
-          { condicion: 'Termina en juicio oral', montoBs: 41250 },
+          { condicion: 'Termina con salida alternativa', montoUf: 15 },
+          { condicion: 'Termina en juicio abreviado', montoUf: 100 },
+          { condicion: 'Termina en juicio oral', montoUf: 150 },
         ],
       },
       {
         id: 'defensa_simplificado',
         nombre: 'Defensa en procedimiento simplificado',
         escalas: [
-          { condicion: 'Acepta responsabilidad o salida alternativa', montoBs: 4125 },
-          { condicion: 'Juicio simplificado efectivo', montoBs: 8250 },
+          { condicion: 'Acepta responsabilidad o salida alternativa', montoUf: 15 },
+          { condicion: 'Juicio simplificado efectivo', montoUf: 30 },
         ],
       },
       {
         id: 'querella_ordinario',
         nombre: 'Querella en procedimiento ordinario',
-        montoBs: 8250,
+        montoUf: 30,
       },
       {
         id: 'querella_simplificado',
         nombre: 'Querella en procedimiento simplificado',
-        montoBs: 4125,
+        montoUf: 15,
       },
       {
         id: 'demanda_civil_penal',
@@ -722,27 +722,27 @@ export const LEGAL_FEE_CATEGORIES: LegalFeeCategory[] = [
       {
         id: 'nulidad_penal',
         nombre: 'Recurso de nulidad penal',
-        montoBs: 13750,
+        montoUf: 50,
       },
       {
         id: 'nulidad_laboral',
         nombre: 'Recurso de nulidad laboral',
-        notas: 'Trabajador: Bs 4.125. Empleador: Bs 6.875.',
+        notas: 'Trabajador: 15 UF. Empleador: 25 UF.',
       },
       {
         id: 'unificacion_jurisprudencia',
         nombre: 'Recurso de unificación de jurisprudencia (laboral)',
-        montoBs: 5500,
+        montoUf: 20,
       },
       {
         id: 'inaplicabilidad',
         nombre: 'Recurso de inaplicabilidad',
-        montoBs: 8250,
+        montoUf: 30,
       },
       {
         id: 'revision',
         nombre: 'Recurso de revisión',
-        montoBs: 13750,
+        montoUf: 50,
       },
     ],
   },

@@ -61,7 +61,7 @@ describe('Cases Server Actions', () => {
         caratulado: 'Test Case vs Test Defendant',
         numero_causa: 'C-2024-001',
         materia: 'Civil',
-        tribunal: 'Juzgado Público Civil 1º de La Paz',
+        tribunal: 'Juzgado Civil de Santiago',
         nombre_cliente: 'Juan Pérez',
         fecha_inicio: '2024-01-15',
         prioridad: 'media',
@@ -158,14 +158,14 @@ describe('Cases Server Actions', () => {
       expect(result.error).toBe('Database error');
     });
 
-    it('should validate documento de identidad format', async () => {
+    it('should validate Chilean RUT format', async () => {
       const mockCaseData: CreateCaseInput = {
         caratulado: 'Test Case',
         numero_causa: 'C-2024-001',
         materia: 'Civil',
         tribunal: 'Test Court',
         nombre_cliente: 'Test Client',
-        rut_cliente: 'ABC123', // Documento inválido
+        rut_cliente: 'invalid-rut', // Invalid RUT format
         fecha_inicio: '2024-01-15',
         prioridad: 'media',
         estado: 'activo',
@@ -175,7 +175,7 @@ describe('Cases Server Actions', () => {
       const result = await createCase(mockCaseData);
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain('Documento de identidad');
+      expect(result.error).toContain('RUT');
     });
   });
 

@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { 
-  createCaseSchema,
+  createCaseSchema, 
   updateCaseSchema,
-  validateIdentityDocument,
+  validateRUT,
   MATERIAS_LEGALES,
   ESTADOS_CASO,
-  PRIORIDADES_CASO
+  PRIORIDADES_CASO 
 } from '@/lib/validators/case';
 import { 
   createNoteSchema,
@@ -38,9 +38,9 @@ describe('Case Validators', () => {
         caratulado: 'Pérez vs González',
         numero_causa: 'C-2024-001',
         materia: 'Civil',
-        tribunal: 'Juzgado Público Civil 1º de La Paz',
+        tribunal: 'Juzgado Civil de Santiago',
         nombre_cliente: 'Juan Pérez',
-        rut_cliente: '1234567 LP',
+        rut_cliente: '12345678-9',
         fecha_inicio: '2024-01-15',
         prioridad: 'media',
         estado: 'activo',
@@ -79,7 +79,7 @@ describe('Case Validators', () => {
         materia: 'InvalidMateria',
         tribunal: 'Test Court',
         nombre_cliente: 'Test Client',
-        rut_cliente: '1234567 LP',
+        rut_cliente: '12345678-9',
         fecha_inicio: '2024-01-15',
       };
 
@@ -94,7 +94,7 @@ describe('Case Validators', () => {
         materia: 'Civil',
         tribunal: 'Test Court',
         nombre_cliente: 'Test Client',
-        rut_cliente: '1234567 LP',
+        rut_cliente: '12345678-9',
         fecha_inicio: '2024-01-15',
         estado: 'invalid_estado',
       };
@@ -110,7 +110,7 @@ describe('Case Validators', () => {
         materia: 'Civil',
         tribunal: 'Test Court',
         nombre_cliente: 'Test Client',
-        rut_cliente: '1234567 LP',
+        rut_cliente: '12345678-9',
         fecha_inicio: '2024-01-15',
         prioridad: 'invalid_priority',
       };
@@ -126,7 +126,7 @@ describe('Case Validators', () => {
         materia: 'Civil',
         tribunal: 'Test Court',
         nombre_cliente: 'Test Client',
-        rut_cliente: '1234567 LP',
+        rut_cliente: '12345678-9',
         fecha_inicio: '2024-01-15',
         valor_estimado: -1000,
       };
@@ -142,7 +142,7 @@ describe('Case Validators', () => {
         materia: 'Civil',
         tribunal: 'Test Court',
         nombre_cliente: 'Test Client',
-        rut_cliente: '1234567 LP',
+        rut_cliente: '12345678-9',
         fecha_inicio: 'invalid-date',
       };
 
@@ -173,32 +173,45 @@ describe('Case Validators', () => {
     });
   });
 
-  describe('Documento de identidad validation', () => {
-    it('should validate CI and NIT formats', () => {
-      const validDocuments = [
-        '1234567',
-        '7654321 LP',
-        '90123456 CB',
-        '123456789012',
-        '4567890 lp',
+  describe('RUT validation', () => {
+    it('should validate correct RUT formats', () => {
+      const validRUTs = [
+        '12345678-9',
+        '1234567-8',
+        '12.345.678-9',
+        '1.234.567-8',
       ];
 
-      validDocuments.forEach(doc => {
-        expect(validateIdentityDocument(doc)).toBe(true);
+      validRUTs.forEach(rut => {
+        expect(validateRUT(rut)).toBe(true);
       });
     });
 
-    it('should reject invalid documents', () => {
-      const invalidDocuments = [
-        '123',
-        '12345678901234',
-        'ABCD1234',
-        '1234567 LPZ',
-        '12A4567',
+    it('should reject invalid RUT formats', () => {
+      const invalidRUTs = [
+        '123456789', // No dash
+        '12345678-', // No check digit
+        '-9', // No number
+        '12345678-10', // Invalid check digit length
+        'abcd-1', // Non-numeric
+        '123.456.78-9', // Wrong dot placement
       ];
 
-      invalidDocuments.forEach(doc => {
-        expect(validateIdentityDocument(doc)).toBe(false);
+      invalidRUTs.forEach(rut => {
+        expect(validateRUT(rut)).toBe(false);
+      });
+    });
+
+    it('should validate RUT check digit algorithm', () => {
+      // These are real valid Chilean RUTs for testing
+      const validRUTs = [
+        '11111111-1',
+        '22222222-2',
+        '12345678-5',
+      ];
+
+      validRUTs.forEach(rut => {
+        expect(validateRUT(rut)).toBe(true);
       });
     });
   });

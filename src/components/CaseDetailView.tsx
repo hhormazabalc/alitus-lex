@@ -12,7 +12,7 @@ import { DocumentsPanel } from '@/components/DocumentsPanel';
 import { TimelinePanel } from '@/components/TimelinePanel';
 import { InfoRequestsPanel } from '@/components/InfoRequestsPanel';
 import { CaseMessagesPanel } from '@/components/CaseMessagesPanel';
-import { formatDate, formatCurrency, formatIdentityDocument, getInitials, stringToColor } from '@/lib/utils';
+import { formatDate, formatCurrency, getInitials, stringToColor } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { authorizeCaseAdvance, assignLawyer, listAvailableLawyers } from '@/lib/actions/cases';
 import { createCaseCounterparty, deleteCaseCounterparty } from '@/lib/actions/counterparties';
@@ -287,9 +287,12 @@ export function CaseDetailView({ case: caseData, profile, messages }: CaseDetail
     );
   };
 
-  const formatAmount = (value?: number | null) => {
+  const formatUf = (value?: number | null) => {
     if (value === undefined || value === null || Number.isNaN(value)) return '—';
-    return formatCurrency(value);
+    return `${new Intl.NumberFormat('es-CL', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(value)} UF`;
   };
 
   const handleReassignLawyer = async (event: FormEvent<HTMLFormElement>) => {
@@ -487,7 +490,7 @@ export function CaseDetailView({ case: caseData, profile, messages }: CaseDetail
               </div>
               <div>
                 <h1 className="text-base font-semibold text-foreground">Detalle del Caso</h1>
-                <p className="text-sm text-foreground/50">LEX Altius · Suite Corporativa</p>
+                <p className="text-sm text-foreground/50">Lex Chile · Suite Studio</p>
               </div>
             </div>
 
@@ -667,9 +670,7 @@ export function CaseDetailView({ case: caseData, profile, messages }: CaseDetail
                           {caseData.nombre_cliente}
                         </p>
                         {caseData.rut_cliente && (
-                          <p className="mt-1 text-sm text-foreground/60">
-                            Documento (CI/NIT) · {formatIdentityDocument(caseData.rut_cliente)}
-                          </p>
+                          <p className="mt-1 text-sm text-foreground/60">RUT · {caseData.rut_cliente}</p>
                         )}
                       </div>
                       <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500/15 via-emerald-500/10 to-transparent text-emerald-600">
@@ -809,11 +810,11 @@ export function CaseDetailView({ case: caseData, profile, messages }: CaseDetail
                           )}
                           {honorarioTotal !== null && (
                             <p className="text-base font-semibold text-foreground">
-                              Total · {formatAmount(honorarioTotal)}
+                              Total · {formatUf(honorarioTotal)}
                             </p>
                           )}
-                          {honorarioTotal !== null && <p>Pagado · {formatAmount(honorarioPagado)}</p>}
-                          {honorarioPendiente !== null && <p>Pendiente · {formatAmount(honorarioPendiente)}</p>}
+                          {honorarioTotal !== null && <p>Pagado · {formatUf(honorarioPagado)}</p>}
+                          {honorarioPendiente !== null && <p>Pendiente · {formatUf(honorarioPendiente)}</p>}
                           {caseData.honorario_variable_porcentaje && (
                             <p>
                               Variable · {caseData.honorario_variable_porcentaje}%
@@ -1062,7 +1063,7 @@ export function CaseDetailView({ case: caseData, profile, messages }: CaseDetail
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="counterparty_rut">Documento de identidad (CI/NIT)</Label>
+                      <Label htmlFor="counterparty_rut">RUT</Label>
                       <Input
                         id="counterparty_rut"
                         placeholder="12.345.678-9"
@@ -1118,7 +1119,7 @@ export function CaseDetailView({ case: caseData, profile, messages }: CaseDetail
                               <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[11px] uppercase tracking-wide text-slate-600">
                                 {item.tipo.charAt(0).toUpperCase() + item.tipo.slice(1)}
                               </span>
-                              {item.rut && <span>Documento: {formatIdentityDocument(item.rut)}</span>}
+                              {item.rut && <span>RUT: {item.rut}</span>}
                               <span>Agregado: {item.created_at ? formatDate(item.created_at) : '—'}</span>
                             </div>
                           </div>

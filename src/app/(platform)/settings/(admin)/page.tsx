@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 
 export const metadata: Metadata = {
-  title: 'Configuración de la Firma - LEX Altius',
+  title: 'Configuración de la Firma - Xel Chile',
 };
 
 export default async function AdminSettingsPage() {
@@ -18,7 +18,7 @@ export default async function AdminSettingsPage() {
   return (
     <div className='container mx-auto py-10 space-y-8'>
       <div>
-        <h1 className='text-3xl font-bold text-altius-neutral-900'>Configuración</h1>
+        <h1 className='text-3xl font-bold text-lexser-gray-900'>Configuración</h1>
         <p className='text-sm text-muted-foreground mt-2'>Gestione catálogos, plantillas y reglas de la plataforma.</p>
       </div>
 
@@ -29,7 +29,7 @@ export default async function AdminSettingsPage() {
         <CardContent className='space-y-4 text-sm text-muted-foreground'>
           <p>Próximamente podrás actualizar tribunales, materias y etapas procesales desde esta pantalla.</p>
           <Separator />
-          <p>Mientras tanto, solicita cambios a soporte@altiusignite.com.</p>
+          <p>Mientras tanto, solicita cambios a soporte@xelchile.cl.</p>
         </CardContent>
       </Card>
     </div>

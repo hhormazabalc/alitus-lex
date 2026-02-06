@@ -1,6 +1,6 @@
-# LEX Altius - Guía de Deployment
+# Xel Chile - Guía de Deployment
 
-Esta guía explica cómo desplegar LEX Altius en diferentes entornos de producción bolivianos o en la nube.
+Esta guía explica cómo desplegar Xel Chile en diferentes entornos de producción.
 
 ## Opciones de Deployment
 
@@ -112,7 +112,7 @@ CMD ["node", "server.js"]
 ```yaml
 version: '3.8'
 services:
-  lex-altius:
+  xelchile:
     build: .
     ports:
       - "3000:3000"

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { optionalIdentityDocumentSchema } from '@/lib/validators/case';
+import { rutSchema } from '@/lib/validators/case';
 
 export const createClientSchema = z.object({
   nombre: z
@@ -11,7 +11,7 @@ export const createClientSchema = z.object({
     .min(1, 'El correo es requerido')
     .email('Correo inválido')
     .max(255, 'El correo no puede exceder 255 caracteres'),
-  rut: optionalIdentityDocumentSchema,
+  rut: rutSchema,
   telefono: z
     .string()
     .max(50, 'El teléfono no puede exceder 50 caracteres')

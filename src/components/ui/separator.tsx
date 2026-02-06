@@ -1,23 +1,10 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 
-export interface SeparatorProps extends React.HTMLAttributes<HTMLDivElement> {
-  orientation?: 'horizontal' | 'vertical';
-}
+export interface SeparatorProps extends React.HTMLAttributes<HTMLDivElement> {}
 
-function Separator({ className, orientation = 'horizontal', ...props }: SeparatorProps) {
-  return (
-    <div
-      role='separator'
-      aria-orientation={orientation}
-      className={cn(
-        'bg-border',
-        orientation === 'vertical' ? 'h-full w-px shrink-0' : 'h-px w-full shrink-0',
-        className,
-      )}
-      {...props}
-    />
-  );
+function Separator({ className, ...props }: SeparatorProps) {
+  return <div role='separator' className={cn('shrink-0 bg-border h-px w-full', className)} {...props} />;
 }
 
 export { Separator };

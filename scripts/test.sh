@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# LEX Altius Test Runner Script
-# This script runs the complete test suite for the LEX Altius application
+# Xel Chile Test Runner Script
+# This script runs the complete test suite for the Xel Chile application
 
 set -e  # Exit on any error
 
-echo "🚀 Starting LEX Altius Test Suite"
+echo "🚀 Starting Xel Chile Test Suite"
 echo "================================"
 
 # Colors for output

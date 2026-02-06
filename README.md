@@ -1,9 +1,11 @@
-# LEX Altius · Suite Jurídica Corporativa para Bolivia
+'''
+# Xel Chile - Plataforma Corporativa para Estudios Jurídicos
 
-![LEX Altius Logo](./public/logo.svg)
+![Xel Chile Logo](./public/logo.svg)
 
-**LEX Altius** es una plataforma corporativa desarrollada por [Altius Ignite](https://www.altiusignite.com) para estudios jurídicos bolivianos que necesitan centralizar expedientes con NUREJ, documentación respaldatoria y flujos de cobranza en Bolivianos. La suite combina un frontend moderno con un backend seguro sobre Supabase para garantizar trazabilidad procesal, cumplimiento normativo y colaboración con clientes y contrapartes.
+**Xel Chile** es una plataforma web corporativa de última generación, diseñada específicamente para las necesidades de los estudios jurídicos en Chile. Construida con un stack tecnológico moderno y robusto, ofrece una solución integral para la gestión de casos, clientes, documentos y comunicaciones, todo en un entorno seguro y escalable.
 
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/xelchile/xelchile-platform)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-v2-green?logo=supabase)](https://supabase.com/)
@@ -32,26 +34,22 @@
 
 ## Visión General
 
-LEX Altius nace de la necesidad de modernizar la gestión legal en Bolivia, entregando a las firmas un espacio único para coordinar equipos, clientes y contrapartes bajo los criterios del Código Civil, el Código Procesal Civil y la normativa sectorial boliviana. Desde la admisión del expediente en un Juzgado Público hasta la ejecución y cierre, cada etapa queda registrada con contexto, responsables y respaldos financieros.
+Xel Chile nace de la necesidad de modernizar la gestión legal en Chile, proporcionando a los abogados y administradores una herramienta poderosa y centralizada. La plataforma se enfoca en la eficiencia operativa, la colaboración segura y la transparencia con el cliente, incorporando funcionalidades específicas para el contexto legal y procesal chileno.
 
-El sistema se ejecuta como una aplicación altamente interactiva con soporte SSR/SSG gracias a Next.js 15. La persistencia, autenticación y almacenamiento seguro se gestionan mediante Supabase (PostgreSQL), lo que permite habilitar controles de acceso finos, auditoría continua y un despliegue compatible con infraestructuras locales o en la nube.
+El sistema está diseñado como una aplicación de página única (SPA) altamente interactiva y de alto rendimiento, con renderizado del lado del servidor (SSR) y generación de sitios estáticos (SSG) gracias a Next.js 15. La persistencia de datos, autenticación y almacenamiento se gestionan a través de Supabase, una alternativa de código abierto a Firebase que utiliza PostgreSQL.
 
-
-## Diseño de Interfaz
-
-LEX Altius adopta la identidad visual de [Altius Ignite](https://www.altiusignite.com): gradientes en tonos navy y cyan, acentos aurora y tipografía Inter. La paleta definida en `tailwind.config.ts` (bloque `altius`) permite replicar los patrones de luz sobre fondos oscuros utilizados en el sitio oficial, manteniendo contraste AA y legibilidad en dashboards corporativos.
 ## Características Principales
 
 | Característica | Descripción |
 | :--- | :--- |
-| **Gestión de Expedientes** | Creación, edición y seguimiento de expedientes con NUREJ, materia, juzgado, distrito judicial y contrapartes conforme a la práctica boliviana. |
+| **Gestión de Casos** | Creación, edición y seguimiento de casos jurídicos con campos específicos para Chile (RIT, RUC, materia, etc.). |
 | **Sistema de Roles** | Roles predefinidos (`admin_firma`, `abogado`, `cliente`) con un sistema de permisos granular basado en RLS de Supabase. |
 | **Portal Cliente** | Acceso seguro para clientes a través de *magic links*, permitiéndoles ver el estado de sus casos, documentos y timeline. |
-| **Timeline Procesal** | Visualización cronológica de las actuaciones bajo el Código Procesal Civil, con plantillas adaptadas a materias civil, comercial, laboral y familia bolivianas. |
-| **Gestión Documental** | Carga de memoriales, proveídos, oficios y pruebas; control de versiones, visibilidad configurable y almacenamiento seguro en Supabase Storage. |
+| **Timeline Procesal** | Visualización cronológica de las etapas procesales de cada caso, con plantillas predefinidas por materia legal. |
+| **Gestión Documental** | Carga, descarga y organización de documentos con control de versiones, visibilidad configurable y almacenamiento seguro en Supabase Storage. |
 | **Notas y Colaboración** | Sistema de notas públicas y privadas por caso, con un editor de texto enriquecido para facilitar la colaboración interna. |
 | **Solicitudes de Información** | Módulo para que los abogados soliciten información o documentos a los clientes, y viceversa, con seguimiento de estado. |
-| **Panel Administrativo** | Dashboard con KPIs sobre carga procesal, cumplimientos y cobranza en Bolivianos, segmentado por área y responsable. |
+| **Panel Administrativo** | Dashboard con KPIs, gráficos interactivos sobre la carga de trabajo, estado de los casos y rendimiento del estudio. |
 | **Sistema de Auditoría** | Registro inmutable de todas las acciones críticas realizadas en el sistema para cumplimiento y seguridad. |
 | **Notificaciones Automatizadas** | Envío de correos electrónicos para eventos importantes (nuevos casos, vencimientos, solicitudes) a través de Edge Functions. |
 | **Seguridad Avanzada** | Protección contra ataques comunes (XSS, SQLi), gestión de sesiones, bloqueo de IPs y headers de seguridad. |
@@ -77,7 +75,7 @@ LEX Altius adopta la identidad visual de [Altius Ignite](https://www.altiusignit
 El proyecto sigue una estructura modular y escalable, optimizada para el App Router de Next.js.
 
 ```
-/lex-altius
+/xelchile-platform
 ├── /public                 # Archivos estáticos (imágenes, fuentes)
 ├── /scripts                # Scripts de utilidad (ej. test.sh)
 ├── /src
@@ -129,8 +127,8 @@ Sigue estos pasos para configurar y ejecutar el proyecto en tu entorno local.
 
 1.  **Clona el repositorio:**
     ```bash
-    git clone https://github.com/altiusignite/lex-altius.git
-    cd lex-altius
+    git clone https://github.com/xelchile/xelchile-platform.git
+    cd xelchile-platform
     ```
 
 2.  **Instala las dependencias:**
@@ -178,10 +176,10 @@ npm run dev
 La aplicación estará disponible en [http://localhost:3000](http://localhost:3000).
 
 **Credenciales de prueba (definidas para el entorno local):**
-- **Admin:** `admin@altiusignite.com` / `admin123`
-- **Analista:** `analista@altiusignite.com` / `analista123`
-- **Abogado:** `abogado@altiusignite.com` / `password123`
-- **Cliente:** `cliente@altiusignite.com` / `client123`
+- **Admin:** `admin@xelchile.com` / `admin123`
+- **Analista:** `analista@xelchile.com` / `analista123`
+- **Abogado:** `abogado@xelchile.com` / `password123`
+- **Cliente:** `cliente@xelchile.com` / `client123`
 
 ## Scripts Disponibles
 
@@ -206,7 +204,7 @@ El proyecto tiene una cobertura de testing exhaustiva para garantizar la calidad
 
 ## Seguridad
 
-La seguridad es un pilar fundamental de LEX Altius. Se han implementado múltiples capas de protección:
+La seguridad es un pilar fundamental de Xel Chile. Se han implementado múltiples capas de protección:
 
 - **Row Level Security (RLS)**: Todas las consultas a la base de datos están protegidas por políticas de RLS en Supabase, asegurando que los usuarios solo puedan acceder a los datos que les corresponden.
 - **Middleware de Seguridad**: Un middleware en Next.js inspecciona las peticiones entrantes para detectar y bloquear patrones de ataques comunes.
@@ -221,3 +219,4 @@ Las contribuciones son bienvenidas. Por favor, lee el archivo `CONTRIBUTING.md` 
 ## Licencia
 
 Este proyecto está bajo la Licencia MIT. Consulta el archivo `LICENSE` para más detalles.
+'''

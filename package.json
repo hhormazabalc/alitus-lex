@@ -1,9 +1,8 @@
 {
-  "name": "lex-altius",
+  "name": "xelchile",
   "version": "1.0.0",
-  "description": "Suite corporativa legal para firmas bolivianas",
+  "description": "Plataforma corporativa para estudios jurídicos en Chile",
   "private": true,
-  "packageManager": "pnpm@9.12.2",
   "scripts": {
     "dev": "next dev -p 3000",
     "build": "next build",
@@ -112,7 +111,6 @@
     "prettier-plugin-tailwindcss": "^0.5.7",
     "supabase": "^1.192.5",
     "tailwindcss": "^3.3.5",
-    "tsx": "^4.20.6",
     "typescript": "^5.2.2",
     "vitest": "^0.34.6"
   },
@@ -130,22 +128,22 @@
     ]
   },
   "keywords": [
-    "legaltech",
+    "legal",
     "law-firm",
     "case-management",
-    "bolivia",
+    "chile",
     "nextjs",
     "supabase",
     "typescript"
   ],
-  "author": "Altius Ignite",
+  "author": "Xel Chile Team",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/altiusignite/lex-altius.git"
+    "url": "https://github.com/xelchile/xelchile-platform.git"
   },
   "bugs": {
-    "url": "https://github.com/altiusignite/lex-altius/issues"
+    "url": "https://github.com/xelchile/xelchile-platform/issues"
   },
-  "homepage": "https://www.altiusignite.com"
+  "homepage": "https://xelchile.com"
 }

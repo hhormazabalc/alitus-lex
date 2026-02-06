@@ -16,7 +16,7 @@ import {
 import { listQuickLinks, listLegalTemplates } from '@/lib/actions/resources';
 
 export const metadata: Metadata = {
-  title: 'Panel del Abogado - LEX Altius',
+  title: 'Panel del Abogado - Xel Chile',
   description: 'Gestión diaria de casos para abogados',
 };
 

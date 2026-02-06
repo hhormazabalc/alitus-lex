@@ -34,21 +34,21 @@ async function globalSetup(config: FullConfig) {
     
     const testUsers = [
       {
-        email: 'admin@altiusignite.com',
+        email: 'admin@xelchile.com',
         password: 'admin123',
         role: 'admin_firma',
         nombre: 'Admin Test',
         telefono: '+56912345678',
       },
       {
-        email: 'abogado@altiusignite.com',
+        email: 'abogado@xelchile.com',
         password: 'password123',
         role: 'abogado',
         nombre: 'Abogado Test',
         telefono: '+56912345679',
       },
       {
-        email: 'cliente@altiusignite.com',
+        email: 'cliente@xelchile.com',
         password: 'client123',
         role: 'cliente',
         nombre: 'Cliente Test',
@@ -94,7 +94,7 @@ async function globalSetup(config: FullConfig) {
     const { data: lawyerProfile } = await supabase
       .from('profiles')
       .select('id')
-      .eq('email', 'abogado@altiusignite.com')
+      .eq('email', 'abogado@xelchile.com')
       .single();
 
     if (lawyerProfile) {
@@ -103,9 +103,9 @@ async function globalSetup(config: FullConfig) {
           caratulado: 'Test Case 1 vs Defendant 1',
           numero_causa: 'C-2024-E2E-TEST-001',
           materia: 'Civil',
-          tribunal: 'Juzgado Público Civil 1º de La Paz',
+          tribunal: 'Juzgado Civil de Santiago',
           nombre_cliente: 'Cliente Test 1',
-          rut_cliente: '1234567 LP',
+          rut_cliente: '12345678-5',
           fecha_inicio: '2024-01-15',
           estado: 'activo',
           prioridad: 'media',
@@ -115,9 +115,9 @@ async function globalSetup(config: FullConfig) {
           caratulado: 'Test Case 2 vs Defendant 2',
           numero_causa: 'C-2024-E2E-TEST-002',
           materia: 'Laboral',
-          tribunal: 'Juzgado Público de Trabajo y Seguridad Social de Santa Cruz',
+          tribunal: 'Juzgado Laboral de Santiago',
           nombre_cliente: 'Cliente Test 2',
-          rut_cliente: '8765432 CB',
+          rut_cliente: '87654321-6',
           fecha_inicio: '2024-02-01',
           estado: 'suspendido',
           prioridad: 'alta',
@@ -203,7 +203,7 @@ async function globalSetup(config: FullConfig) {
     // Login as lawyer and save state
     await page.goto(process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000');
     await page.goto('/login');
-    await page.fill('[data-testid="email-input"]', 'abogado@altiusignite.com');
+    await page.fill('[data-testid="email-input"]', 'abogado@xelchile.com');
     await page.fill('[data-testid="password-input"]', 'password123');
     await page.click('[data-testid="login-button"]');
     await page.waitForURL('/dashboard');
@@ -213,7 +213,7 @@ async function globalSetup(config: FullConfig) {
 
     // Login as admin and save state
     await page.goto('/login');
-    await page.fill('[data-testid="email-input"]', 'admin@altiusignite.com');
+    await page.fill('[data-testid="email-input"]', 'admin@xelchile.com');
     await page.fill('[data-testid="password-input"]', 'admin123');
     await page.click('[data-testid="login-button"]');
     await page.waitForURL('/dashboard');

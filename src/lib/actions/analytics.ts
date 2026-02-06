@@ -154,7 +154,6 @@ export async function getDashboardStats(): Promise<DashboardStatsResponse> {
   try {
     const profile = await requireAuth();
     const role = normalizeRole(profile.role);
-    if (!profile.org_id) throw new Error('Selecciona una organización activa.');
 
     if (!canSeeStats(role)) {
       console.warn('⚠️ Rol sin permisos (getDashboardStats):', profile.role);
@@ -169,98 +168,36 @@ export async function getDashboardStats(): Promise<DashboardStatsResponse> {
     const supabase = await createServerClient();
 
     // Construir consultas base según el rol
-    let caseQuery = supabase.from('cases').select('*').eq('org_id', profile.org_id);
+    let caseQuery = supabase.from('cases').select('*');
 
-    type DashboardClientRow = {
-      id: string;
-      full_name: string;
-      email: string | null;
-      phone: string | null;
-      created_at: string | null;
-    };
-
-    const clientQueryPromise: Promise<{ data: DashboardClientRow[]; error: any }> = (async () => {
+    const clientQueryPromise = (async () => {
       if (role === 'abogado') {
         const { data: rawAbogadoCases, error: casesError } = await supabase
           .from('cases')
           .select('id')
-          .eq('abogado_responsable', profile.id)
-          .eq('org_id', profile.org_id);
+          .eq('abogado_responsable', profile.id);
 
-        if (casesError) return { data: [], error: casesError };
+        if (casesError) return { data: null, error: casesError };
 
-        const caseIds = (rawAbogadoCases ?? []).map((c: any) => c.id as string).filter(Boolean);
+        const abogadoCases = rawAbogadoCases as Array<{ id: string }> | null;
+        const caseIds = abogadoCases?.map((c) => c.id) || [];
         if (caseIds.length === 0) return { data: [], error: null };
 
         const { data, error } = await supabase
           .from('case_clients')
-          .select(
-            `
-              client:profiles(
-                id,
-                full_name,
-                email,
-                phone,
-                created_at
-              )
-            `,
-          )
-          .in('case_id', caseIds)
-          .eq('org_id', profile.org_id);
+          .select('client_profile_id')
+          .in('case_id', caseIds);
 
-        if (error) return { data: [], error };
+        if (error) return { data: null, error };
 
-        const clientsMap = new Map<string, DashboardClientRow>();
-        (data ?? []).forEach((row: any) => {
-          const client = row?.client;
-          if (client?.id) {
-            const id = client.id as string;
-            clientsMap.set(id, {
-              id,
-              full_name: (client.full_name as string) ?? (client.nombre as string) ?? '',
-              email: (client.email as string | null) ?? null,
-              phone: (client.phone as string | null) ?? null,
-              created_at: (client.created_at as string | null) ?? null,
-            });
-          }
-        });
+        const clientRows = data as Array<{ client_profile_id: string }> | null;
+        const clientIds = clientRows?.map((cc) => cc.client_profile_id) || [];
+        if (clientIds.length === 0) return { data: [], error: null };
 
-        return { data: Array.from(clientsMap.values()), error: null };
+        return supabase.from('profiles').select('*').in('id', clientIds);
       }
 
-      const { data, error } = await supabase
-        .from('memberships')
-        .select(
-          `
-            user:profiles(
-              id,
-              full_name,
-              email,
-              phone,
-              created_at
-            )
-          `,
-        )
-        .eq('org_id', profile.org_id)
-        .eq('status', 'active')
-        .eq('role', 'client_guest')
-        .order('created_at', { ascending: true });
-
-      if (error) return { data: [], error };
-
-      const clients =
-        (data ?? [])
-          .map((row: any) => row?.user)
-          .filter((user: any) => user?.id)
-          .map<DashboardClientRow>((user: any) => ({
-            id: user.id as string,
-            full_name: (user.full_name as string) ?? (user.nombre as string) ?? '',
-            email: (user.email as string | null) ?? null,
-            phone: (user.phone as string | null) ?? null,
-            created_at: (user.created_at as string | null) ?? null,
-          })) ?? [];
-
-      return { data: clients, error: null };
+      return supabase.from('profiles').select('*').eq('role', 'cliente');
     })();
 
     if (role === 'abogado') {
@@ -269,37 +206,31 @@ export async function getDashboardStats(): Promise<DashboardStatsResponse> {
     }
 
     // Ejecutar consultas en paralelo
-    const [casesResult, documentsResult, notesResult, requestsResult, stagesResult, clientsResult] = await Promise.all([
+    const [casesResult, clientsResult, documentsResult, notesResult, requestsResult, stagesResult] = await Promise.all([
       caseQuery,
-      supabase.from('documents').select('*').eq('org_id', profile.org_id),
-      supabase.from('notes').select('*').eq('org_id', profile.org_id),
-      supabase.from('info_requests').select('*').eq('estado', 'pendiente').eq('org_id', profile.org_id),
-      supabase
-        .from('case_stages')
-        .select('*')
-        .eq('org_id', profile.org_id)
-        .eq('estado', 'pendiente')
-        .lt('fecha_programada', new Date().toISOString()),
       clientQueryPromise,
+      supabase.from('documents').select('*'),
+      supabase.from('notes').select('*'),
+      supabase.from('info_requests').select('*').eq('estado', 'pendiente'),
+      supabase.from('case_stages').select('*').eq('estado', 'pendiente').lt('fecha_programada', new Date().toISOString()),
     ]);
 
     if (casesResult.error) throw casesResult.error;
+    if (clientsResult.error) throw clientsResult.error;
     if (documentsResult.error) throw documentsResult.error;
     if (notesResult.error) throw notesResult.error;
     if (requestsResult.error) throw requestsResult.error;
     if (stagesResult.error) throw stagesResult.error;
-    if (clientsResult.error) throw clientsResult.error;
 
     const cases = (casesResult.data as Array<Record<string, any>> | null) ?? [];
     const activeCases = cases.filter((c) => (c.estado as string | null) === 'activo').length;
     const completedCases = cases.filter((c) => (c.estado as string | null) === 'terminado').length;
-    const clients = clientsResult.data ?? [];
 
     const stats: DashboardStats = {
       totalCases: cases.length,
       activeCases,
       completedCases,
-      totalClients: clients.length,
+      totalClients: clientsResult.data?.length || 0,
       totalDocuments: documentsResult.data?.length || 0,
       totalNotes: notesResult.data?.length || 0,
       pendingRequests: requestsResult.data?.length || 0,
@@ -319,14 +250,14 @@ export async function getDashboardStats(): Promise<DashboardStatsResponse> {
           abogado_responsable: (caseItem.abogado_responsable as string | null) ?? null,
           valor_estimado: (caseItem.valor_estimado as number | null) ?? null,
         })),
-      clients: clients
+      clients: ((clientsResult.data as Array<Record<string, any>> | null) ?? [])
         .slice(0, 6)
-        .map((client: DashboardClientRow) => ({
+        .map((client) => ({
           id: client.id as string,
-          nombre: client.full_name ?? '',
-          email: client.email,
-          telefono: client.phone,
-          created_at: client.created_at,
+          nombre: (client.nombre as string | null) ?? null,
+          email: (client.email as string | null) ?? null,
+          telefono: (client.telefono as string | null) ?? null,
+          created_at: (client.created_at as string | null) ?? null,
         })),
       documents: ((documentsResult.data as Array<Record<string, any>> | null) ?? [])
         .sort((a, b) => new Date(b.created_at ?? '').getTime() - new Date(a.created_at ?? '').getTime())
@@ -373,7 +304,6 @@ export async function getCasesByStatus(): Promise<{ success: boolean; data?: Cas
   try {
     const profile = await requireAuth();
     const role = normalizeRole(profile.role);
-    if (!profile.org_id) throw new Error('Selecciona una organización activa.');
 
     if (!canSeeStats(role)) {
       console.warn('⚠️ Rol sin permisos (getCasesByStatus):', profile.role);
@@ -382,7 +312,7 @@ export async function getCasesByStatus(): Promise<{ success: boolean; data?: Cas
 
     const supabase = await createServerClient();
 
-    let query = supabase.from('cases').select('estado').eq('org_id', profile.org_id);
+    let query = supabase.from('cases').select('estado');
 
     if (role === 'abogado') {
       query = query.eq('abogado_responsable', profile.id);
@@ -420,7 +350,6 @@ export async function getCasesByMateria(): Promise<{ success: boolean; data?: Ca
   try {
     const profile = await requireAuth();
     const role = normalizeRole(profile.role);
-    if (!profile.org_id) throw new Error('Selecciona una organización activa.');
 
     if (!canSeeStats(role)) {
       console.warn('⚠️ Rol sin permisos (getCasesByMateria):', profile.role);
@@ -429,7 +358,7 @@ export async function getCasesByMateria(): Promise<{ success: boolean; data?: Ca
 
     const supabase = await createServerClient();
 
-    let query = supabase.from('cases').select('materia').eq('org_id', profile.org_id);
+    let query = supabase.from('cases').select('materia');
 
     if (role === 'abogado') {
       query = query.eq('abogado_responsable', profile.id);
@@ -467,7 +396,6 @@ export async function getCasesByPriority(): Promise<{ success: boolean; data?: C
   try {
     const profile = await requireAuth();
     const role = normalizeRole(profile.role);
-    if (!profile.org_id) throw new Error('Selecciona una organización activa.');
 
     if (!canSeeStats(role)) {
       console.warn('⚠️ Rol sin permisos (getCasesByPriority):', profile.role);
@@ -476,7 +404,7 @@ export async function getCasesByPriority(): Promise<{ success: boolean; data?: C
 
     const supabase = await createServerClient();
 
-    let query = supabase.from('cases').select('prioridad').eq('org_id', profile.org_id);
+    let query = supabase.from('cases').select('prioridad');
 
     if (role === 'abogado') {
       query = query.eq('abogado_responsable', profile.id);
@@ -530,7 +458,6 @@ export async function getMonthlyStats(): Promise<{ success: boolean; data?: Mont
       });
       return { success: true, data: months };
     }
-    if (!profile.org_id) throw new Error('Selecciona una organización activa.');
 
     const supabase = await createServerClient();
 
@@ -542,14 +469,12 @@ export async function getMonthlyStats(): Promise<{ success: boolean; data?: Mont
     let newCasesQuery = supabase
       .from('cases')
       .select('fecha_inicio, valor_estimado')
-      .eq('org_id', profile.org_id)
       .gte('fecha_inicio', startDate.toISOString());
 
     let completedCasesQuery = supabase
       .from('cases')
       .select('updated_at, valor_estimado')
       .eq('estado', 'terminado')
-      .eq('org_id', profile.org_id)
       .gte('updated_at', startDate.toISOString());
 
     if (role === 'abogado') {
@@ -627,60 +552,24 @@ export async function getAbogadoWorkload(): Promise<{ success: boolean; data?: A
       console.warn('⚠️ Rol sin permisos (getAbogadoWorkload):', profile.role);
       return { success: true, data: [] };
     }
-    if (!profile.org_id) throw new Error('Selecciona una organización activa.');
 
     const supabase = await createServerClient();
 
-    const { data: memberships, error: membershipsError } = await supabase
-      .from('memberships')
-      .select(
-        `
-          user_id,
-          role,
-          user:profiles(
-            id,
-            full_name
-          )
-        `,
-      )
-      .eq('org_id', profile.org_id)
-      .eq('status', 'active')
-      .in('role', ['lawyer', 'admin', 'owner'])
-      .order('created_at', { ascending: true });
+    // Obtener todos los abogados
+    const { data: abogados, error: abogadosError } = await supabase
+      .from('profiles')
+      .select('id, nombre')
+      .in('role', ['abogado', 'admin_firma']);
 
-    if (membershipsError) throw membershipsError;
+    if (abogadosError) throw abogadosError;
 
-    const abogadosMap = new Map<string, { id: string; nombre: string }>();
-    (memberships ?? []).forEach((row: any) => {
-      const user = row?.user;
-      if (user?.id) {
-        const id = user.id as string;
-        if (!abogadosMap.has(id)) {
-          abogadosMap.set(id, {
-            id,
-            nombre: (user.full_name as string) ?? (user.nombre as string) ?? 'Sin nombre',
-          });
-        }
-      }
-    });
-
-    const abogadosData = Array.from(abogadosMap.values());
+    const abogadosData = (abogados as Array<{ id: string; nombre: string | null }> | null) ?? [];
 
     // Obtener estadísticas de casos por abogado
     const workloadPromises = abogadosData.map(async (abogado) => {
       const [activeCasesResult, completedCasesResult] = await Promise.all([
-        supabase
-          .from('cases')
-          .select('valor_estimado')
-          .eq('abogado_responsable', abogado.id)
-          .eq('estado', 'activo')
-          .eq('org_id', profile.org_id),
-        supabase
-          .from('cases')
-          .select('valor_estimado')
-          .eq('abogado_responsable', abogado.id)
-          .eq('estado', 'terminado')
-          .eq('org_id', profile.org_id),
+        supabase.from('cases').select('valor_estimado').eq('abogado_responsable', abogado.id).eq('estado', 'activo'),
+        supabase.from('cases').select('valor_estimado').eq('abogado_responsable', abogado.id).eq('estado', 'terminado'),
       ]);
 
       const activeCases = (activeCasesResult.data as Array<{ valor_estimado: number | null }> | null) ?? [];
@@ -724,40 +613,22 @@ export async function getLawyerDetail(abogadoId: string): Promise<{ success: boo
     if (role !== 'admin_firma') {
       return { success: false, error: 'Sin permisos para ver esta información' };
     }
-    if (!profile.org_id) throw new Error('Selecciona una organización activa.');
 
     const supabase = await createServerClient();
-    const { data: lawyerMembership, error: lawyerError } = await supabase
-      .from('memberships')
-      .select(
-        `
-          role,
-          user:profiles(
-            id,
-            full_name,
-            email,
-            phone,
-            role
-          )
-        `,
-      )
-      .eq('org_id', profile.org_id)
-      .eq('user_id', abogadoId)
-      .eq('status', 'active')
-      .maybeSingle();
+    const { data: lawyer, error: lawyerError } = await supabase
+      .from('profiles')
+      .select('id, nombre, email, telefono, role')
+      .eq('id', abogadoId)
+      .single();
 
-    if (lawyerError) throw lawyerError;
-    if (!lawyerMembership?.user) {
-      return { success: false, error: 'Abogado no encontrado en esta organización' };
+    if (lawyerError || !lawyer) {
+      return { success: false, error: 'Abogado no encontrado' };
     }
-
-    const lawyer = lawyerMembership.user;
 
     const { data: caseRows, error: casesError } = await supabase
       .from('cases')
       .select('id, caratulado, estado, etapa_actual, prioridad, valor_estimado, fecha_inicio, workflow_state, nombre_cliente, updated_at')
       .eq('abogado_responsable', abogadoId)
-      .eq('org_id', profile.org_id)
       .order('created_at', { ascending: false });
 
     if (casesError) throw casesError;
@@ -771,7 +642,6 @@ export async function getLawyerDetail(abogadoId: string): Promise<{ success: boo
         .from('case_stages')
         .select('case_id, etapa, estado, fecha_programada, orden')
         .in('case_id', caseIds)
-        .eq('org_id', profile.org_id)
         .order('orden', { ascending: true });
 
       if (stagesError) throw stagesError;
@@ -839,9 +709,9 @@ export async function getLawyerDetail(abogadoId: string): Promise<{ success: boo
       data: {
         lawyer: {
           id: lawyer.id,
-          nombre: lawyer.full_name ?? (lawyer as any).nombre ?? 'Sin nombre',
+          nombre: lawyer.nombre ?? 'Sin nombre',
           email: lawyer.email ?? null,
-          telefono: lawyer.phone ?? (lawyer as any).telefono ?? null,
+          telefono: lawyer.telefono ?? null,
           role: lawyer.role ?? null,
         },
         stats: {
@@ -873,7 +743,6 @@ export async function getUpcomingDeadlines(): Promise<{ success: boolean; data?:
       console.warn('⚠️ Rol sin permisos (getUpcomingDeadlines):', profile.role);
       return { success: true, data: [] };
     }
-    if (!profile.org_id) throw new Error('Selecciona una organización activa.');
 
     const supabase = await createServerClient();
 
@@ -892,7 +761,6 @@ export async function getUpcomingDeadlines(): Promise<{ success: boolean; data?:
       .eq('estado', 'pendiente')
       .gte('fecha_programada', new Date().toISOString())
       .lte('fecha_programada', futureDate.toISOString())
-      .eq('org_id', profile.org_id)
       .order('fecha_programada', { ascending: true });
 
     const { data: stages, error } = await query;
